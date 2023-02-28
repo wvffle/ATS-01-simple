@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "ATS-01-simple"
+name = "ats_01_simple"
 version = "0.1.0"
 dependencies = [
  "phf",
