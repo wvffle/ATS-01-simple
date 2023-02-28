@@ -2,3 +2,8 @@ vscode:
   extensions:
     - rust-lang.rust-analyzer
     - vadimcn.vscode-lldb
+    - bungcip.better-toml
+
+tasks:
+  - name: Development
+    command: cargo watch -x run
