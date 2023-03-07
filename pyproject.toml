@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "ats-project-simple"
+version = "0.1.0"
+description = ""
+authors = ["wvffle <github@wvffle.net>"]
+readme = "README.md"
+packages = [{include = "ats_project_simple"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^6.0.0"
+flake8-unused-arguments = "^0.0.13"
+black = "^23.1.0"
+pytest = "^7.2.2"
+pre-commit = "^3.1.1"
+isort = "^5.12.0"
+pyupgrade = "^3.3.1"
+codespell = "^2.2.2"
+
+
+[tool.pylint.format]
+max-line-length = 120
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

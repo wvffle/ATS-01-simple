@@ -1,9 +1,12 @@
 vscode:
   extensions:
-    - rust-lang.rust-analyzer
-    - vadimcn.vscode-lldb
+    - ms-python.python
     - bungcip.better-toml
 
 tasks:
   - name: Development
+    init: pyenv install 3.11
+    before: |
+      pyenv global 3.11
+      poetry run pre-commit install
     command: cargo watch -x run

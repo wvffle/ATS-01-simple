@@ -1,0 +1,18 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Install pre-commit hooks",
+        "type": "shell",
+        "command": "poetry run pre-commit install",
+        "windows": {
+          "command": "poetry run pre-commit install"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        },
+        "runOptions": { "runOn": "folderOpen" }
+      }
+    ]
+  }
