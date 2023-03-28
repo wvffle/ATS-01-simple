@@ -16,17 +16,17 @@ def parse(text: str):
     def match_token(token: str):
         nonlocal next_token
         if next_token != token:
-            raise ValueError(f"Expected token {token}, got {next_token}")
+            raise ValueError(f"Expected token '{token}', got '{next_token}'")
 
         next_token = get_next_token()
 
     def match_name_token():
         nonlocal next_token
         if next_token is None:
-            raise ValueError("Expected name token, got end of file")
+            raise ValueError("Expected NAME_TOKEN, got end of file")
 
         if re.fullmatch(r"\w(\w|#)*", next_token) is None:
-            raise ValueError(f"Token {next_token} is not a valid name token")
+            raise ValueError(f"Token '{next_token}' is not a valid NAME_TOKEN")
 
         next_token = get_next_token()
 
