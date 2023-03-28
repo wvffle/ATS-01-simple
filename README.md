@@ -1,9 +1,21 @@
 ## Requirements
-- python >= 3.11
+- pyenv
 - pypoetry
 
 ## Installation
-```bash
-poetry install
-poetry run pre-commit install
+```shell
+pyenv init
+pyenv install 3.11
+pyenv local 3.11
+poetry env use 3.11
+poetry install && poetry run pre-commit install
+```
+
+## Execution
+```shell
+npx -y nodemon ats-project-simple/main.py
+
+# or
+
+pnpm dlx nodemon ats-project-simple/main.py
 ```
