@@ -7,7 +7,13 @@ if __name__ == "__main__":
             a = 8;
             while a {
                 a = a + 1;
+                a = a + 1;
+                a = a + 1;
+                a = a + 1;
+                a = a + 1;
             }
         }
-    """
+        """
     )
+
+    print("All OK")
