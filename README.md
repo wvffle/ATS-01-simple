@@ -19,3 +19,8 @@ npx -y nodemon ats-project-simple/main.py
 
 pnpm dlx nodemon ats-project-simple/main.py
 ```
+
+## Branch naming
+```
+start branch name with one of fix|feat|docs|refactor|test
+```
