@@ -21,6 +21,10 @@ pnpm dlx nodemon ats-project-simple/main.py
 ```
 
 ## Branch naming
+Branch names should follow this spec:
 ```
-start branch name with one of fix|feat|docs|refactor|test
+feat/my-branch-name
+^   ^ ^______________ letters, numbers or hyphen (-)
+ \   \_______________ slash (/) is required!
+  \__________________ one of: fix, feat, docs, refactor or test
 ```
