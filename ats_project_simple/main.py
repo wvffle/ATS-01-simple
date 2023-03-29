@@ -1,4 +1,4 @@
-from parser.parser import parse
+from ats_project_simple.parser.parser import parse
 
 if __name__ == "__main__":
     parse(
