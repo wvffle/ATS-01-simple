@@ -14,11 +14,11 @@ poetry install && poetry run pre-commit install
 
 ## Execution
 ```shell
-npx -y nodemon ats-project-simple/main.py
+npx -y nodemon main.py
 
 # or
 
-pnpm dlx nodemon ats-project-simple/main.py
+pnpm dlx nodemon main.py
 ```
 
 ## Branch naming
