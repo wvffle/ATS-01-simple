@@ -16,4 +16,5 @@ tasks:
       poetry env use 3.11
       poetry install
       poetry run pre-commit install
-    command: npx -y nodemon ats-project-simple/main.py
+      source .venv/bin/activate
+    command: npx -y nodemon ats/main.py
