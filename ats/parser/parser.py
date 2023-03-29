@@ -21,6 +21,11 @@ def parse(text: str):
         if current_token is None:
             raise ValueError(f"Expected {expected_token}, got end of file")
 
+    def assert_no_tokens_left():
+        nonlocal current_token
+        if current_token is not None:
+            raise ValueError(f"Expected end of file, got '{current_token}'")
+
     def match_token(token: str):
         assert_token(f"token '{token}'")
 
@@ -56,6 +61,7 @@ def parse(text: str):
         nonlocal current_token
         current_token = get_next_token()
         process_procedure()
+        assert_no_tokens_left()
 
     def process_procedure():
         match_token("procedure")
