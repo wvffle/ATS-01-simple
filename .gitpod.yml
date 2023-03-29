@@ -3,11 +3,16 @@ vscode:
     - ms-python.python
     - bungcip.better-toml
 
+    - hbenl.test-adapter-converter
+
+    - filiptronicek.vscode-platform-specific-sample
+
 tasks:
   - name: Development
     before: |
       pyenv install 3.11
       pyenv global 3.11
+      poetry config virtualenvs.in-project true
       poetry env use 3.11
       poetry install
       poetry run pre-commit install

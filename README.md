@@ -7,6 +7,7 @@
 pyenv init
 pyenv install 3.11
 pyenv local 3.11
+poetry config virtualenvs.in-project true
 poetry env use 3.11
 poetry install && poetry run pre-commit install
 ```
