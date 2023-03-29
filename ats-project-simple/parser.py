@@ -1,10 +1,10 @@
 import re
 
-from tokenizer import tokenize
+from tokenizer import tokenize_code
 
 
 def parse(text: str):
-    tokens = tokenize(text)
+    tokens = tokenize_code(text)
     next_token = None
 
     def get_next_token():
