@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ats-project-simple"
+name = "ats_project_simple"
 version = "0.1.0"
 description = ""
 authors = ["wvffle <github@wvffle.net>"]
@@ -8,6 +8,7 @@ packages = [{include = "ats_project_simple"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
+tokenizer = "^3.4.2"
 
 
 [tool.poetry.group.dev.dependencies]

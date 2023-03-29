@@ -483,6 +483,18 @@ files = [
 ]
 
 [[package]]
+name = "tokenizer"
+version = "3.4.2"
+description = "A tokenizer for Icelandic text"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "tokenizer-3.4.2-py2.py3-none-any.whl", hash = "sha256:ccdb52b947f6c99edf2b9ae090473f9600e7973f27af04e358ac846d36c93bfd"},
+    {file = "tokenizer-3.4.2.tar.gz", hash = "sha256:24c20445e9141010cff1b7e2c06caaf6ba2b5058cec4009cd3ceb06ea88cd329"},
+]
+
+[[package]]
 name = "virtualenv"
 version = "20.20.0"
 description = "Virtual Python Environment builder"
@@ -506,4 +518,4 @@ test = ["covdefaults (>=2.2.2)", "coverage (>=7.1)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "4854189dcafd7f982acff41be6d2448d8d0610332e7dab7383d4018d890a8488"
+content-hash = "0bd07c8b3ee77be2ec1e30d53a91e80e722b8ef68d73f5348fcc592350d700e3"

@@ -1,6 +1,5 @@
-from tokenizer import tokenize
-
-from .utils import is_integer_token, is_name_token
+from .ats_project_simple.tokenizer import tokenize
+from .ats_project_simple.parser.utils import is_integer_token, is_name_token
 
 
 def parse(text: str):
