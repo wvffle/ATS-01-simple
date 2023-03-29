@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["wvffle <github@wvffle.net>"]
 readme = "README.md"
-packages = [{include = "ats_project_simple"}]
+packages = [{include = "ats"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
