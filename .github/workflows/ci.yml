@@ -9,9 +9,7 @@ on:
 jobs:
   test:
     name: Test and Coverage
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
@@ -29,3 +27,12 @@ jobs:
       run: poetry run pytest --cov ats --cov-report=xml
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    - uses: pre-commit/action@v3.0.0
