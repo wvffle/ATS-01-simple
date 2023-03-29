@@ -1,6 +1,6 @@
 import pytest
 
-from ats_project_simple.parser import parse
+from ats.parser.parser import parse
 
 
 def test_empty_procedure_no_name():
