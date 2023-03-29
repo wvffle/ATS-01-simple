@@ -16,13 +16,13 @@ def parse(text: str):
     # TOKEN MATCHING
     #
 
-    def assert_token(expected_token="TOKEN"):
+    def assert_token(expected_token: str):
         nonlocal current_token
         if current_token is None:
             raise ValueError(f"Expected {expected_token}, got end of file")
 
     def match_token(token: str):
-        assert_token()
+        assert_token(f"token '{token}'")
 
         nonlocal current_token
         if current_token != token:
