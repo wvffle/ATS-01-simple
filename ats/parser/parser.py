@@ -113,10 +113,10 @@ def parse(text: str):
 
     def process_factor():
         nonlocal current_token
-        if is_integer_token(current_token):
-            return match_integer_token()
+        if is_name_token(current_token):
+            return match_name_token()
 
-        match_name_token()
+        match_integer_token()
 
     # NOTE: Parse the text
     process_program()
