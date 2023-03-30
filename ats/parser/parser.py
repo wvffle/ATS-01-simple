@@ -147,6 +147,8 @@ def parse(text: str):
 
         return process_factor()
 
+        return nodes.ExprNode()
+
     def process_factor():
         nonlocal current_token
         if is_name_token(current_token):
