@@ -1,3 +1,4 @@
+from ats.ast import nodes
 from ats.parser.utils import is_integer_token, is_name_token, is_reserved_keyword
 from ats.tokenizer import tokenize
 
@@ -45,7 +46,9 @@ def parse(text: str):
         if not is_name_token(current_token):
             raise ValueError(f"Token '{current_token}' is not a valid NAME_TOKEN")
 
+        name = current_token
         current_token = get_next_token()
+        return name
 
     def match_integer_token():
         assert_token("INTEGER_TOKEN")
@@ -54,7 +57,9 @@ def parse(text: str):
         if not is_integer_token(current_token):
             raise ValueError(f"Token '{current_token}' is not a valid INTEGER_TOKEN")
 
+        value = current_token
         current_token = get_next_token()
+        return value
 
     #
     # TOKEN PROCESSING
@@ -63,22 +68,30 @@ def parse(text: str):
     def process_program():
         nonlocal current_token
         current_token = get_next_token()
-        process_procedure()
+
+        node = process_procedure()
         assert_no_tokens_left()
+
+        return nodes.ProgramNode(node)
 
     def process_procedure():
         match_token("procedure")
-        match_name_token()
+        name = match_name_token()
         match_token("{")
-        process_stmt_lst()
+        node = process_stmt_lst()
         match_token("}")
 
-    def process_stmt_lst():
-        process_stmt()
+        return nodes.ProcedureNode(name, node)
+
+    def process_stmt_lst(statements=None):
+        statements = [] if statements is None else statements
+        statements += [process_stmt()]
 
         nonlocal current_token
         if current_token != "}":
-            process_stmt_lst()
+            process_stmt_lst(statements)
+
+        return nodes.StmtLstNode(statements)
 
     def process_stmt():
         nonlocal current_token
@@ -88,14 +101,16 @@ def parse(text: str):
         if current_token == "if":
             return process_if()
 
-        process_assign()
+        return process_assign()
 
     def process_while():
         match_token("while")
-        match_name_token()
+        condition = match_name_token()
         match_token("{")
-        process_stmt_lst()
+        node = process_stmt_lst()
         match_token("}")
+
+        return nodes.StmtWhileNode(nodes.VariableNode(condition), node)
 
     def process_if():
         match_token("if")
@@ -110,10 +125,12 @@ def parse(text: str):
         match_token("}")
 
     def process_assign():
-        match_name_token()
+        variable = match_name_token()
         match_token("=")
-        process_expr()
+        expr = process_expr()
         match_token(";")
+
+        return nodes.StmtAssignNode(nodes.VariableNode(variable), expr)
 
     def process_expr():
         if tokens[0] == "+":
@@ -129,6 +146,8 @@ def parse(text: str):
 
         process_factor()
 
+        return nodes.ExprNode()
+
     def process_factor():
         nonlocal current_token
         if is_name_token(current_token):
@@ -137,4 +156,4 @@ def parse(text: str):
         match_integer_token()
 
     # NOTE: Parse the text
-    process_program()
+    return process_program()
