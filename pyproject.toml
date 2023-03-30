@@ -9,6 +9,7 @@ packages = [{include = "ats"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 tokenizer = "^3.4.2"
+pptree = "^3.1"
 
 
 [tool.poetry.group.dev.dependencies]

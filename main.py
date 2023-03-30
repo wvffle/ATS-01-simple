@@ -1,7 +1,7 @@
 from ats.parser.parser import parse
 
 if __name__ == "__main__":
-    parse(
+    tree = parse(
         """
         procedure test {
             a = 8;
@@ -22,4 +22,4 @@ if __name__ == "__main__":
         """
     )
 
-    print("All OK")
+    tree.print_tree()

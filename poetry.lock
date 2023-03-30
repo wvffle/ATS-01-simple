@@ -388,6 +388,17 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
+name = "pptree"
+version = "3.1"
+description = "Pretty print trees"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pptree-3.1.tar.gz", hash = "sha256:4dd0ba2f58000cbd29d68a5b64bac29bcb5a663642f79404877c0059668a69f6"},
+]
+
+[[package]]
 name = "pre-commit"
 version = "3.1.1"
 description = "A framework for managing and maintaining multi-language pre-commit hooks."
@@ -601,4 +612,4 @@ test = ["covdefaults (>=2.2.2)", "coverage (>=7.1)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "1d36daf47fea78b03224053a99a636030547ecc3d10b7de3198e96c38ae048f6"
+content-hash = "72de722ea0e34d09e7434348facd613f384fbc101c741c5dc11179084ec8a179"
