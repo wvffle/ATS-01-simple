@@ -46,7 +46,18 @@ class VariableNode(ASTNode):
 
 
 class ExprNode(ASTNode):
-    pass
+    def __init__(self, name: str):
+        super().__init__()
+        self.name = name
+
+    def __str__(self):
+        return "expr: " + self.name
+    
+class ExprPlusNode(ExprNode):
+    def __init__(self, left_node, right_node):
+        super().__init__("plus")
+        self.add_node("left", left_node)
+        self.add_node("right", right_node)
 
 
 class StmtLstNode(ASTNode):
