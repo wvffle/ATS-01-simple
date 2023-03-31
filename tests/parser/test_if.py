@@ -52,7 +52,9 @@ def test_empty_if_no_else():
         parse(
             """
             procedure proc {
-                if test then {} else
+                if test then {
+                    test = 3;
+                }
             }
         """
         )
@@ -63,7 +65,9 @@ def test_empty_if_else_no_brackets():
         parse(
             """
             procedure proc {
-                if test then {} else
+                if test then {
+                    test = 1;
+                } else
             }
         """
         )
@@ -74,7 +78,9 @@ def test_if_else_expects_expr():
         parse(
             """
             procedure proc {
-                if test then {} else {}
+                if test then {
+                    test = 2;
+                } else {}
             }
         """
         )
