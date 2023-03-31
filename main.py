@@ -12,6 +12,12 @@ if __name__ == "__main__":
                 a = a + 1;
                 a = a + 1;
             }
+            if b then {
+                a = a + 2;
+            }
+            else {
+                a = a + 3;
+            }
         }
         """
     )

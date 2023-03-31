@@ -82,6 +82,9 @@ def parse(text: str):
         if current_token == "while":
             return process_while()
 
+        if current_token == "if":
+            return process_if()
+
         process_assign()
 
     def process_while():
