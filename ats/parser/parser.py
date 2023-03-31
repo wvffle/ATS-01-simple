@@ -91,6 +91,18 @@ def parse(text: str):
         process_stmt_lst()
         match_token("}")
 
+    def process_if():
+        match_token("if")
+        match_name_token()
+        match_token("then")
+        match_token("{")
+        process_stmt_lst()
+        match_token("}")
+        match_token("else")
+        match_token("{")
+        process_stmt_lst()
+        match_token("}")
+
     def process_assign():
         match_name_token()
         match_token("=")
