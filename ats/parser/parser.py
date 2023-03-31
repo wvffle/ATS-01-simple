@@ -140,20 +140,21 @@ def parse(text: str):
             # return process_factor()
 
             # NOTE: The code below does not have aforementioned problem
-            process_factor()
+            left = process_factor()
             match_token("+")
-            return process_expr()
+            right = process_expr()
+            return nodes.ExprPlusNode(left, right)
 
-        process_factor()
-
-        return nodes.ExprNode()
+        return process_factor()
 
     def process_factor():
         nonlocal current_token
         if is_name_token(current_token):
-            return match_name_token()
+            var_name = match_name_token()
+            return nodes.VariableNode(var_name)
 
-        match_integer_token()
+        const_value = match_integer_token()
+        return nodes.ConstantNode(const_value)
 
     # NOTE: Parse the text
     return process_program()

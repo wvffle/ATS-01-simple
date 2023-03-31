@@ -7,10 +7,6 @@ if __name__ == "__main__":
             a = 8;
             while a {
                 a = a + 1;
-                a = a + 1;
-                a = a + 1;
-                a = a + 1;
-                a = a + 1;
             }
             if b then {
                 a = a + 2;
