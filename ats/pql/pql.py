@@ -6,7 +6,6 @@ from ats.pql.utils import is_variable_type_token, is_program_design_entity_relat
 def parse_query(text: str):
     tokens = tokenize(text)
     current_token = None
-    variables = []
 
     def get_next_token():
         if len(tokens) > 0:
