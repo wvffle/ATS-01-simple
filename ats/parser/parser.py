@@ -1,4 +1,4 @@
-from ats.parser.utils import is_integer_token, is_name_token
+from ats.parser.utils import is_integer_token, is_name_token, is_reserved_keyword
 from ats.tokenizer import tokenize
 
 
@@ -39,6 +39,9 @@ def parse(text: str):
         assert_token("NAME_TOKEN")
 
         nonlocal current_token
+        if is_reserved_keyword(current_token):
+            raise ValueError(f"Token '{current_token}' is a reserved keyword")
+
         if not is_name_token(current_token):
             raise ValueError(f"Token '{current_token}' is not a valid NAME_TOKEN")
 
