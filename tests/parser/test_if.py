@@ -4,7 +4,7 @@ from ats.parser.parser import parse
 
 
 def test_empty_if_no_var():
-    with pytest.raises(ValueError, match="Token 'then' is not a valid NAME_TOKEN"):
+    with pytest.raises(ValueError, match="Token 'then' is a reserved keyword"):
         parse(
             """
             procedure proc {
