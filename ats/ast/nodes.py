@@ -1,9 +1,10 @@
+from dotmap import DotMap
 from pptree import print_tree
 
 
 class ASTNode:
     def __init__(self):
-        self.nodes = {}
+        self.nodes = DotMap()
         self.children = []
 
     def add_node(self, field: str, node):
@@ -71,7 +72,7 @@ class ProcedureNode(ASTNode):
     def __init__(self, name: str, stmt_lst_node: StmtLstNode):
         super().__init__()
         self.name = name
-        self.add_node("stmtLst", stmt_lst_node)
+        self.add_node("stmt_lst", stmt_lst_node)
 
 
 class ProgramNode(ASTNode):
@@ -93,7 +94,7 @@ class StmtWhileNode(StmtNode):
     def __init__(self, condition_node: VariableNode, stmt_lst_node: StmtLstNode):
         super().__init__("while")
         self.add_node("condition", condition_node)
-        self.add_node("stmtLst", stmt_lst_node)
+        self.add_node("stmt_lst", stmt_lst_node)
 
 
 class StmtAssignNode(StmtNode):
