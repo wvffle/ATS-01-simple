@@ -26,6 +26,8 @@ pytest-cov = "^4.0.0"
 [tool.pylint.format]
 max-line-length = 120
 
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core"]
