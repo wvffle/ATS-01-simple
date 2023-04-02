@@ -17,10 +17,10 @@ class ASTNode:
             if isinstance(n, ASTNode):
                 self.children.append(n)
 
-    def print_tree(self):
+    def print_tree(self):  # pragma: no cover
         print_tree(self, "children", horizontal=False)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         name = self.__class__.__name__[0:-4]
         name = name[0].lower() + name[1:]
 
@@ -29,7 +29,7 @@ class ASTNode:
 
         return name
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return self.__str__()
 
 
@@ -51,7 +51,7 @@ class ExprNode(ASTNode):
         super().__init__()
         self.name = name
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return "expr: " + self.name
 
 
@@ -86,7 +86,7 @@ class StmtNode(ASTNode):
         super().__init__()
         self.name = name
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return "stmt: " + self.name
 
 
