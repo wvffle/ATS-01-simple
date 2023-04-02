@@ -48,7 +48,7 @@ def test_if_expects_expr():
 
 
 def test_empty_if_no_else():
-    with pytest.raises(ValueError, match="Expected token 'else', got '{'"):
+    with pytest.raises(ValueError, match="Expected token 'else', got '}'"):
         parse(
             """
             procedure proc {

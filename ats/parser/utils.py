@@ -2,6 +2,8 @@ import re
 
 
 def is_name_token(token: str):
+    if str == "then":
+        return False
     return re.fullmatch(r"[a-zA-Z][a-zA-Z0-9]*", token) is not None
 
 
