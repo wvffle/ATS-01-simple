@@ -1,5 +1,6 @@
 from ats.parser.parser import parse
-from ats.pkb.follows import follows
+
+# from ats.pkb.follows import follows
 
 if __name__ == "__main__":
     tree = parse(
@@ -20,5 +21,5 @@ if __name__ == "__main__":
     )
 
     tree.print_tree()
-    follows.follows(tree)
+    # follows.follows(tree)
     # parents.parents(tree)
