@@ -97,6 +97,21 @@ class StmtWhileNode(StmtNode):
         self.add_node("stmt_lst", stmt_lst_node)
 
 
+class StmtIfNode(StmtNode):
+    def __init__(
+        self,
+        condition_node: VariableNode,
+        then_node: StmtLstNode,
+        else_node: StmtLstNode,
+    ):
+        super().__init__("if")
+        self.add_node("condition", condition_node)
+        then_node.name = "then"
+        else_node.name = "else"
+        self.add_node("else_stmt_lst", else_node)
+        self.add_node("then_stmt_lst", then_node)
+
+
 class StmtAssignNode(StmtNode):
     def __init__(self, variable_node: VariableNode, expr_node: ExprNode):
         super().__init__("assign")

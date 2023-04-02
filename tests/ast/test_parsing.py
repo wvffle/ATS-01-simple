@@ -172,3 +172,33 @@ def test_ast_while():
 
     assert loop.nodes.stmt_lst.__class__ == nodes.StmtLstNode
     assert len(loop.nodes.stmt_lst.nodes.statements) == 1
+
+
+def test_ast_if():
+    ast = parse(
+        """
+        procedure proc {
+            if a then {
+                a = 1;
+            }
+            else {
+                b = 2;
+            }
+        }
+    """
+    )
+
+    stmt_lst = ast.nodes.procedure.nodes.stmt_lst
+
+    assert len(stmt_lst.nodes.statements) == 1
+    assert stmt_lst.nodes.statements[0].__class__ == nodes.StmtIfNode
+
+    if_node = stmt_lst.nodes.statements[0]
+    assert if_node.nodes.condition.__class__ == nodes.VariableNode
+    assert if_node.nodes.condition.name == "a"
+
+    assert if_node.nodes.then_stmt_lst.__class__ == nodes.StmtLstNode
+    assert len(if_node.nodes.then_stmt_lst.nodes.statements) == 1
+
+    assert if_node.nodes.else_stmt_lst.__class__ == nodes.StmtLstNode
+    assert len(if_node.nodes.else_stmt_lst.nodes.statements) == 1

@@ -124,6 +124,10 @@ def parse(text: str):
         process_stmt_lst()
         match_token("}")
 
+        return nodes.StmtIfNode(
+            nodes.VariableNode(condition), then_stmt_lst, else_stmt_lst
+        )
+
     def process_assign():
         variable = match_name_token()
         match_token("=")
