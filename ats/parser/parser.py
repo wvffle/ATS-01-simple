@@ -114,14 +114,14 @@ def parse(text: str):
 
     def process_if():
         match_token("if")
-        match_name_token()
+        condition = match_name_token()
         match_token("then")
         match_token("{")
-        process_stmt_lst()
+        then_stmt_lst = process_stmt_lst()
         match_token("}")
         match_token("else")
         match_token("{")
-        process_stmt_lst()
+        else_stmt_lst = process_stmt_lst()
         match_token("}")
 
         return nodes.StmtIfNode(
