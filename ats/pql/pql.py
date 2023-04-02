@@ -130,7 +130,7 @@ def parse_query(text: str):
         nonlocal current_token
         match_token("Select")
         searching_variable = match_variable_is_in_list_token(variables)
-        is_with = false
+        # is_with = False
 
         match_token("such")
         match_token("that")
@@ -141,19 +141,26 @@ def parse_query(text: str):
         second_parameter = match_parameter_token(variables)
         match_token(")")
         
-        if current_token == "with": 
-            is_with = true
-            match_token("with")
+        ##With do ogarniecia w poniedzialek ale ogolnie bede sprawdzal bez matcha, bo match wywala bledy, dlatego po prostu sprawdze co jest nastepnego i 
+        #wg tego bede dalej postepowac albo to z with albo kolejny select, w nastepnych iteracjach and itp
+        # if current_token == "with": 
+        #     is_with = True
+        #     match_token("with")
 
-        match_variable_in_query_token([first_parameter, second_parameter])
-
-        match_token(".")
+        #To też do with sprawdzenie czy parametr przed kropką jest w zapytaniu
+        # match_variable_in_query_token([first_parameter, second_parameter])
+        # match_token(".")
         
 
+        print("Zmienne w mapie")
         print(variables)
+        print("Szukana wartosc")
         print(searching_variable)
+        print("Relacja w zapytaniu")
         print(relationship)
+        print("Pierwszy parametr")
         print(first_parameter)
+        print("Drugi parametr")
         print(second_parameter)
 
         return None
