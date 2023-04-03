@@ -126,11 +126,12 @@ def evaluate_query(text: str):
     def process_pql_code():
         nonlocal current_token
         current_token = get_next_token()
-        return process_operation([], {})
+        variables = process_variable({})
+        return process_operation([], variables)
 
     def process_operation(queries, variables):
         nonlocal current_token
-        while is_variable_type_token(current_token):
+        while current_token != "Select":
             variables = process_variable(variables)
 
         queries.append(process_query(variables))
