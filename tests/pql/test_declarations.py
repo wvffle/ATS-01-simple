@@ -20,11 +20,9 @@ def test_complex_stmt_declaration():
         """
     )
 
-    assert (
-        result[0]["variables"]["s1"] == "stmt"
-        and result[0]["variables"]["s2"] == "stmt"
-        and result[0]["variables"]["s3"] == "stmt"
-    )
+    assert result[0]["variables"]["s1"] == "stmt"
+    assert result[0]["variables"]["s2"] == "stmt"
+    assert result[0]["variables"]["s3"] == "stmt"
 
 
 def test_simple_assign_declaration():
@@ -44,11 +42,9 @@ def test_complex_assign_declaration():
         """
     )
 
-    assert (
-        result[0]["variables"]["a1"] == "assign"
-        and result[0]["variables"]["a2"] == "assign"
-        and result[0]["variables"]["a3"] == "assign"
-    )
+    assert result[0]["variables"]["a1"] == "assign"
+    assert result[0]["variables"]["a2"] == "assign"
+    assert result[0]["variables"]["a3"] == "assign"
 
 
 def test_simple_while_declaration():
@@ -68,11 +64,9 @@ def test_complex_while_declaration():
         """
     )
 
-    assert (
-        result[0]["variables"]["w1"] == "while"
-        and result[0]["variables"]["w2"] == "while"
-        and result[0]["variables"]["w3"] == "while"
-    )
+    assert result[0]["variables"]["w1"] == "while"
+    assert result[0]["variables"]["w2"] == "while"
+    assert result[0]["variables"]["w3"] == "while"
 
 
 def test_complex_stmt_declaration_short():
@@ -82,11 +76,9 @@ def test_complex_stmt_declaration_short():
         """
     )
 
-    assert (
-        result[0]["variables"]["s1"] == "stmt"
-        and result[0]["variables"]["s2"] == "stmt"
-        and result[0]["variables"]["s3"] == "stmt"
-    )
+    assert result[0]["variables"]["s1"] == "stmt"
+    assert result[0]["variables"]["s2"] == "stmt"
+    assert result[0]["variables"]["s3"] == "stmt"
 
 
 def test_complex_assign_declaration_short():
@@ -96,11 +88,9 @@ def test_complex_assign_declaration_short():
         """
     )
 
-    assert (
-        result[0]["variables"]["a1"] == "assign"
-        and result[0]["variables"]["a2"] == "assign"
-        and result[0]["variables"]["a3"] == "assign"
-    )
+    assert result[0]["variables"]["a1"] == "assign"
+    assert result[0]["variables"]["a2"] == "assign"
+    assert result[0]["variables"]["a3"] == "assign"
 
 
 def test_complex_while_declaration_short():
@@ -110,11 +100,9 @@ def test_complex_while_declaration_short():
         """
     )
 
-    assert (
-        result[0]["variables"]["w1"] == "while"
-        and result[0]["variables"]["w2"] == "while"
-        and result[0]["variables"]["w3"] == "while"
-    )
+    assert result[0]["variables"]["w1"] == "while"
+    assert result[0]["variables"]["w2"] == "while"
+    assert result[0]["variables"]["w3"] == "while"
 
 
 def test_complex_variuos_types_declaration():
@@ -124,21 +112,15 @@ def test_complex_variuos_types_declaration():
         """
     )
 
-    assert (
-        result[0]["variables"]["s1"] == "stmt"
-        and result[0]["variables"]["s2"] == "stmt"
-        and result[0]["variables"]["s3"] == "stmt"
-    )
-    assert (
-        result[0]["variables"]["a1"] == "assign"
-        and result[0]["variables"]["a2"] == "assign"
-        and result[0]["variables"]["a3"] == "assign"
-    )
-    assert (
-        result[0]["variables"]["w1"] == "while"
-        and result[0]["variables"]["w2"] == "while"
-        and result[0]["variables"]["w3"] == "while"
-    )
+    assert result[0]["variables"]["s1"] == "stmt"
+    assert result[0]["variables"]["s2"] == "stmt"
+    assert result[0]["variables"]["s3"] == "stmt"
+    assert result[0]["variables"]["a1"] == "assign"
+    assert result[0]["variables"]["a2"] == "assign"
+    assert result[0]["variables"]["a3"] == "assign"
+    assert result[0]["variables"]["w1"] == "while"
+    assert result[0]["variables"]["w2"] == "while"
+    assert result[0]["variables"]["w3"] == "while"
 
 
 def test_type_error_declaration():
