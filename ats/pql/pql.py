@@ -65,16 +65,6 @@ def evaluate_query(text: str):
 
         return name
 
-    def match_variable_in_query_token(variables):
-        assert_token("VARIABLE_IN_QUERY_TOKEN")
-        nonlocal current_token
-        if current_token != variables[0] and current_token != variables[1]:
-            raise ValueError(
-                f"Token '{current_token}' is not a valid VARIABLE_IN_QUERY_TOKEN"
-            )
-
-        current_token = get_next_token()
-
     def match_design_entity_relationship():
         assert_token("DESIGN_ENTITY_RELATIONSHIP_TOKEN")
         nonlocal current_token

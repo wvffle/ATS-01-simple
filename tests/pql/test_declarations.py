@@ -13,6 +13,17 @@ def test_simple_stmt_declaration():
     assert result[0]["variables"]["s1"] == "stmt"
 
 
+def test_not_valid_end_of_declaration():
+    with pytest.raises(
+        ValueError, match="Token '/' is not a valid NAME_DECLARATION_TOKEN"
+    ):
+        evaluate_query(
+            """ stmt s1; stmt s2/ stmt s3;
+                Select s1 such that Parent(s1, "x")
+            """
+        )
+
+
 def test_complex_stmt_declaration():
     result = evaluate_query(
         """ stmt s1; stmt s2; stmt s3;
