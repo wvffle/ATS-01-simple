@@ -45,10 +45,10 @@ jobs:
     - name: Install dependencies
       run: poetry install
 
-    - name: Py to EXE
-      run: poetry run python -m nuitka --follow-imports --onefile main.py
+    - name: Pack .py to .exe
+      run: poetry run python -m nuitka --onefile --assume-yes-for-downloads --output-dir=build main.py
 
-    - name: Test packed EXE file
+    - name: Test packed .exe file
       run: ./build/main.exe
 
     # Uploads artifact
