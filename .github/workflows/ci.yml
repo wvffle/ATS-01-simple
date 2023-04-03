@@ -27,6 +27,37 @@ jobs:
       run: poetry run pytest --cov ats --cov-report=xml
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
+
+  pipetester:
+    name: PipeTester
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    - uses: Gr1N/setup-poetry@v8
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pypoetry/virtualenvs
+        key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+
+    - name: Install dependencies
+      run: poetry install
+    - name: Test with pytest
+      run: poetry run pytest --cov ats --cov-report=xml      # Build python script into a stand-alone exe
+    - uses: Nuitka/Nuitka-Action@main
+      with:
+        nuitka-version: main
+        script-name: main.py
+
+    # Uploads artifact
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: exe
+        path: build/main.exe
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
