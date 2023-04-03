@@ -17,4 +17,4 @@ tasks:
       poetry install
       poetry run pre-commit install
       source .venv/bin/activate
-    command: npx -y nodemon main.py
+    command: npx -y nodemon main.py --print-test-tree
