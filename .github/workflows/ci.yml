@@ -48,8 +48,8 @@ jobs:
     - name: Compile .py to .exe
       run: poetry run python -m nuitka --onefile --assume-yes-for-downloads --output-dir=build main.py
 
-    - name: Test compiled .exe file
-      run: ./build/main.exe
+    - name: Test run compiled .exe file to make sure it works
+      run: ./build/main.exe --print-test-tree
 
     # Uploads artifact
     - name: Upload Artifact
