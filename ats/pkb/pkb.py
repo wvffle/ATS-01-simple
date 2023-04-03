@@ -1,10 +1,12 @@
 from ats.ast import nodes
 
 mydict = {}
+mydict_parent = {}
 
 
 def add(list):
     idx = 0
+    # idx_parent = 0
     all_children = set(list.children)
     pool = all_children.copy()
     while pool:
@@ -24,5 +26,8 @@ def follows(s1: str, s2: str):
         for j, item in enumerate(one_level):
             if j < len(one_level) - 1:
                 if s1 in one_level[j].__str__() and s2 in one_level[j + 1].__str__():
-                    print(1)
                     return True
+
+
+def parent(s1: str, s2: str):
+    print(mydict_parent)
