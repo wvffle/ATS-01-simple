@@ -194,9 +194,12 @@ def test_multiply_with_query():
         """
     )
 
+    assert len(result[0]["with"]) == 2
     assert result[0]["with"][0]["left"] == "w3"
     assert result[0]["with"][0]["attr_left"] == "condition"
     assert result[0]["with"][0]["right"] == '"x"'
+    assert result[0]["with"][0]["attr_right"] is None
     assert result[0]["with"][1]["left"] == "s2"
     assert result[0]["with"][1]["attr_left"] == "attrName"
     assert result[0]["with"][1]["right"] == '"boligrafo"'
+    assert result[0]["with"][1]["attr_right"] is None
