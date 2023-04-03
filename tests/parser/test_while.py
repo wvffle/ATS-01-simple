@@ -1,6 +1,7 @@
 import pytest
 
 from ats.parser.parser import parse
+from ats.parser.utils import RESTRICTED_TOKENS
 
 
 def test_empty_while_no_var():
@@ -62,6 +63,6 @@ def test_while_multiple_statements():
 
 
 def test_while_restricted_keyword_as_var():
-    for x in ["if", "then", "else", "while", "procedure"]:
+    for x in RESTRICTED_TOKENS:
         with pytest.raises(ValueError, match=f"Token '{x}' is a reserved keyword"):
             parse(f"procedure proc {{ while {x} {{ a = 8; }} }}")
