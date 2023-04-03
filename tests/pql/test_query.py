@@ -170,7 +170,7 @@ def test_complex_query_evaluator():
     )
 
 
-def test_():
+def test_basic_with_query():
     result = evaluate_query(
         """
             while w3;
@@ -181,3 +181,20 @@ def test_():
     assert result[0]["with"][0]["left"] == "w3"
     assert result[0]["with"][0]["attr_left"] == "atrrName"
     assert result[0]["with"][0]["right"] == '"x"'
+
+
+def test_multiply_with_query():
+    result = evaluate_query(
+        """
+            while w3; stmt s2;
+            Select w3 such that Uses(20, w3) with w3.condition = "x"
+            with s2.attrName = "boligrafo"
+        """
+    )
+
+    assert result[0]["with"][0]["left"] == "w3"
+    assert result[0]["with"][0]["attr_left"] == "condition"
+    assert result[0]["with"][0]["right"] == '"x"'
+    assert result[0]["with"][1]["left"] == "s2"
+    assert result[0]["with"][1]["attr_left"] == "attrName"
+    assert result[0]["with"][1]["right"] == '"boligrafo"'
