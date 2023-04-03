@@ -1,9 +1,13 @@
-from ats.tokenizer import tokenize
 from ats.parser.utils import is_integer_token, is_name_token
-from ats.pql.utils import is_variable_type_token, is_program_design_entity_relationship_token, is_string_token
+from ats.pql.utils import (
+    is_program_design_entity_relationship_token,
+    is_string_token,
+    is_variable_type_token,
+)
+from ats.tokenizer import tokenize
 
 
-def parse_query(text: str):
+def evaluate_query(text: str):
     tokens = tokenize(text)
     current_token = None
 
@@ -30,20 +34,24 @@ def parse_query(text: str):
         assert_token("VARTYPE_TOKEN")
         nonlocal current_token
         var_type = current_token
-        print(is_variable_type_token(current_token))
-        print(current_token)
+        # print(is_variable_type_token(current_token))
+        # print(current_token)
         if not is_variable_type_token(current_token):
-            raise ValueError(f"Token '{current_token}' is not a valid VARIABLE_TYPE_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not a valid VARIABLE_TYPE_TOKEN"
+            )
 
         current_token = get_next_token()
 
         return var_type
-    
+
     def match_variable_is_in_list_token(variables):
         assert_token("DECLARED_VARIABLE_TOKEN")
         nonlocal current_token
         if variables[current_token] is None:
-            raise ValueError(f"Token '{current_token}' is not a valid DECLARED_VARIABLE_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not a valid DECLARED_VARIABLE_TOKEN"
+            )
 
         searchingVariable = current_token
         current_token = get_next_token()
@@ -64,13 +72,14 @@ def parse_query(text: str):
     def match_variable_in_query_token(variables):
         assert_token("VARIABLE_IN_QUERY_TOKEN")
         nonlocal current_token
-        # w przyszłości jak zostanie dodane "and" do pql trzeba będzie to rozszerzyć o ilość zmiennych występujących w zapytaniu, 
+        # w przyszłości jak zostanie dodane "and" do pql trzeba będzie to rozszerzyć o ilość zmiennych występujących w zapytaniu,
         # póki co są tylko 2 więc narazie to wystarczy
         if current_token != variables[0] and current_token != variables[1]:
-            raise ValueError(f"Token '{current_token}' is not a valid VARIABLE_IN_QUERY_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not a valid VARIABLE_IN_QUERY_TOKEN"
+            )
 
         current_token = get_next_token()
-
 
     def match_design_entity_relationship():
         assert_token("DESIGN_ENTITY_RELATIONSHIP_TOKEN")
@@ -80,18 +89,19 @@ def parse_query(text: str):
 
         relationship = current_token
         current_token = get_next_token()
-        if current_token == "*": 
+        if current_token == "*":
             relationship += "*"
             current_token = get_next_token()
 
         return relationship
 
-
     def match_end_of_declaration_token():
         assert_token("NAME_DECLARATION_TOKEN")
         nonlocal current_token
         if current_token != "," and current_token != ";":
-            raise ValueError(f"Token '{current_token}' is not a valid NAME_DECLARATION_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not a valid NAME_DECLARATION_TOKEN"
+            )
 
         name = current_token
         current_token = get_next_token()
@@ -101,9 +111,13 @@ def parse_query(text: str):
     def match_parameter_token(variables):
         assert_token("RELATIONSHIP_PARAMETER_TOKEN")
         nonlocal current_token
-        if not is_string_token(current_token) and not is_integer_token(current_token) and variables[current_token] is None:
-            raise ValueError(f"Token '{current_token}' is not a valid RELATIONSHIP_PARAMETER_TOKEN")
-            
+        if (
+            not is_string_token(current_token)
+            and not is_integer_token(current_token)
+            and current_token not in variables
+        ):
+            raise ValueError(f"Variable '{current_token}' is not declared")
+
         parameter = current_token
         current_token = get_next_token()
 
@@ -112,19 +126,19 @@ def parse_query(text: str):
     def process_pql_code():
         nonlocal current_token
         current_token = get_next_token()
-        variables = process_variable({})
-        process_operation(variables)       
+        return process_operation([], {})
 
-        return None
-
-    def process_operation(variables):
+    def process_operation(queries, variables):
         nonlocal current_token
         while is_variable_type_token(current_token):
             variables = process_variable(variables)
 
-        process_query(variables)
+        queries.append(process_query(variables))
 
-        return None
+        if current_token is None:
+            return queries
+
+        return queries + process_operation([], variables)
 
     def process_query(variables):
         nonlocal current_token
@@ -140,31 +154,50 @@ def parse_query(text: str):
         match_token(",")
         second_parameter = match_parameter_token(variables)
         match_token(")")
-        
-        ##With do ogarniecia w poniedzialek ale ogolnie bede sprawdzal bez matcha, bo match wywala bledy, dlatego po prostu sprawdze co jest nastepnego i 
-        #wg tego bede dalej postepowac albo to z with albo kolejny select, w nastepnych iteracjach and itp
-        # if current_token == "with": 
-        #     is_with = True
-        #     match_token("with")
 
-        #To też do with sprawdzenie czy parametr przed kropką jest w zapytaniu
-        # match_variable_in_query_token([first_parameter, second_parameter])
-        # match_token(".")
-        
+        withs = []
+        while current_token == "with":
+            match_token("with")
 
-        print("Zmienne w mapie")
-        print(variables)
-        print("Szukana wartosc")
-        print(searching_variable)
-        print("Relacja w zapytaniu")
-        print(relationship)
-        print("Pierwszy parametr")
-        print(first_parameter)
-        print("Drugi parametr")
-        print(second_parameter)
+            attr_left = None
+            attr_right = None
 
-        return None
+            if current_token in variables:
+                left = match_parameter_token(variables)
 
+                match_token(".")
+                attr_left = current_token
+                current_token = get_next_token()
+            else:
+                left = match_parameter_token(variables)
+
+            match_token("=")
+
+            if current_token in variables:
+                right = match_parameter_token(variables)
+
+                match_token(".")
+                attr_right = current_token
+                current_token = get_next_token()
+            else:
+                right = match_parameter_token(variables)
+
+            withs.append(
+                {
+                    "left": left,
+                    "attr_left": attr_left,
+                    "right": right,
+                    "attr_right": attr_right,
+                }
+            )
+
+        return {
+            "relation": relationship,
+            "searching_variable": searching_variable,
+            "variables": dict(variables),
+            "parameters": [first_parameter, second_parameter],
+            "with": withs,
+        }
 
     def process_variable(variables):
         nonlocal current_token
