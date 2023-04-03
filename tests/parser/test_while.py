@@ -59,3 +59,9 @@ def test_while_multiple_statements():
         }
     """
     )
+
+
+def test_while_restricted_keyword_as_var():
+    for x in ["if", "then", "else", "while", "procedure"]:
+        with pytest.raises(ValueError, match=f"Token '{x}' is a reserved keyword"):
+            parse(f"procedure proc {{ while {x} {{ a = 8; }} }}")
