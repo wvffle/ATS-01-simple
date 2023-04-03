@@ -1,5 +1,7 @@
 import re
 
+RESTRICTED_TOKENS = ["if", "then", "else", "while", "procedure"]
+
 
 def is_name_token(token: str):
     return re.fullmatch(r"[a-zA-Z][a-zA-Z0-9]*", token) is not None
@@ -10,4 +12,4 @@ def is_integer_token(token: str):
 
 
 def is_reserved_keyword(token: str):
-    return token in ["if", "then", "else", "while", "procedure"]
+    return token in RESTRICTED_TOKENS
