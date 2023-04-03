@@ -44,12 +44,12 @@ jobs:
 
     - name: Install dependencies
       run: poetry install
-    - name: Test with pytest
-      run: poetry run pytest --cov ats --cov-report=xml      # Build python script into a stand-alone exe
-    - uses: Nuitka/Nuitka-Action@main
-      with:
-        nuitka-version: main
-        script-name: main.py
+
+    - name: Py to EXE
+      run: poetry run python -m nuitka --follow-imports --onefile main.py
+
+    - name: Test packed EXE file
+      run: ./build/main.exe
 
     # Uploads artifact
     - name: Upload Artifact
