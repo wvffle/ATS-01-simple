@@ -29,7 +29,7 @@ jobs:
       uses: codecov/codecov-action@v3
 
   pipetester:
-    name: PipeTester
+    name: Build .exe for Windows
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
@@ -57,12 +57,13 @@ jobs:
         name: ats-project.exe
         path: build/main.exe
 
-    - name: Download PipeTester
-      uses: suisei-cn/actions-download-file@v1.3.0
-      id: pipetester
-      with:
-        url: ${{ secrets.PIPE_TESTER_DOWNLOAD_URL }}
-        target: tests/pipe_tester/
+    # NOTE: If PipeTester has CLI, we will use it. For now we are going to replicate the bahavior of PipeTester with pytest
+    # - name: Download PipeTester
+    #   uses: suisei-cn/actions-download-file@v1.3.0
+    #   id: pipetester
+    #   with:
+    #     url: ${{ secrets.PIPE_TESTER_DOWNLOAD_URL }}
+    #     target: tests/pipe_tester/
 
   lint:
     name: Lint
