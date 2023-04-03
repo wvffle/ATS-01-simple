@@ -51,12 +51,18 @@ jobs:
     - name: Test run compiled .exe file to make sure it works
       run: ./build/main.exe --print-test-tree
 
-    # Uploads artifact
-    - name: Upload Artifact
+    - name: Upload .exe artifact
       uses: actions/upload-artifact@v3
       with:
-        name: exe
+        name: ats-project.exe
         path: build/main.exe
+
+    - name: Download PipeTester
+      uses: suisei-cn/actions-download-file@v1.3.0
+      id: pipetester
+      with:
+        url: ${{ secrets.PIPE_TESTER_DOWNLOAD_URL }}
+        target: tests/pipe_tester/
 
   lint:
     name: Lint

@@ -24,3 +24,14 @@ if __name__ == "__main__":
         )
 
         tree.print_tree()
+
+    elif len(sys.argv) > 0:
+        with open(sys.argv[-1]) as f:
+            code = f.read()
+            tree = parse(code)
+            print("Ready")
+
+            query = input() + "\n" + input()
+
+            # TODO: use PQL and PKB
+            print("8")
