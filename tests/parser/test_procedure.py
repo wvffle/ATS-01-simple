@@ -1,6 +1,7 @@
 import pytest
 
 from ats.parser.parser import parse
+from ats.parser.utils import RESTRICTED_TOKENS
 
 
 def test_empty_procedure_no_name():
@@ -40,6 +41,6 @@ def test_procedure_multiple_statements():
 
 
 def test_procedure_restricted_keyword_as_name():
-    for x in ["if", "then", "else", "while", "procedure"]:
+    for x in RESTRICTED_TOKENS:
         with pytest.raises(ValueError, match=f"Token '{x}' is a reserved keyword"):
             parse(f"procedure {x} {{ a = 8; }}")
