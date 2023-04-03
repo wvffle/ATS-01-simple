@@ -10,4 +10,4 @@ def is_integer_token(token: str):
 
 
 def is_reserved_keyword(token: str):
-    return token in ["then"]
+    return token in ["if", "then", "else", "while", "procedure"]
