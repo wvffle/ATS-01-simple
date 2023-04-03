@@ -1,7 +1,6 @@
 import sys
 
 from ats.parser.parser import parse
-from ats.pql.pql import evaluate_query
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
