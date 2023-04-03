@@ -34,8 +34,6 @@ def evaluate_query(text: str):
         assert_token("VARTYPE_TOKEN")
         nonlocal current_token
         var_type = current_token
-        # print(is_variable_type_token(current_token))
-        # print(current_token)
         if not is_variable_type_token(current_token):
             raise ValueError(
                 f"Token '{current_token}' is not a valid VARIABLE_TYPE_TOKEN"
@@ -48,10 +46,8 @@ def evaluate_query(text: str):
     def match_variable_is_in_list_token(variables):
         assert_token("DECLARED_VARIABLE_TOKEN")
         nonlocal current_token
-        if variables[current_token] is None:
-            raise ValueError(
-                f"Token '{current_token}' is not a valid DECLARED_VARIABLE_TOKEN"
-            )
+        if current_token not in variables:
+            raise ValueError(f"Token '{current_token}' is not declared")
 
         searchingVariable = current_token
         current_token = get_next_token()
@@ -72,8 +68,6 @@ def evaluate_query(text: str):
     def match_variable_in_query_token(variables):
         assert_token("VARIABLE_IN_QUERY_TOKEN")
         nonlocal current_token
-        # w przyszłości jak zostanie dodane "and" do pql trzeba będzie to rozszerzyć o ilość zmiennych występujących w zapytaniu,
-        # póki co są tylko 2 więc narazie to wystarczy
         if current_token != variables[0] and current_token != variables[1]:
             raise ValueError(
                 f"Token '{current_token}' is not a valid VARIABLE_IN_QUERY_TOKEN"
