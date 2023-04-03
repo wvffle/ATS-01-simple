@@ -129,6 +129,16 @@ def test_relation_uses_in_query():
     assert result[0]["relation"] == "Uses"
 
 
+def test_not_valid_relation_in_query():
+    with pytest.raises(ValueError, match="Token 'Useless' is not a valid NAME_TOKEN"):
+        evaluate_query(
+            """
+            while w3;
+            Select w3 such that Useless(w3, "x")
+            """
+        )
+
+
 def test_valid_parameters_with_string_in_relations():
     result = evaluate_query(
         """ while w3;
@@ -170,7 +180,7 @@ def test_complex_query_evaluator():
     )
 
 
-def test_basic_with_query():
+def test_simply_with_left_query():
     result = evaluate_query(
         """
             while w3;
@@ -183,6 +193,21 @@ def test_basic_with_query():
     assert result[0]["with"][0]["attr_left"] == "atrrName"
     assert result[0]["with"][0]["right"] == '"x"'
     assert result[0]["with"][0]["attr_right"] is None
+
+
+def test_simply_with_right_query():
+    result = evaluate_query(
+        """
+            while w3;
+            Select w3 such that Uses(20, w3) with "x" = w3.atrrName
+        """
+    )
+
+    assert len(result[0]["with"]) == 1
+    assert result[0]["with"][0]["right"] == "w3"
+    assert result[0]["with"][0]["attr_right"] == "atrrName"
+    assert result[0]["with"][0]["left"] == '"x"'
+    assert result[0]["with"][0]["attr_left"] is None
 
 
 def test_multiply_with_query():
@@ -203,3 +228,25 @@ def test_multiply_with_query():
     assert result[0]["with"][1]["attr_left"] == "attrName"
     assert result[0]["with"][1]["right"] == '"boligrafo"'
     assert result[0]["with"][1]["attr_right"] is None
+
+
+def test_too_fast_end_of_query():
+    with pytest.raises(ValueError, match="Expected VARTYPE_TOKEN, got end of file"):
+        evaluate_query(
+            """
+
+            """
+        )
+
+
+def test_query_result():
+    result = evaluate_query(
+        """
+            while w3; stmt s2;
+            Select w3 such that Uses(20, w3) with w3.condition = "x"
+            with s2.attrName = "boligrafo"
+
+            """
+    )
+
+    assert result is not None
