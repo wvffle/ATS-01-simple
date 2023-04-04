@@ -7,7 +7,7 @@ from ats.pql.utils import (
 from ats.tokenizer import tokenize
 
 
-def evaluate_query(text: str):
+def parse_pql(text: str):
     tokens = tokenize(text)
     current_token = None
 

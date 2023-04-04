@@ -10,6 +10,12 @@ class ASTNode:
     def add_node(self, field: str, node):
         self.nodes[field] = node
 
+        if isinstance(node, list):
+            for n in node:
+                n.parent = self
+        else:
+            node.parent = self
+
         if not isinstance(node, list):
             node = [node]
 
