@@ -1,7 +1,5 @@
 from ats.ast import nodes
 
-follow_dictionary = {}
-
 
 def process_follows(query, statements):
     import json
@@ -11,8 +9,9 @@ def process_follows(query, statements):
     return []
 
 
-def crecreate_follow_dictionary(tree: nodes.ProgramNode):
+def create_follows_dictionary(tree: nodes.ProgramNode):
     parent_childrens_list = []
+    follows_dictionary = {}
 
     def create_parent_childrens_list(node: nodes.ASTNode):
         childrens = []
@@ -32,35 +31,27 @@ def crecreate_follow_dictionary(tree: nodes.ProgramNode):
                     and str(parent_childrens_list[i][j]).split(": ")[0]
                     == str(parent_childrens_list[i][j + 1]).split(": ")[0]
                 ):
-                    follow_dictionary[str(parent_childrens_list[i][j])] = str(
+                    follows_dictionary[str(parent_childrens_list[i][j])] = str(
                         parent_childrens_list[i][j + 1]
                     )
+    return follows_dictionary
 
 
-def evaluate_query(query):
-    print(follow_dictionary)
-
-    print(query)
-    """
+def evaluate_query(query, follows_dictionary):
     if query["relation"] == "Follows":
-        type = str(query["variables"][query["searching_variable"]])
-
-
-
-
-    statements = {}
-    i = 1
-    def find_statements(node: nodes.ASTNode):
-        if isinstance(node, nodes.StmtNode):
-            nonlocal i
-            statements[i] = node
-            i += 1
-
-        for n in node.children:
-            find_statements(n)
-
-    find_statements(tree)
-    print(statements)
-
-    if query["relation"] == "Follows":
-        return process_follows(query, statements)"""
+        if query["searching_variable"] == query["parameters"][0]:
+            return [
+                i
+                for i in follows_dictionary
+                if follows_dictionary[i].startswith(
+                    query["variables"][query["searching_variable"]] + ":"
+                )
+            ]
+        elif query["searching_variable"] == query["parameters"][1]:
+            return [
+                i
+                for j, i in follows_dictionary.items()
+                if j.startswith(query["variables"][query["searching_variable"]] + ":")
+            ]
+        else:
+            return "Wrong query!"
