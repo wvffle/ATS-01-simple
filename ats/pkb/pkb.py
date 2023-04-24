@@ -63,7 +63,7 @@ def process_follows(query, context):
     result = []
 
     for stmt in context["statements"].values():
-        # przypadek 1 - stala i stala
+        # case 1 - constant and constant
         if isinstance(a, int) and isinstance(b, int):
             if a not in follows:
                 continue
@@ -71,9 +71,21 @@ def process_follows(query, context):
             if follows[a] == b:
                 result.append(stmt.__stmt_id)
 
-        # przypadek 2 - stala i zmienna
+        # 2 - constant and variable
+        if isinstance(a, int) and not isinstance(b, int):
+            # Check if searching
+            if stmt.__stmt_id not in follows:
+                continue
 
-        # przypadek 3 - zmienna i stala
+            # Check the variable type
+            if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][b]]):
+                continue
+
+            # Check relation
+            if stmt.__stmt_id == a:
+                result.append(follows[a])
+
+        # cas 3 - variable and constant
         if not isinstance(a, int) and isinstance(b, int):
             # Check the variable type
             if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][a]]):
@@ -87,7 +99,17 @@ def process_follows(query, context):
             if follows[stmt.__stmt_id] == b:
                 result.append(stmt.__stmt_id)
 
-        # przypadek 4 - zmienna i zmienna
+        #  case 4 - varibale and variable
+        if not isinstance(a, int) and not isinstance(b, int):
+            # Check the variable a type
+            if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][a]]):
+                continue
+            # Check the variable b type
+            if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][b]]):
+                continue
+            # Check relation
+            if stmt.__stmt_id in follows:
+                result.append(stmt.__stmt_id)
 
     return result
 
