@@ -117,6 +117,7 @@ class ProgramNode(ASTNode):
 class StmtNode(ASTNode):
     def __init__(self, name: str):
         super().__init__()
+        self.__stmt_id = -1
         self.name = name
 
     def __str__(self):  # pragma: no cover

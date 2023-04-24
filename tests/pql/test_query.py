@@ -157,7 +157,7 @@ def test_valid_parameters_with_integer_in_relations():
            """
     )
 
-    assert result[0]["parameters"][0] == "20"
+    assert result[0]["parameters"][0] == 20
     assert result[0]["parameters"][1] == "w3"
 
 

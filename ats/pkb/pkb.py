@@ -1,57 +1,99 @@
 from ats.ast import nodes
 
-
-def process_follows(query, statements):
-    import json
-
-    print(json.dumps(query, indent=2))
-
-    return []
-
-
-def create_follows_dictionary(tree: nodes.ProgramNode):
-    parent_childrens_list = []
-    follows_dictionary = {}
-
-    def create_parent_childrens_list(node: nodes.ASTNode):
-        childrens = []
-        for i in range(len(node.children)):
-            create_parent_childrens_list(node.children[i])
-            childrens.append(node.children[i])
-        if len(node.children) > 0:
-            parent_childrens_list.insert(0, childrens)
-
-    create_parent_childrens_list(tree)
-
-    for i in range(len(parent_childrens_list)):
-        if len(parent_childrens_list[i]) > 1:
-            for j in range(len(parent_childrens_list[i]) - 1):
-                if (
-                    str(parent_childrens_list[i][j]).split(": ")[0] == "stmt"
-                    and str(parent_childrens_list[i][j]).split(": ")[0]
-                    == str(parent_childrens_list[i][j + 1]).split(": ")[0]
-                ):
-                    follows_dictionary[str(parent_childrens_list[i][j])] = str(
-                        parent_childrens_list[i][j + 1]
-                    )
-    return follows_dictionary
+STMT_TYPE_MAP = {
+    "stmt": nodes.StmtNode,
+    "assign": nodes.StmtAssignNode,
+    "while": nodes.StmtWhileNode,
+    "if": nodes.StmtIfNode,
+}
 
 
-def evaluate_query(query, follows_dictionary):
+def preprocess_query(tree: nodes.ProgramNode):
+    statements = {}
+    follows = {}
+    parents = {}
+
+    def find_all_statements():
+        i = 1
+
+        def find_statements(node: nodes.ASTNode):
+            if isinstance(node, nodes.StmtNode):
+                nonlocal i
+                statements[i] = node
+                node.__stmt_id = i
+                i += 1
+
+            for n in node.children:
+                find_statements(n)
+
+        find_statements(tree)
+
+    def process_all_relations():
+        def process_relations(node: nodes.ASTNode):
+            if isinstance(node, nodes.StmtLstNode):
+                for i, child in enumerate(node.children):
+                    if i > 0:
+                        follows[child.__stmt_id] = node.children[i - 1].__stmt_id
+
+            if isinstance(node, nodes.StmtNode):
+                parent = node.parent.parent
+                if isinstance(parent, nodes.StmtNode):
+                    parents[node.__stmt_id] = parent.__stmt_id
+
+            for child in node.children:
+                process_relations(child)
+
+        process_relations(tree)
+
+    find_all_statements()
+    process_all_relations()
+
+    return {
+        "follows": follows,
+        "parents": parents,
+        "statements": statements,
+    }
+
+
+def process_follows(query, context):
+    a = query["parameters"][0]
+    b = query["parameters"][1]
+    follows = context["follows"]
+
+    result = []
+
+    for stmt in context["statements"].values():
+        # przypadek 1 - stala i stala
+        if isinstance(a, int) and isinstance(b, int):
+            if a not in follows:
+                continue
+
+            if follows[a] == b:
+                result.append(stmt.__stmt_id)
+
+        # przypadek 2 - stala i zmienna
+
+        # przypadek 3 - zmienna i stala
+        if not isinstance(a, int) and isinstance(b, int):
+            # Check the variable type
+            if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][a]]):
+                continue
+
+            # Check if searching
+            if stmt.__stmt_id not in follows:
+                continue
+
+            # Check relation
+            if follows[stmt.__stmt_id] == b:
+                result.append(stmt.__stmt_id)
+
+        # przypadek 4 - zmienna i zmienna
+
+    return result
+
+
+def evaluate_query(node: nodes.ASTNode, query):
+    context = preprocess_query(node)
+
     if query["relation"] == "Follows":
-        if query["searching_variable"] == query["parameters"][0]:
-            return [
-                i
-                for i in follows_dictionary
-                if follows_dictionary[i].startswith(
-                    query["variables"][query["searching_variable"]] + ":"
-                )
-            ]
-        elif query["searching_variable"] == query["parameters"][1]:
-            return [
-                i
-                for j, i in follows_dictionary.items()
-                if j.startswith(query["variables"][query["searching_variable"]] + ":")
-            ]
-        else:
-            return "Wrong query!"
+        return process_follows(query, context)

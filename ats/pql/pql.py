@@ -102,7 +102,11 @@ def parse_pql(text: str):
         ):
             raise ValueError(f"Variable '{current_token}' is not declared")
 
-        parameter = current_token
+        try:
+            parameter = int(current_token)
+        except Exception:
+            parameter = current_token
+
         current_token = get_next_token()
 
         return parameter
@@ -180,7 +184,10 @@ def parse_pql(text: str):
             "relation": relationship,
             "searching_variable": searching_variable,
             "variables": dict(variables),
-            "parameters": [first_parameter, second_parameter],
+            "parameters": [
+                first_parameter,
+                second_parameter,
+            ],
             "with": withs,
         }
 
