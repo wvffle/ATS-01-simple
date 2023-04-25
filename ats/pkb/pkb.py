@@ -59,58 +59,62 @@ def process_follows(query, context):
     a = query["parameters"][0]
     b = query["parameters"][1]
     follows = context["follows"]
+    statements = context["statements"]
 
     result = []
 
     for stmt in context["statements"].values():
-        # case 1 - constant and constant
-        if isinstance(a, int) and isinstance(b, int):
-            if a not in follows:
-                continue
+        try:
+            # case 1 - constant and constant
+            if isinstance(a, int) and isinstance(b, int):
+                if follows[b] == a:
+                    result.append(stmt.__stmt_id)
 
-            if follows[a] == b:
-                result.append(stmt.__stmt_id)
+            # 2 - constant and variable
+            if isinstance(a, int) and not isinstance(b, int):
+                # Check the variable type
+                if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][b]]):
+                    continue
 
-        # 2 - constant and variable
-        if isinstance(a, int) and not isinstance(b, int):
-            # Check if searching
-            if stmt.__stmt_id not in follows:
-                continue
+                # Check relation
+                if follows[stmt.__stmt_id] == a:
+                    result.append(stmt.__stmt_id)
 
-            # Check the variable type
-            if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][b]]):
-                continue
+            # case 3 - variable and constant
+            if not isinstance(a, int) and isinstance(b, int):
+                # Check the variable type
+                if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][a]]):
+                    continue
 
-            # Check relation
-            if stmt.__stmt_id == a:
-                result.append(follows[a])
+                # Check relation
+                if follows[b] == stmt.__stmt_id:
+                    result.append(stmt.__stmt_id)
 
-        # cas 3 - variable and constant
-        if not isinstance(a, int) and isinstance(b, int):
-            # Check the variable type
-            if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][a]]):
-                continue
+            #  case 4 - varibale and variable
+            if not isinstance(a, int) and not isinstance(b, int):
+                if query["searching_variable"] == a:
+                    s2 = stmt
+                    s1 = statements[follows[stmt.__stmt_id]]
+                elif query["searching_variable"] == b:
+                    s2 = statements[follows[stmt.__stmt_id]]
+                    s1 = stmt
+                else:
+                    s2 = stmt
+                    s1 = statements[follows[stmt.__stmt_id]]
 
-            # Check if searching
-            if stmt.__stmt_id not in follows:
-                continue
+                # Check the variable a type
+                if not isinstance(s1, STMT_TYPE_MAP[query["variables"][a]]):
+                    continue
 
-            # Check relation
-            if follows[stmt.__stmt_id] == b:
-                result.append(stmt.__stmt_id)
+                # Check the variable b type
+                if not isinstance(s2, STMT_TYPE_MAP[query["variables"][b]]):
+                    continue
 
-        #  case 4 - varibale and variable
-        if not isinstance(a, int) and not isinstance(b, int):
-            # Check the variable a type
-            if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][a]]):
-                continue
-            # Check the variable b type
-            if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][b]]):
-                continue
-            # Check relation
-            if stmt.__stmt_id in follows:
-                result.append(stmt.__stmt_id)
+                # Check relation
+                result.append(s1.__stmt_id)
 
+        except KeyError:
+            pass
     return result
 
 
