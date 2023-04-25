@@ -195,7 +195,7 @@ def test_simply_with_left_query():
     assert result[0]["with"][0]["attr_right"] is None
 
 
-def test_simply_with_right_query():
+def test_simply_with_query():
     result = evaluate_query(
         """
             while w3;
@@ -250,3 +250,16 @@ def test_query_result():
     )
 
     assert result is not None
+
+
+def test_multiply_select_query():
+    evaluate_query(
+        """
+            while w3; stmt s2;
+            Select w3 such that Uses(20, w3) with w3.condition = "x"
+            with s2.attrName = "boligrafo"
+            assign a3;
+            Select w3 such that Uses(a3, w3) with w3.condition = "x"
+            with s2.attrName = "boligrafo"
+            """
+    )

@@ -65,6 +65,7 @@ def parse(text: str):
     # TOKEN PROCESSING
     #
 
+    # program : procedure+
     def process_program():
         nonlocal current_token
         current_token = get_next_token()
@@ -74,6 +75,7 @@ def parse(text: str):
 
         return nodes.ProgramNode(node)
 
+    # procedure : ‘procedure’ proc_name ‘{‘ stmtLst ‘}’
     def process_procedure():
         match_token("procedure")
         name = match_name_token()
@@ -83,6 +85,7 @@ def parse(text: str):
 
         return nodes.ProcedureNode(name, node)
 
+    # stmtLst : stmt+
     def process_stmt_lst(statements=None):
         statements = [] if statements is None else statements
         statements += [process_stmt()]
@@ -93,6 +96,7 @@ def parse(text: str):
 
         return nodes.StmtLstNode(statements)
 
+    # stmt : call | while | if | assign
     def process_stmt():
         nonlocal current_token
         if current_token == "while":
@@ -101,8 +105,18 @@ def parse(text: str):
         if current_token == "if":
             return process_if()
 
+        if current_token == "call":
+            return process_call()
+
         return process_assign()
 
+    # call : ‘call’ proc_name ‘;’
+    def process_call():
+        match_token("call")
+        match_name_token()
+        match_token(";")
+
+    # while : ‘while’ var_name ‘{‘ stmtLst ‘}’
     def process_while():
         match_token("while")
         condition = match_name_token()
@@ -112,6 +126,7 @@ def parse(text: str):
 
         return nodes.StmtWhileNode(nodes.VariableNode(condition), node)
 
+    # if : ‘if’ var_name ‘then’ ‘{‘ stmtLst ‘}’ ‘else’ ‘{‘ stmtLst ‘}’
     def process_if():
         match_token("if")
         condition = match_name_token()
@@ -128,6 +143,7 @@ def parse(text: str):
             nodes.VariableNode(condition), then_stmt_lst, else_stmt_lst
         )
 
+    # assign : var_name ‘=’ expr ‘;’
     def process_assign():
         variable = match_name_token()
         match_token("=")
@@ -136,6 +152,7 @@ def parse(text: str):
 
         return nodes.StmtAssignNode(nodes.VariableNode(variable), expr)
 
+    # expr : expr ‘+’ term | expr ‘-’ term | term
     def process_expr():
         if tokens[0] == "+":
             # NOTE: Following commented code is 100% compliant with spec but causes an infinite loop
@@ -144,21 +161,43 @@ def parse(text: str):
             # return process_factor()
 
             # NOTE: The code below does not have aforementioned problem
-            left = process_factor()
+            left = process_term()
             match_token("+")
             right = process_expr()
             return nodes.ExprPlusNode(left, right)
 
+        elif tokens[0] == "-":
+            left = process_term()
+            match_token("-")
+            right = process_expr()
+            # TODO: zamienić na MinusNode
+            return nodes.ExprPlusNode(left, right)
+
+        return process_term()
+
+    # term : term ‘*’ factor | factor
+    def process_term():
+        if tokens[0] == "*":
+            left = process_factor()
+            match_token("*")
+            right = process_term()
+            # TODO: zamienić na TimesNode
+            return nodes.ExprPlusNode(left, right)
+
         return process_factor()
 
+    # factor : var_name | const_value | ‘(’ expr ‘)’
     def process_factor():
         nonlocal current_token
         if is_name_token(current_token):
             var_name = match_name_token()
             return nodes.VariableNode(var_name)
 
-        const_value = match_integer_token()
-        return nodes.ConstantNode(const_value)
+        elif is_integer_token(current_token):
+            const_value = match_integer_token()
+            return nodes.ConstantNode(const_value)
+
+        # TODO: dodać trzecią alternatywę: ‘(’ expr ‘)’
 
     # NOTE: Parse the text
     return process_program()
