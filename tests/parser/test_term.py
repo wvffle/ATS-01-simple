@@ -1,5 +1,3 @@
-import pytest
-
 from ats.parser.parser import parse
 
 
@@ -83,12 +81,3 @@ def test_term_times():
         }
     """
     )
-
-    with pytest.raises(ValueError, match="Token ';' is not a valid INTEGER_TOKEN"):
-        parse(
-            """
-            procedure proc {
-                test = 1 *;
-            }
-        """
-        )

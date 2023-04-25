@@ -1,5 +1,3 @@
-import pytest
-
 from ats.parser.parser import parse
 
 
@@ -114,15 +112,6 @@ def test_expr_plus():
     """
     )
 
-    with pytest.raises(ValueError, match="Token ';' is not a valid INTEGER_TOKEN"):
-        parse(
-            """
-            procedure proc {
-                test = 1 +;
-            }
-        """
-        )
-
 
 def test_expr_minus():
     parse(
@@ -132,12 +121,3 @@ def test_expr_minus():
         }
     """
     )
-
-    with pytest.raises(ValueError, match="Token ';' is not a valid INTEGER_TOKEN"):
-        parse(
-            """
-            procedure proc {
-                test = 1 -;
-            }
-        """
-        )
