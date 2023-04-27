@@ -91,8 +91,28 @@ def test_expr_var_minus_var():
     )
 
 
+def test_expr_const_plus_var():
+    parse(
+        """
+        procedure proc {
+            test = 2 + b;
+        }
+    """
+    )
+
+
+def test_expr_const_minus_var():
+    parse(
+        """
+        procedure proc {
+            test = 2 - b;
+        }
+    """
+    )
+
+
 def test_expr_complex():
-    expr = "8" + " + 1" * 100
+    expr = "8" + " + 1 - 1" * 100
 
     parse(
         f"""
