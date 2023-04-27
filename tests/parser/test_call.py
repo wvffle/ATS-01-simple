@@ -19,3 +19,14 @@ def test_call_restricted_keyword_as_var():
     for x in RESTRICTED_TOKENS:
         with pytest.raises(ValueError, match=f"Token '{x}' is a reserved keyword"):
             parse(f"procedure proc {{ call {x} }}")
+
+
+def test_empty_call_no_semicolon():
+    with pytest.raises(ValueError, match="Expected token ';', got '}'"):
+        parse(
+            """
+            procedure proc {
+                call test
+            }
+        """
+        )
