@@ -24,3 +24,13 @@ def test_program_multiple_procedures():
         procedure test2 { dummy = 8; }
     """
     )
+
+
+def test_program_end_of_file():
+    with pytest.raises(ValueError, match="Expected end of file, got 'a'"):
+        parse(
+            """
+            procedure test1 { dummy = 8; }
+            a = 2;
+        """
+        )
