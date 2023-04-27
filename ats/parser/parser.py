@@ -201,7 +201,13 @@ def parse(text: str):
             const_value = match_integer_token()
             return nodes.ConstantNode(const_value)
 
-        # TODO: dodać trzecią alternatywę: ‘(’ expr ‘)’
+        elif current_token == "(":
+            match_token("(")
+            expr = process_expr()
+            match_token(")")
+
+            # TODO: Dodać dobry node
+            return nodes.ExprNode(expr)
 
     # NOTE: Parse the text
     return process_program()
