@@ -77,11 +77,15 @@ def parse(text: str):
 
     # procedure : ‘procedure’ proc_name ‘{‘ stmtLst ‘}’
     def process_procedure():
+        nonlocal current_token
         match_token("procedure")
         name = match_name_token()
         match_token("{")
         node = process_stmt_lst()
         match_token("}")
+
+        if current_token == "procedure":
+            process_procedure()
 
         return nodes.ProcedureNode(name, node)
 

@@ -18,10 +18,9 @@ def test_program_dummy_procedure():
 
 
 def test_program_multiple_procedures():
-    with pytest.raises(ValueError, match="Expected end of file, got 'procedure'"):
-        parse(
-            """
-            procedure test1 { dummy = 8; }
-            procedure test2 { dummy = 8; }
+    parse(
         """
-        )
+        procedure test1 { dummy = 8; }
+        procedure test2 { dummy = 8; }
+    """
+    )
