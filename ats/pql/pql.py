@@ -97,7 +97,7 @@ def parse_query(text: str):
 
         return name
 
-    def match_stmtref_token(variables):
+    def match_stmt_ref_token(variables):
         assert_token("RELATIONSHIP_PARAMETER_TOKEN")
         nonlocal current_token
         if (
