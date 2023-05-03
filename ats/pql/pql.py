@@ -105,7 +105,7 @@ def parse_query(text: str):
             and current_token != "'_'"
             and current_token not in variables
         ):
-            raise ValueError(f"Variable '{current_token}' is not valid STMTREF_TOKEN")
+            raise ValueError(f"Variable '{current_token}' is not valid STMT_REF_TOKEN")
 
         parameter = current_token
         current_token = get_next_token()
