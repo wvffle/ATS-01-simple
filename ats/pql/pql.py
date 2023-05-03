@@ -76,7 +76,7 @@ def parse_query(text: str):
         if current_token == "*":
             if relationship == "Modifies" or relationship == "Uses":
                 raise ValueError(
-                    f"Token '{relationship}{current_token}' is not a valid NAME_TOKEN"
+                    f"Token '{relationship}*' is not a valid NAME_TOKEN"
                 )
 
             relationship += "*"
