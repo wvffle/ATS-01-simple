@@ -1,3 +1,5 @@
+import pytest
+
 from ats.pql.pql import parse_query
 
 
@@ -77,3 +79,31 @@ def test_multiply_with_query():
     assert result[0]["withs"][2]["attr_left"] is None
     assert result[0]["withs"][2]["right"] == "s2"
     assert result[0]["withs"][2]["attr_right"] == "attrName"
+
+
+def test_not_valid_with_parameter_query():
+    with pytest.raises(
+        ValueError, match="Variable '=' is not valid WITH_PARAMETER_TOKEN"
+    ):
+        parse_query(
+            """
+            while w3; stmt s2;
+            Select w3 such that Uses(20, w3) with w3.attrName = =
+            and s2.attrName = "boligrafo" and "pen" = s2.attrName
+
+           """
+        )
+
+
+def test_not_valid_with_attrname_parameter_query():
+    with pytest.raises(
+        ValueError, match="Variable 'attrNName' is not valid ATTRNAME_TOKEN"
+    ):
+        parse_query(
+            """
+            while w3; stmt s2;
+            Select w3 such that Uses(20, w3) with w3.attrNName = 30
+            and s2.attrName = "boligrafo" and "pen" = s2.attrName
+
+           """
+        )

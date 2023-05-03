@@ -253,7 +253,7 @@ def parse_query(text: str):
         attr_right = None
 
         if current_token in variables:
-            left = match_with_parameter_token(variables)
+            left = match_variable_is_in_list_token(variables)
 
             match_token(".")
             attr_left = match_attrname_token()
@@ -263,7 +263,7 @@ def parse_query(text: str):
         match_token("=")
 
         if current_token in variables:
-            right = match_with_parameter_token(variables)
+            right = match_variable_is_in_list_token(variables)
 
             match_token(".")
             attr_right = match_attrname_token()

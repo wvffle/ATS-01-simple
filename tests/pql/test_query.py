@@ -69,6 +69,16 @@ def test_not_valid_that_statement():
         )
 
 
+def test_not_valid_relation_in_query():
+    with pytest.raises(ValueError, match="Token 'Useless' is not a valid NAME_TOKEN"):
+        parse_query(
+            """
+            while w3;
+            Select w3 such that Useless(w3, "x")
+            """
+        )
+
+
 def test_complex_query_evaluator():
     parse_query(
         """
