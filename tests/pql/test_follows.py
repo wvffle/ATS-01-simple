@@ -1,6 +1,6 @@
 import pytest
 
-from ats.pql.pql import parse_query
+from ats.pql.pql import Any, parse_query
 
 
 def test_relation_follows_in_query():
@@ -20,7 +20,7 @@ def test_parameters_relation_follows_in_query():
            """
     )
 
-    assert result[0]["relations"][0]["parameters"][0] == "'_'"
+    assert result[0]["relations"][0]["parameters"][0] is Any
     assert result[0]["relations"][0]["parameters"][1] == "10"
 
 
@@ -47,7 +47,7 @@ def test_parameters_relation_follows_star_in_query():
 
 def test_not_valid_relation_follows_in_query():
     with pytest.raises(
-        ValueError, match="""Variable '"ats"' is not valid STMTREF_TOKEN"""
+        ValueError, match="""Token '"ats"' is not valid STMT_REF_TOKEN"""
     ):
         parse_query(
             """ stmt s1;
@@ -58,7 +58,7 @@ def test_not_valid_relation_follows_in_query():
 
 def test_not_valid_relation_follows_in_query_2():
     with pytest.raises(
-        ValueError, match="""Variable '"row"' is not valid STMTREF_TOKEN"""
+        ValueError, match="""Token '"row"' is not valid STMT_REF_TOKEN"""
     ):
         parse_query(
             """ stmt s1;

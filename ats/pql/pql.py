@@ -1,5 +1,6 @@
 from ats.parser.utils import is_integer_token, is_name_token
 from ats.pql.utils import (
+    is_any_token,
     is_program_design_entity_relationship_token,
     is_string_token,
     is_variable_type_token,
@@ -7,9 +8,16 @@ from ats.pql.utils import (
 from ats.tokenizer import tokenize
 
 
+class Any:
+    pass
+
+
 def parse_query(text: str):
     tokens = tokenize(text)
     current_token = None
+    relationships_without_star = ["Modifies", "Uses"]
+    relationships_stmt_ref_and_stmt_ref = ["Parent", "Parent*", "Follows", "Follows*"]
+    relationships_ent_ref_and_ent_ref = ["Calls", "Calls*"]
 
     def get_next_token():
         if len(tokens) > 0:
@@ -68,16 +76,17 @@ def parse_query(text: str):
     def match_design_entity_relationship():
         assert_token("DESIGN_ENTITY_RELATIONSHIP_TOKEN")
         nonlocal current_token
+        nonlocal relationships_without_star
+
         if not is_program_design_entity_relationship_token(current_token):
             raise ValueError(f"Token '{current_token}' is not a valid NAME_TOKEN")
 
         relationship = current_token
+
         current_token = get_next_token()
         if current_token == "*":
-            if relationship == "Modifies" or relationship == "Uses":
-                raise ValueError(
-                    f"Token '{relationship}*' is not a valid NAME_TOKEN"
-                )
+            if relationship in relationships_without_star:
+                raise ValueError(f"Token '{relationship}*' is not a valid NAME_TOKEN")
 
             relationship += "*"
             current_token = get_next_token()
@@ -102,28 +111,32 @@ def parse_query(text: str):
         nonlocal current_token
         if (
             not is_integer_token(current_token)
-            and current_token != "'_'"
+            and not is_any_token(current_token)
             and current_token not in variables
         ):
-            raise ValueError(f"Variable '{current_token}' is not valid STMT_REF_TOKEN")
+            raise ValueError(f"Token '{current_token}' is not valid STMT_REF_TOKEN")
 
         parameter = current_token
         current_token = get_next_token()
+        if is_any_token(parameter):
+            return Any
 
         return parameter
 
-    def match_entref_token(variables):
+    def match_ent_ref_token(variables):
         assert_token("RELATIONSHIP_PARAMETER_TOKEN")
         nonlocal current_token
         if (
             not is_string_token(current_token)
-            and current_token != "'_'"
+            and not is_any_token(current_token)
             and current_token not in variables
         ):
-            raise ValueError(f"Variable '{current_token}' is not valid ENTREF_TOKEN")
+            raise ValueError(f"Token '{current_token}' is not valid ENT_REF_TOKEN")
 
         parameter = current_token
         current_token = get_next_token()
+        if is_any_token(parameter):
+            return Any
 
         return parameter
 
@@ -134,23 +147,25 @@ def parse_query(text: str):
             not is_name_token(current_token)
             and not is_integer_token(current_token)
             and not is_string_token(current_token)
-            and current_token != "_"
+            and not is_any_token(current_token)
             and current_token not in variables
         ):
             raise ValueError(
-                f"Variable '{current_token}' is not valid WITH_PARAMETER_TOKEN"
+                f"Token '{current_token}' is not valid WITH_PARAMETER_TOKEN"
             )
 
         parameter = current_token
         current_token = get_next_token()
+        if is_any_token(parameter):
+            return Any
 
         return parameter
 
-    def match_attrname_token():
+    def match_attr_name_token():
         assert_token("ATTRNAME_TOKEN")
         nonlocal current_token
         if current_token != "attrName":
-            raise ValueError(f"Variable '{current_token}' is not valid ATTRNAME_TOKEN")
+            raise ValueError(f"Token '{current_token}' is not valid ATTRNAME_TOKEN")
 
         parameter = current_token
         current_token = get_next_token()
@@ -205,45 +220,44 @@ def parse_query(text: str):
             "withs": withs,
         }
 
-    def process_modifies_and_uses(variables):
-        first_parameter = match_stmtref_token(variables)
+    def process_relationship_stmt_ref_and_ent_ref(variables):
+        first_parameter = match_stmt_ref_token(variables)
         match_token(",")
-        second_parameter = match_entref_token(variables)
+        second_parameter = match_ent_ref_token(variables)
         match_token(")")
 
         return [first_parameter, second_parameter]
 
-    def process_parent_and_follows(variables):
-        first_parameter = match_stmtref_token(variables)
+    def process_relationship_stmt_ref_and_stmt_ref(variables):
+        first_parameter = match_stmt_ref_token(variables)
         match_token(",")
-        second_parameter = match_stmtref_token(variables)
+        second_parameter = match_stmt_ref_token(variables)
         match_token(")")
 
         return [first_parameter, second_parameter]
 
-    def process_calls(variables):
-        first_parameter = match_entref_token(variables)
+    def process_relationship_ent_ref_and_ent_ref(variables):
+        first_parameter = match_ent_ref_token(variables)
         match_token(",")
-        second_parameter = match_entref_token(variables)
+        second_parameter = match_ent_ref_token(variables)
         match_token(")")
 
         return [first_parameter, second_parameter]
 
     def process_relationship(variables, relationships):
         relationship = match_design_entity_relationship()
+        nonlocal relationships_without_star
+        nonlocal relationships_stmt_ref_and_stmt_ref
+        nonlocal relationships_ent_ref_and_ent_ref
+
         match_token("(")
         parameters = []
-        if relationship == "Modifies" or relationship == "Uses":
-            parameters = process_modifies_and_uses(variables)
-        elif (
-            relationship == "Parent"
-            or relationship == "Parent*"
-            or relationship == "Follows"
-            or relationship == "Follows*"
-        ):
-            parameters = process_parent_and_follows(variables)
-        elif relationship == "Calls" or relationship == "Calls*":
-            parameters = process_calls(variables)
+        if relationship in relationships_without_star:
+            parameters = process_relationship_stmt_ref_and_ent_ref(variables)
+        elif relationship in relationships_stmt_ref_and_stmt_ref:
+            parameters = process_relationship_stmt_ref_and_stmt_ref(variables)
+        elif relationship in relationships_ent_ref_and_ent_ref:
+            parameters = process_relationship_ent_ref_and_ent_ref(variables)
 
         relationships.append({"relation": relationship, "parameters": parameters})
 
@@ -256,7 +270,7 @@ def parse_query(text: str):
             left = match_variable_is_in_list_token(variables)
 
             match_token(".")
-            attr_left = match_attrname_token()
+            attr_left = match_attr_name_token()
         else:
             left = match_with_parameter_token(variables)
 
@@ -266,7 +280,7 @@ def parse_query(text: str):
             right = match_variable_is_in_list_token(variables)
 
             match_token(".")
-            attr_right = match_attrname_token()
+            attr_right = match_attr_name_token()
         else:
             right = match_with_parameter_token(variables)
 

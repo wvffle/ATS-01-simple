@@ -26,7 +26,7 @@ def test_parameters_relation_uses_in_query():
 
 def test_not_valid_relation_first_parameter_uses_in_query():
     with pytest.raises(
-        ValueError, match="""Variable '"dos"' is not valid STMTREF_TOKEN"""
+        ValueError, match="""Token '"dos"' is not valid STMT_REF_TOKEN"""
     ):
         parse_query(
             """ stmt s1;
@@ -36,7 +36,7 @@ def test_not_valid_relation_first_parameter_uses_in_query():
 
 
 def test_not_valid_relation_second_parameter_uses_in_query():
-    with pytest.raises(ValueError, match="Variable '16' is not valid ENTREF_TOKEN"):
+    with pytest.raises(ValueError, match="Token '16' is not valid ENT_REF_TOKEN"):
         parse_query(
             """ stmt s2;
                 Select s2 such that Uses(s2, 16)

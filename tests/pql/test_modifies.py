@@ -26,7 +26,7 @@ def test_parameters_relation_modifies_in_query():
 
 def test_not_valid_relation_first_parameter_modifies_in_query():
     with pytest.raises(
-        ValueError, match="""Variable '"uno"' is not valid STMTREF_TOKEN"""
+        ValueError, match="""Token '"uno"' is not valid STMT_REF_TOKEN"""
     ):
         parse_query(
             """ stmt s1;
@@ -36,7 +36,7 @@ def test_not_valid_relation_first_parameter_modifies_in_query():
 
 
 def test_not_valid_relation_second_parameter_modifies_in_query():
-    with pytest.raises(ValueError, match="Variable '4' is not valid ENTREF_TOKEN"):
+    with pytest.raises(ValueError, match="Token '4' is not valid ENT_REF_TOKEN"):
         parse_query(
             """ stmt s1;
                 Select s1 such that Modifies(s1, 4)

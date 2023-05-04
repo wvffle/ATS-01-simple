@@ -11,3 +11,7 @@ def is_program_design_entity_relationship_token(text: str):
 
 def is_string_token(text: str):
     return bool(re.match(r'^"[^"]*"$', text))
+
+
+def is_any_token(text: str):
+    return text == "'_'"
