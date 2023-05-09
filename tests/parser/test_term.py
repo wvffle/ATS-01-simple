@@ -1,3 +1,5 @@
+import pytest
+
 from ats.parser.parser import parse
 
 
@@ -61,3 +63,14 @@ def test_term_complex():
         }}
     """
     )
+
+
+def test_term_no_second_var():
+    with pytest.raises(ValueError, match="Token ';' is not a valid INTEGER_TOKEN"):
+        parse(
+            """
+            procedure proc {
+                test = a * ;
+            }
+        """
+        )
