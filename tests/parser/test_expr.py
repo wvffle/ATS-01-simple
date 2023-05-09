@@ -121,3 +121,23 @@ def test_expr_complex():
         }}
     """
     )
+
+
+def test_expr_term_complex_var_plus_times():
+    parse(
+        """
+        procedure proc {
+            test = a + b * c;
+        }
+    """
+    )
+
+
+def test_expr_term_complex_var_minus_times():
+    parse(
+        """
+        procedure proc {
+            test = a - b * c;
+        }
+    """
+    )
