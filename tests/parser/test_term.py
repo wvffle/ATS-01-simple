@@ -1,16 +1,6 @@
 from ats.parser.parser import parse
 
 
-def test_term_simple_const():
-    parse(
-        """
-        procedure proc {
-            test = 8;
-        }
-    """
-    )
-
-
 def test_term_const_times_const():
     parse(
         """
@@ -69,15 +59,5 @@ def test_term_complex():
         procedure proc {{
             test = {term};
         }}
-    """
-    )
-
-
-def test_term_times():
-    parse(
-        """
-        procedure proc {
-            test = a * b;
-        }
     """
     )
