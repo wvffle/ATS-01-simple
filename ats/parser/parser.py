@@ -197,10 +197,6 @@ def parse(text: str):
             var_name = match_name_token()
             return nodes.VariableNode(var_name)
 
-        elif is_integer_token(current_token):
-            const_value = match_integer_token()
-            return nodes.ConstantNode(const_value)
-
         elif current_token == "(":
             match_token("(")
             expr = process_expr()
@@ -208,6 +204,10 @@ def parse(text: str):
 
             # TODO: Dodać dobry node
             return nodes.ExprNode(expr)
+
+        else:
+            const_value = match_integer_token()
+            return nodes.ConstantNode(const_value)
 
     # NOTE: Parse the text
     return process_program()
