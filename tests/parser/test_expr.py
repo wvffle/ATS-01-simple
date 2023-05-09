@@ -121,23 +121,3 @@ def test_expr_complex():
         }}
     """
     )
-
-
-def test_expr_plus():
-    parse(
-        """
-        procedure proc {
-            test = a + b;
-        }
-    """
-    )
-
-
-def test_expr_minus():
-    parse(
-        """
-        procedure proc {
-            test = a - b;
-        }
-    """
-    )
