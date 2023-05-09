@@ -69,16 +69,17 @@ def test_pkb_follows_const_while():
 def test_pkb_follows_stmt_stmt():
     tree = _get_ast_tree()
     queries = parse_pql("stmt s1, s2; Select s1 such that Follows(s1, s2)")
-
     result = evaluate_query(tree, queries[0])
     assert result == [1, 2, 3, 4, 6]
 
-    queries = parse_pql("stmt s1, s2; Select s2 such that Follows(s1, s2)")
+    queries = parse_pql("assign a1, a2; Select a1 such that Follows(a1, a2)")
+    result = evaluate_query(tree, queries[0])
+    assert result == [1, 2, 3, 6]
 
+    queries = parse_pql("stmt s1, s2; Select s2 such that Follows(s1, s2)")
     result = evaluate_query(tree, queries[0])
     assert result == [2, 3, 4, 5, 7]
 
     queries = parse_pql("stmt s1, s2, s3; Select s3 such that Follows(s1, s2)")
-
     result = evaluate_query(tree, queries[0])
-    assert result == [1, 2, 3, 4, 5, 6, 7]
+    assert result == [1, 2, 3, 4, 6]

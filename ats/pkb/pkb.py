@@ -118,8 +118,74 @@ def process_follows(query, context):
     return result
 
 
+# copy past parent from follows
+def process_parent(query, context):
+    a = query["parameters"][0]
+    b = query["parameters"][1]
+    parent = context["parents"]
+    statements = context["statements"]
+
+    result = []
+
+    for stmt in context["statements"].values():
+        try:
+            # case 1 - constant and constant
+            if isinstance(a, int) and isinstance(b, int):
+                if parent[b] == a:
+                    result.append(stmt.__stmt_id)
+
+            # 2 - constant and variable
+            if isinstance(a, int) and not isinstance(b, int):
+                # Check the variable type
+                if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][b]]):
+                    continue
+
+                # Check relation
+                if parent[stmt.__stmt_id] == a:
+                    result.append(stmt.__stmt_id)
+
+            # case 3 - variable and constant
+            if not isinstance(a, int) and isinstance(b, int):
+                # Check the variable type
+                if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][a]]):
+                    continue
+
+                # Check relation
+                if parent[b] == stmt.__stmt_id:
+                    result.append(stmt.__stmt_id)
+
+            #  case 4 - varibale and variable
+            if not isinstance(a, int) and not isinstance(b, int):
+                if query["searching_variable"] == a:
+                    s2 = stmt
+                    s1 = statements[parent[stmt.__stmt_id]]
+                elif query["searching_variable"] == b:
+                    s2 = statements[parent[stmt.__stmt_id]]
+                    s1 = stmt
+                else:
+                    s2 = stmt
+                    s1 = statements[parent[stmt.__stmt_id]]
+
+                # Check the variable a type
+                if not isinstance(s1, STMT_TYPE_MAP[query["variables"][a]]):
+                    continue
+
+                # Check the variable b type
+                if not isinstance(s2, STMT_TYPE_MAP[query["variables"][b]]):
+                    continue
+
+                # Check relation
+                result.append(s1.__stmt_id)
+
+        except KeyError:
+            pass
+    return result
+
+
 def evaluate_query(node: nodes.ASTNode, query):
     context = preprocess_query(node)
 
     if query["relation"] == "Follows":
         return process_follows(query, context)
+    if query["relation"] == "Parent":
+        return process_parent(query, context)
