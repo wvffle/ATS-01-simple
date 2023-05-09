@@ -12,6 +12,7 @@ def preprocess_query(tree: nodes.ProgramNode):
     statements = {}
     follows = {}
     parents = {}
+    modifies = {}
 
     def find_all_statements():
         i = 1
@@ -40,9 +41,29 @@ def preprocess_query(tree: nodes.ProgramNode):
                 if isinstance(parent, nodes.StmtNode):
                     parents[node.__stmt_id] = parent.__stmt_id
 
+            if isinstance(node, nodes.ProcedureNode):
+                nonlocal procedureName
+                procedureName = node.name
+                modifies[procedureName] = []
+
+            if isinstance(node, (nodes.StmtWhileNode, nodes.StmtIfNode)):
+                modifies[node.__stmt_id] = []
+
+            if isinstance(node, nodes.StmtAssignNode):
+                variable = node.children[0].name
+                modifies[node.__stmt_id] = variable
+                if variable not in modifies[procedureName]:
+                    modifies[procedureName].append(variable)
+                currentNode = node
+                while not isinstance(currentNode, nodes.ProcedureNode):
+                    if isinstance(currentNode, (nodes.StmtWhileNode, nodes.StmtIfNode)):
+                        if variable not in modifies[currentNode.__stmt_id]:
+                            modifies[currentNode.__stmt_id].append(variable)
+                    currentNode = currentNode.parent
             for child in node.children:
                 process_relations(child)
 
+        procedureName = ""
         process_relations(tree)
 
     find_all_statements()
@@ -52,6 +73,7 @@ def preprocess_query(tree: nodes.ProgramNode):
         "follows": follows,
         "parents": parents,
         "statements": statements,
+        "modifies": modifies,
     }
 
 
@@ -182,10 +204,22 @@ def process_parent(query, context):
     return result
 
 
+def process_modifies(query, context):
+    ...
+
+
+def process_uses(query, context):
+    ...
+
+
 def evaluate_query(node: nodes.ASTNode, query):
     context = preprocess_query(node)
-
+    print(context["modifies"])
     if query["relation"] == "Follows":
         return process_follows(query, context)
     if query["relation"] == "Parent":
+        return process_parent(query, context)
+    if query["relation"] == "Modifies":
+        return process_parent(query, context)
+    if query["relation"] == "Uses":
         return process_parent(query, context)
