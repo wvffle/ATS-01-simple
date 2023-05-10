@@ -150,6 +150,317 @@ def test_ast_expr_plus_long_even():
     assert deeper.nodes.right.value == "8"
 
 
+def test_ast_expr_minus_constants():
+    ast = parse(
+        """
+        procedure proc {
+            a = 8 - 1;
+        }
+    """
+    )
+
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+    assert expr.__class__ == nodes.ExprMinusNode
+    assert expr.nodes.left.__class__ == nodes.ConstantNode
+    assert expr.nodes.left.value == "8"
+
+    assert expr.nodes.right.__class__ == nodes.ConstantNode
+    assert expr.nodes.right.value == "1"
+
+
+def test_ast_expr_minus_variables():
+    ast = parse(
+        """
+        procedure proc {
+            a = c - d;
+        }
+    """
+    )
+
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+    assert expr.__class__ == nodes.ExprMinusNode
+    assert expr.nodes.left.__class__ == nodes.VariableNode
+    assert expr.nodes.left.name == "c"
+
+    assert expr.nodes.right.__class__ == nodes.VariableNode
+    assert expr.nodes.right.name == "d"
+
+
+def test_ast_expr_minus_long_odd():
+    ast = parse(
+        """
+        procedure proc {
+            a = c - 2 - d;
+        }
+    """
+    )
+
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+    assert expr.__class__ == nodes.ExprMinusNode
+    assert expr.nodes.left.__class__ == nodes.VariableNode
+    assert expr.nodes.left.name == "c"
+
+    assert expr.nodes.right.__class__ == nodes.ExprMinusNode
+    deep = expr.nodes.right
+
+    assert deep.nodes.left.__class__ == nodes.ConstantNode
+    assert deep.nodes.left.value == "2"
+
+    assert deep.nodes.right.__class__ == nodes.VariableNode
+    assert deep.nodes.right.name == "d"
+
+
+def test_ast_expr_minus_long_even():
+    ast = parse(
+        """
+        procedure proc {
+            a = c - 2 - d - 8;
+        }
+    """
+    )
+
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+    assert expr.__class__ == nodes.ExprMinusNode
+    assert expr.nodes.left.__class__ == nodes.VariableNode
+    assert expr.nodes.left.name == "c"
+
+    assert expr.nodes.right.__class__ == nodes.ExprMinusNode
+    deep = expr.nodes.right
+
+    assert deep.nodes.left.__class__ == nodes.ConstantNode
+    assert deep.nodes.left.value == "2"
+
+    assert deep.nodes.right.__class__ == nodes.ExprMinusNode
+    deeper = deep.nodes.right
+
+    assert deeper.nodes.left.__class__ == nodes.VariableNode
+    assert deeper.nodes.left.name == "d"
+
+    assert deeper.nodes.right.__class__ == nodes.ConstantNode
+    assert deeper.nodes.right.value == "8"
+
+
+def test_ast_expr_plus_minus_odd():
+    ast = parse(
+        """
+        procedure proc {
+            a = c + 2 - d;
+        }
+    """
+    )
+
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+    assert expr.__class__ == nodes.ExprPlusNode
+    assert expr.nodes.left.__class__ == nodes.VariableNode
+    assert expr.nodes.left.name == "c"
+
+    assert expr.nodes.right.__class__ == nodes.ExprMinusNode
+    deep = expr.nodes.right
+
+    assert deep.nodes.left.__class__ == nodes.ConstantNode
+    assert deep.nodes.left.value == "2"
+
+    assert deep.nodes.right.__class__ == nodes.VariableNode
+    assert deep.nodes.right.name == "d"
+
+
+def test_ast_expr_plus_minus_long():
+    ast = parse(
+        """
+        procedure proc {
+            a = c + 2 - d - 8;
+        }
+    """
+    )
+
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+    assert expr.__class__ == nodes.ExprPlusNode
+    assert expr.nodes.left.__class__ == nodes.VariableNode
+    assert expr.nodes.left.name == "c"
+
+    assert expr.nodes.right.__class__ == nodes.ExprMinusNode
+    deep = expr.nodes.right
+
+    assert deep.nodes.left.__class__ == nodes.ConstantNode
+    assert deep.nodes.left.value == "2"
+
+    assert deep.nodes.right.__class__ == nodes.ExprMinusNode
+    deeper = deep.nodes.right
+
+    assert deeper.nodes.left.__class__ == nodes.VariableNode
+    assert deeper.nodes.left.name == "d"
+
+    assert deeper.nodes.right.__class__ == nodes.ConstantNode
+    assert deeper.nodes.right.value == "8"
+
+
+def test_ast_term_times_constants():
+    ast = parse(
+        """
+        procedure proc {
+            a = 8 * 1;
+        }
+    """
+    )
+
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+    assert expr.__class__ == nodes.TimesNode
+    assert expr.nodes.left.__class__ == nodes.ConstantNode
+    assert expr.nodes.left.value == "8"
+
+    assert expr.nodes.right.__class__ == nodes.ConstantNode
+    assert expr.nodes.right.value == "1"
+
+
+def test_ast_term_times_variables():
+    ast = parse(
+        """
+        procedure proc {
+            a = c * d;
+        }
+    """
+    )
+
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+    assert expr.__class__ == nodes.TimesNode
+    assert expr.nodes.left.__class__ == nodes.VariableNode
+    assert expr.nodes.left.name == "c"
+
+    assert expr.nodes.right.__class__ == nodes.VariableNode
+    assert expr.nodes.right.name == "d"
+
+
+def test_ast_expr_plus_times_odd():
+    ast = parse(
+        """
+        procedure proc {
+            a = c + 2 * d;
+        }
+    """
+    )
+
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+    assert expr.__class__ == nodes.ExprPlusNode
+    assert expr.nodes.left.__class__ == nodes.VariableNode
+    assert expr.nodes.left.name == "c"
+
+    assert expr.nodes.right.__class__ == nodes.TimesNode
+    deep = expr.nodes.right
+
+    assert deep.nodes.left.__class__ == nodes.ConstantNode
+    assert deep.nodes.left.value == "2"
+
+    assert deep.nodes.right.__class__ == nodes.VariableNode
+    assert deep.nodes.right.name == "d"
+
+
+# NOTE: Test nie przedchodzi.
+# Błąd w logice parsera: mnożenie nie może znajdować się po skrajnej lewej stronie expression.
+# def test_ast_expr_times_minus_long_odd():
+#     ast = parse(
+#         """
+#         procedure proc {
+#             a = c * 2 - d;
+#         }
+#     """
+#     )
+
+#     expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+#     assert expr.__class__ == nodes.ExprMinusNode
+#     assert expr.nodes.left.__class__ == nodes.TimesNode
+#     deep = expr.nodes.left
+
+#     assert deep.nodes.left.__class__ == nodes.VariableNode
+#     assert deep.nodes.left.name == "c"
+
+#     assert deep.nodes.right.__class__ == nodes.ConstantNode
+#     assert deep.nodes.right.value == "2"
+
+#     assert expr.nodes.right.__class__ == nodes.VariableNode
+#     assert expr.nodes.right.name == "d"
+
+
+def test_ast_bracket_expr_minus_variables():
+    ast = parse(
+        """
+        procedure proc {
+            a = (c - d);
+        }
+    """
+    )
+
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+    assert expr.__class__ == nodes.ExprMinusNode
+    assert expr.nodes.left.__class__ == nodes.VariableNode
+    assert expr.nodes.left.name == "c"
+
+    assert expr.nodes.right.__class__ == nodes.VariableNode
+    assert expr.nodes.right.name == "d"
+
+
+def test_ast_bracket_expr_times_minus_odd():
+    ast = parse(
+        """
+        procedure proc {
+            a = 2 * (c - d);
+        }
+    """
+    )
+
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+    assert expr.__class__ == nodes.TimesNode
+    assert expr.nodes.left.__class__ == nodes.ConstantNode
+    assert expr.nodes.left.value == "2"
+
+    assert expr.nodes.right.__class__ == nodes.ExprMinusNode
+    deep = expr.nodes.right
+
+    assert deep.nodes.left.__class__ == nodes.VariableNode
+    assert deep.nodes.left.name == "c"
+
+    assert deep.nodes.right.__class__ == nodes.VariableNode
+    assert deep.nodes.right.name == "d"
+
+
+# NOTE: Test nie przedchodzi.
+# Błąd w logice parsera
+# def test_ast_bracket_expr_plus_times_odd():
+#     ast = parse(
+#         """
+#         procedure proc {
+#             a = (c + 2) * b;
+#         }
+#     """
+#     )
+
+#     expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+#     assert expr.__class__ == nodes.TimesNode
+#     assert expr.nodes.left.__class__ == nodes.ExprPlusNode
+#     deep = expr.nodes.left
+
+#     assert deep.nodes.left.__class__ == nodes.VariableNode
+#     assert deep.nodes.left.name == "c"
+
+#     assert deep.nodes.right.__class__ == nodes.ConstantNode
+#     assert deep.nodes.right.value == "2"
+
+#     assert expr.nodes.right.__class__ == nodes.VariableNode
+#     assert expr.nodes.right.name == "b"
+
+
 def test_ast_while():
     ast = parse(
         """

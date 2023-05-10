@@ -117,8 +117,10 @@ def parse(text: str):
     # call : ‘call’ proc_name ‘;’
     def process_call():
         match_token("call")
-        match_name_token()
+        procedure_name = match_name_token()
         match_token(";")
+
+        return nodes.StmtCallNode(procedure_name)
 
     # while : ‘while’ var_name ‘{‘ stmtLst ‘}’
     def process_while():
@@ -174,8 +176,7 @@ def parse(text: str):
             left = process_term()
             match_token("-")
             right = process_expr()
-            # TODO: zamienić na MinusNode
-            return nodes.ExprPlusNode(left, right)
+            return nodes.ExprMinusNode(left, right)
 
         return process_term()
 
@@ -185,8 +186,7 @@ def parse(text: str):
             left = process_factor()
             match_token("*")
             right = process_term()
-            # TODO: zamienić na TimesNode
-            return nodes.ExprPlusNode(left, right)
+            return nodes.TimesNode(left, right)
 
         return process_factor()
 
@@ -206,8 +206,7 @@ def parse(text: str):
             expr = process_expr()
             match_token(")")
 
-            # TODO: Dodać dobry node
-            return nodes.ExprNode(expr)
+            return expr
 
     # NOTE: Parse the text
     return process_program()
