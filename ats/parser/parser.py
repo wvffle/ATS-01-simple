@@ -186,7 +186,7 @@ def parse(text: str):
             left = process_factor()
             match_token("*")
             right = process_term()
-            return nodes.TimesNode(left, right)
+            return nodes.ExprTimesNode(left, right)
 
         return process_factor()
 

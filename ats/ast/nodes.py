@@ -69,7 +69,7 @@ class ExprMinusNode(ExprNode):
         self.add_node("right", right_node)
 
 
-class TimesNode(ExprNode):
+class ExprTimesNode(ExprNode):
     def __init__(self, left_node, right_node):
         super().__init__("times")
         self.add_node("left", left_node)

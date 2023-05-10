@@ -311,7 +311,7 @@ def test_ast_term_times_constants():
 
     expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
 
-    assert expr.__class__ == nodes.TimesNode
+    assert expr.__class__ == nodes.ExprTimesNode
     assert expr.nodes.left.__class__ == nodes.ConstantNode
     assert expr.nodes.left.value == "8"
 
@@ -330,7 +330,7 @@ def test_ast_term_times_variables():
 
     expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
 
-    assert expr.__class__ == nodes.TimesNode
+    assert expr.__class__ == nodes.ExprTimesNode
     assert expr.nodes.left.__class__ == nodes.VariableNode
     assert expr.nodes.left.name == "c"
 
@@ -353,7 +353,7 @@ def test_ast_expr_plus_times_odd():
     assert expr.nodes.left.__class__ == nodes.VariableNode
     assert expr.nodes.left.name == "c"
 
-    assert expr.nodes.right.__class__ == nodes.TimesNode
+    assert expr.nodes.right.__class__ == nodes.ExprTimesNode
     deep = expr.nodes.right
 
     assert deep.nodes.left.__class__ == nodes.ConstantNode
@@ -377,7 +377,7 @@ def test_ast_expr_plus_times_odd():
 #     expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
 
 #     assert expr.__class__ == nodes.ExprMinusNode
-#     assert expr.nodes.left.__class__ == nodes.TimesNode
+#     assert expr.nodes.left.__class__ == nodes.ExprTimesNode
 #     deep = expr.nodes.left
 
 #     assert deep.nodes.left.__class__ == nodes.VariableNode
@@ -420,7 +420,7 @@ def test_ast_bracket_expr_times_minus_odd():
 
     expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
 
-    assert expr.__class__ == nodes.TimesNode
+    assert expr.__class__ == nodes.ExprTimesNode
     assert expr.nodes.left.__class__ == nodes.ConstantNode
     assert expr.nodes.left.value == "2"
 
@@ -447,7 +447,7 @@ def test_ast_bracket_expr_times_minus_odd():
 
 #     expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
 
-#     assert expr.__class__ == nodes.TimesNode
+#     assert expr.__class__ == nodes.ExprTimesNode
 #     assert expr.nodes.left.__class__ == nodes.ExprPlusNode
 #     deep = expr.nodes.left
 
