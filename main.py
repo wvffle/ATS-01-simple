@@ -13,16 +13,12 @@ if __name__ == "__main__":
             """
             procedure test {
                 a = 8;
-                while a {
-                    if b then {
-                        a = a + 2;
-                    }
-                    else {
-                        a = a + 3;
-                    }
-                    a = a + 1;
+                if a then {
+                    a = b + 3;
                 }
-                b = 10;
+                else {
+                    c = d + e;
+                }
             }
             """
         )
@@ -33,7 +29,7 @@ if __name__ == "__main__":
             )
         )
 
-        queries = parse_pql("stmt s1, s2; Select s1 such that Follows(s1, s2)")
+        queries = parse_pql("""while a1; Select a1 such that Uses(2, "c")""")
 
         evaluate_query(tree, queries[0])
 
