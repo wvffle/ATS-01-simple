@@ -1,14 +1,6 @@
+import pytest
+
 from ats.parser.parser import parse
-
-
-def test_term_simple_const():
-    parse(
-        """
-        procedure proc {
-            test = 8;
-        }
-    """
-    )
 
 
 def test_term_const_times_const():
@@ -73,11 +65,12 @@ def test_term_complex():
     )
 
 
-def test_term_times():
-    parse(
+def test_term_no_second_var():
+    with pytest.raises(ValueError, match="Token ';' is not a valid INTEGER_TOKEN"):
+        parse(
+            """
+            procedure proc {
+                test = a * ;
+            }
         """
-        procedure proc {
-            test = a * b;
-        }
-    """
-    )
+        )
