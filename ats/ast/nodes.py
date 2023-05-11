@@ -131,8 +131,8 @@ class StmtIfNode(StmtNode):
         self.add_node("condition", condition_node)
         then_node.name = "then"
         else_node.name = "else"
-        self.add_node("else_stmt_lst", else_node)
         self.add_node("then_stmt_lst", then_node)
+        self.add_node("else_stmt_lst", else_node)
 
 
 class StmtAssignNode(StmtNode):
