@@ -45,54 +45,11 @@ def preprocess_query(tree: nodes.ProgramNode):
                 parent = node.parent.parent
                 if isinstance(parent, nodes.StmtNode):
                     parents[node.__stmt_id] = parent.__stmt_id
-                uses[node.__stmt_id] = []
 
-            """ FOR FIX
-            if isinstance(node, nodes.ProcedureNode):
-                nonlocal procedure_name
-                procedure_name = node.name
-                modifies[procedure_name] = []
-
-            if isinstance(node, (nodes.StmtWhileNode, nodes.StmtIfNode)):
-                modifies[node.__stmt_id] = []
-
-            if isinstance(node, nodes.StmtAssignNode):
-                variable = node.nodes.variable.name
-                modifies[node.__stmt_id] = variable
-                if variable not in modifies[procedure_name]:
-                    modifies[procedure_name].append(variable)
-                current_node = node
-                while not isinstance(current_node, nodes.ProcedureNode):
-                    if isinstance(current_node, (nodes.StmtWhileNode, nodes.StmtIfNode)):
-                        if variable not in modifies[current_node.__stmt_id]:
-                            modifies[current_node.__stmt_id].append(variable)
-                    current_node = current_node.parent
-                """
             for child in node.children:
                 process_relations(child)
 
-        """
-        procedure_name = ""
-        """
         process_relations(tree)
-
-        for key in variables:
-            current_node = key
-            while not isinstance(current_node, nodes.ProcedureNode):
-                if isinstance(current_node.parent, nodes.StmtNode):
-                    if isinstance(current_node.parent, nodes.StmtAssignNode):
-                        if current_node.parent.expression == current_node:
-                            for stmt_key, stmt_value in statements.items():
-                                if current_node.parent == stmt_value:
-                                    uses[stmt_key].append(variables[key])
-                        else:
-                            break
-                    else:
-                        for stmt_key, stmt_value in statements.items():
-                            if current_node.parent == stmt_value:
-                                if variables[key] not in uses[stmt_key]:
-                                    uses[stmt_key].append(variables[key])
-                current_node = current_node.parent
 
     find_all_statements()
     process_all_relations()
@@ -234,101 +191,11 @@ def process_parent(query, context):
 
 
 def process_modifies(query, context):
-    """NOT FINISHED
-    a = query["parameters"][0]
-    b = query["parameters"][1]
-    searching_variable_type = query["variables"][query["searching_variable"]]
-    modifies = context["modifies"]
-    statements = context["statements"]
-    results = []
-
-    # case 1 - assign and variable
-    if STMT_TYPE_MAP[searching_variable_type] == nodes.StmtAssignNode:
-        variable = b.strip('\"')
-        for key, value in modifies.items():
-            if value == variable:
-                results.append(key)
-
-    # case 2 - while and variable
-    if STMT_TYPE_MAP[searching_variable_type] == nodes.StmtWhileNode:
-        variable = b.strip('\"')
-        for key, value in modifies.items():
-            if not isinstance(key, str):
-                if isinstance(statements[key], STMT_TYPE_MAP[query["variables"][a]]):
-                    if variable in value:
-                        results.append(key)
-
-    # case 3 - if and variable
-    if STMT_TYPE_MAP[searching_variable_type] == nodes.StmtIfNode:
-        variable = b.strip('\"')
-
-
-    # case 4 - statement and variable
-    if STMT_TYPE_MAP[searching_variable_type] == nodes.StmtNode:
-        variable = b.strip('\"')
-        for key, value in modifies.items():
-            if not isinstance(key, str):
-                if variable in value:
-                    results.append(key)
-
-    # case 5 - procedure and variable
-    if searching_variable_type == "procedure":
-        variable = b.strip('\"')
-        for key, value in modifies.items():
-            if isinstance(key, str):
-                if variable in value:
-                    results.append(key)
-
-    # case 6 - variable and procedure
-    if searching_variable_type == "variable":
-        procedure = a.strip('\"')
-        for key, value in modifies.items():
-            if isinstance(key, str):
-                if procedure in value:
-                    results.append(key)
-
-    print(query)
-    print(statements)
-    print(results)
-    return results
-    """
+    ...
 
 
 def process_uses(query, context):
-    a = query["parameters"][0]
-    b = query["parameters"][1].strip('"')
-    searching_variable_type = query["variables"][query["searching_variable"]]
-    uses = context["uses"]
-    statements = context["statements"]
-
-    results = []
-
-    if isinstance(a, str) and isinstance(b, str):
-        # case 1 - (assign or if or while) and variable
-        if STMT_TYPE_MAP[searching_variable_type] in [
-            nodes.StmtAssignNode,
-            nodes.StmtIfNode,
-            nodes.StmtWhileNode,
-        ]:
-            for key, value in uses.items():
-                if b in value:
-                    if isinstance(
-                        statements[key], STMT_TYPE_MAP[query["variables"][a]]
-                    ):
-                        results.append(key)
-
-        # case 2 - statement and variable
-        if STMT_TYPE_MAP[searching_variable_type] == nodes.StmtNode:
-            for key, value in uses.items():
-                if b in value:
-                    results.append(key)
-
-    # case 3 - constant and variable
-    if isinstance(a, int) and isinstance(b, str):
-        if b in uses[a]:
-            results.append(a)
-
-    return results
+    ...
 
 
 def evaluate_query(node: nodes.ASTNode, query):
