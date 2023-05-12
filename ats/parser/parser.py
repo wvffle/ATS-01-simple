@@ -180,12 +180,13 @@ def parse(text: str):
 
         return process_term()
 
-    # term : term ‘*’ factor | factor
+    # term : factor ‘*’ expr | factor
     def process_term():
         if tokens[0] == "*":
             left = process_factor()
             match_token("*")
-            right = process_term()
+            right = process_expr()
+
             return nodes.ExprTimesNode(left, right)
 
         return process_factor()
