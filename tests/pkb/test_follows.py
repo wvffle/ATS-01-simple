@@ -58,6 +58,14 @@ def test_pkb_follows_const_assign():
     assert result == [2]
 
 
+def test_pkb_follows_assign_const():
+    tree = _get_ast_tree()
+    queries = parse_pql("assign a1; Select a1 such that Follows(a1, 2)")
+
+    result = evaluate_query(tree, queries[0])
+    assert result == [1]
+
+
 def test_pkb_follows_const_while():
     tree = _get_ast_tree()
     queries = parse_pql("while w1; Select w1 such that Follows(1, w1)")
