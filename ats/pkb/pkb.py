@@ -170,7 +170,6 @@ def process_parent(query, context):
                     s2 = stmt
                     s1 = statements[parent[stmt.__stmt_id]]
 
-                print(parent[stmt.__stmt_id])
                 # Check the variable a type
                 if not isinstance(s1, STMT_TYPE_MAP[query["variables"][a]]):
                     continue
@@ -184,7 +183,6 @@ def process_parent(query, context):
 
         except KeyError:
             pass
-    print(parent)
     return result
 
 
