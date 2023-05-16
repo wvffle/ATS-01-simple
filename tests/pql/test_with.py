@@ -95,7 +95,7 @@ def test_not_valid_with_parameter_query():
 
 def test_not_valid_with_attrname_parameter_query():
     with pytest.raises(
-        ValueError, match="Token 'attrNName' is not valid ATTRNAME_TOKEN"
+        ValueError, match="Token 'attrNName' is not valid ATTR_NAME_TOKEN"
     ):
         parse_query(
             """

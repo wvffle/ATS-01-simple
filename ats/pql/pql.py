@@ -8,16 +8,25 @@ from ats.pql.utils import (
 from ats.tokenizer import tokenize
 
 
-class Any:
-    pass
+class AnyType:
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return "Any"
+
+
+Any = AnyType()
+
+
+shallow_relationship = ["Modifies", "Uses"]
+relationships_stmt_ref_and_stmt_ref = ["Parent", "Parent*", "Follows", "Follows*"]
+relationships_ent_ref_and_ent_ref = ["Calls", "Calls*"]
 
 
 def parse_query(text: str):
     tokens = tokenize(text)
     current_token = None
-    relationships_without_star = ["Modifies", "Uses"]
-    relationships_stmt_ref_and_stmt_ref = ["Parent", "Parent*", "Follows", "Follows*"]
-    relationships_ent_ref_and_ent_ref = ["Calls", "Calls*"]
 
     def get_next_token():
         if len(tokens) > 0:
@@ -76,7 +85,6 @@ def parse_query(text: str):
     def match_design_entity_relationship():
         assert_token("DESIGN_ENTITY_RELATIONSHIP_TOKEN")
         nonlocal current_token
-        nonlocal relationships_without_star
 
         if not is_program_design_entity_relationship_token(current_token):
             raise ValueError(f"Token '{current_token}' is not a valid NAME_TOKEN")
@@ -85,7 +93,7 @@ def parse_query(text: str):
 
         current_token = get_next_token()
         if current_token == "*":
-            if relationship in relationships_without_star:
+            if relationship in shallow_relationship:
                 raise ValueError(f"Token '{relationship}*' is not a valid NAME_TOKEN")
 
             relationship += "*"
@@ -162,10 +170,10 @@ def parse_query(text: str):
         return parameter
 
     def match_attr_name_token():
-        assert_token("ATTRNAME_TOKEN")
+        assert_token("ATTR_NAME_TOKEN")
         nonlocal current_token
         if current_token != "attrName":
-            raise ValueError(f"Token '{current_token}' is not valid ATTRNAME_TOKEN")
+            raise ValueError(f"Token '{current_token}' is not valid ATTR_NAME_TOKEN")
 
         parameter = current_token
         current_token = get_next_token()
@@ -246,13 +254,10 @@ def parse_query(text: str):
 
     def process_relationship(variables, relationships):
         relationship = match_design_entity_relationship()
-        nonlocal relationships_without_star
-        nonlocal relationships_stmt_ref_and_stmt_ref
-        nonlocal relationships_ent_ref_and_ent_ref
 
         match_token("(")
         parameters = []
-        if relationship in relationships_without_star:
+        if relationship in shallow_relationship:
             parameters = process_relationship_stmt_ref_and_ent_ref(variables)
         elif relationship in relationships_stmt_ref_and_stmt_ref:
             parameters = process_relationship_stmt_ref_and_stmt_ref(variables)
