@@ -13,8 +13,6 @@ def preprocess_query(tree: nodes.ProgramNode):
     variables = {}
     follows = {}
     parents = {}
-    modifies = {}
-    uses = {}
 
     def find_all_statements():
         i = 1
@@ -56,11 +54,8 @@ def preprocess_query(tree: nodes.ProgramNode):
 
     return {
         "statements": statements,
-        "variables": variables,
         "follows": follows,
         "parents": parents,
-        "modifies": modifies,
-        "uses": uses,
     }
 
 
@@ -92,8 +87,8 @@ def process_follows(query, context):
             # case 3 - variable and constant
             if not isinstance(a, int) and isinstance(b, int):
                 # Check the variable type
-                # if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][a]]):
-                #     continue
+                if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][a]]):
+                    continue
 
                 # Check relation
                 if follows[b] == stmt.__stmt_id:
@@ -175,6 +170,7 @@ def process_parent(query, context):
                     s2 = stmt
                     s1 = statements[parent[stmt.__stmt_id]]
 
+                print(parent[stmt.__stmt_id])
                 # Check the variable a type
                 if not isinstance(s1, STMT_TYPE_MAP[query["variables"][a]]):
                     continue
