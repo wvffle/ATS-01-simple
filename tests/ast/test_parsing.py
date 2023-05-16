@@ -363,31 +363,29 @@ def test_ast_expr_plus_times_odd():
     assert deep.nodes.right.name == "d"
 
 
-# NOTE: Test nie przedchodzi.
-# Błąd w logice parsera: mnożenie nie może znajdować się po skrajnej lewej stronie expression.
-# def test_ast_expr_times_minus_long_odd():
-#     ast = parse(
-#         """
-#         procedure proc {
-#             a = c * 2 - d;
-#         }
-#     """
-#     )
+def test_ast_expr_times_minus_long_odd():
+    ast = parse(
+        """
+        procedure proc {
+            a = c * 2 - d;
+        }
+    """
+    )
 
-#     expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
 
-#     assert expr.__class__ == nodes.ExprMinusNode
-#     assert expr.nodes.left.__class__ == nodes.ExprTimesNode
-#     deep = expr.nodes.left
+    assert expr.__class__ == nodes.ExprMinusNode
+    assert expr.nodes.left.__class__ == nodes.ExprTimesNode
+    deep = expr.nodes.left
 
-#     assert deep.nodes.left.__class__ == nodes.VariableNode
-#     assert deep.nodes.left.name == "c"
+    assert deep.nodes.left.__class__ == nodes.VariableNode
+    assert deep.nodes.left.name == "c"
 
-#     assert deep.nodes.right.__class__ == nodes.ConstantNode
-#     assert deep.nodes.right.value == "2"
+    assert deep.nodes.right.__class__ == nodes.ConstantNode
+    assert deep.nodes.right.value == "2"
 
-#     assert expr.nodes.right.__class__ == nodes.VariableNode
-#     assert expr.nodes.right.name == "d"
+    assert expr.nodes.right.__class__ == nodes.VariableNode
+    assert expr.nodes.right.name == "d"
 
 
 def test_ast_bracket_expr_minus_variables():
@@ -434,31 +432,29 @@ def test_ast_bracket_expr_times_minus_odd():
     assert deep.nodes.right.name == "d"
 
 
-# NOTE: Test nie przedchodzi.
-# Błąd w logice parsera
-# def test_ast_bracket_expr_plus_times_odd():
-#     ast = parse(
-#         """
-#         procedure proc {
-#             a = (c + 2) * b;
-#         }
-#     """
-#     )
+def test_ast_bracket_expr_plus_times_odd():
+    ast = parse(
+        """
+        procedure proc {
+            a = (c + 2) * b;
+        }
+    """
+    )
 
-#     expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
 
-#     assert expr.__class__ == nodes.ExprTimesNode
-#     assert expr.nodes.left.__class__ == nodes.ExprPlusNode
-#     deep = expr.nodes.left
+    assert expr.__class__ == nodes.ExprTimesNode
+    assert expr.nodes.left.__class__ == nodes.ExprPlusNode
+    deep = expr.nodes.left
 
-#     assert deep.nodes.left.__class__ == nodes.VariableNode
-#     assert deep.nodes.left.name == "c"
+    assert deep.nodes.left.__class__ == nodes.VariableNode
+    assert deep.nodes.left.name == "c"
 
-#     assert deep.nodes.right.__class__ == nodes.ConstantNode
-#     assert deep.nodes.right.value == "2"
+    assert deep.nodes.right.__class__ == nodes.ConstantNode
+    assert deep.nodes.right.value == "2"
 
-#     assert expr.nodes.right.__class__ == nodes.VariableNode
-#     assert expr.nodes.right.name == "b"
+    assert expr.nodes.right.__class__ == nodes.VariableNode
+    assert expr.nodes.right.name == "b"
 
 
 def test_ast_while():

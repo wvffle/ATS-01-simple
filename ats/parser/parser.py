@@ -178,14 +178,29 @@ def parse(text: str):
             right = process_expr()
             return nodes.ExprMinusNode(left, right)
 
-        return process_term()
+        term = process_term()
 
-    # term : factor ‘*’ expr | factor
+        # Support all operations after processing term
+        if current_token == "+":
+            match_token("+")
+            return nodes.ExprPlusNode(term, process_expr())
+
+        if current_token == "-":
+            match_token("-")
+            return nodes.ExprMinusNode(term, process_expr())
+
+        if current_token == "*":
+            match_token("*")
+            return nodes.ExprTimesNode(term, process_term())
+
+        return term
+
+    # term : factor ‘*’ term | factor
     def process_term():
         if tokens[0] == "*":
             left = process_factor()
             match_token("*")
-            right = process_expr()
+            right = process_term()
 
             return nodes.ExprTimesNode(left, right)
 

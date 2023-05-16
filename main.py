@@ -9,9 +9,7 @@ if __name__ == "__main__":
         tree = parse(
             """
             procedure test {
-                call test2;
-                a = b * (c + 2);
-                call test3;
+                a = 8 * (a + c) * 2;
             }
             """
         )
