@@ -48,8 +48,20 @@ def test_pkb_parent_stmt_const():
 
 def test_pkb_parent_stmt_stmt():
     tree = _get_ast_tree()
-    queries = parse_pql("stmt s1, s2; Select s1 such that Parent(s1, s2)")
 
+    queries = parse_pql("stmt s1, s2; Select s1 such that Parent(s1, s2)")
+    result = evaluate_query(tree, queries[0])
+    assert result == [2, 3, 3, 2]
+
+    queries = parse_pql("assign a1, a2; Select a1 such that Parent(a1, a2)")
+    result = evaluate_query(tree, queries[0])
+    assert result == []
+
+    queries = parse_pql("stmt s1, s2; Select s2 such that Parent(s1, s2)")
+    result = evaluate_query(tree, queries[0])
+    assert result == [3, 4, 5, 6]
+
+    queries = parse_pql("stmt s1, s2, s3; Select s3 such that Parent(s1, s2)")
     result = evaluate_query(tree, queries[0])
     assert result == [2, 3, 3, 2]
 
