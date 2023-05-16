@@ -32,18 +32,26 @@ def test_pkb_parent_const_const():
 
 def test_pkb_parent_const_stmt():
     tree = _get_ast_tree()
-    queries = parse_pql("stmt s1; Select s1 such that Parent(2, s1)")
 
+    queries = parse_pql("stmt s1; Select s1 such that Parent(2, s1)")
     result = evaluate_query(tree, queries[0])
     assert result == [3, 6]
+
+    queries = parse_pql("variable v1; Select v1 such that Parent(2, v1)")
+    result = evaluate_query(tree, queries[0])
+    assert result == []
 
 
 def test_pkb_parent_stmt_const():
     tree = _get_ast_tree()
-    queries = parse_pql("stmt s1; Select s1 such that Parent(s1, 3)")
 
+    queries = parse_pql("stmt s1; Select s1 such that Parent(s1, 3)")
     result = evaluate_query(tree, queries[0])
     assert result == [2]
+
+    queries = parse_pql("variable v1; Select v1 such that Parent(v1, 3)")
+    result = evaluate_query(tree, queries[0])
+    assert result == []
 
 
 def test_pkb_parent_stmt_stmt():
@@ -60,6 +68,10 @@ def test_pkb_parent_stmt_stmt():
     queries = parse_pql("stmt s1, s2; Select s2 such that Parent(s1, s2)")
     result = evaluate_query(tree, queries[0])
     assert result == [3, 4, 5, 6]
+
+    queries = parse_pql("variable v1, v2; Select v1 such that Parent(v1, v2)")
+    result = evaluate_query(tree, queries[0])
+    assert result == []
 
     queries = parse_pql("stmt s1, s2, s3; Select s3 such that Parent(s1, s2)")
     result = evaluate_query(tree, queries[0])

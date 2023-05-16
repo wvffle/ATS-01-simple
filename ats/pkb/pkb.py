@@ -112,8 +112,8 @@ def process_follows(query, context):
                     s1 = statements[follows[stmt.__stmt_id]]
 
                 # Check the variable a type
-                # if not isinstance(s1, STMT_TYPE_MAP[query["variables"][a]]):
-                #    continue
+                if not isinstance(s1, STMT_TYPE_MAP[query["variables"][a]]):
+                    continue
 
                 # Check the variable b type
                 if not isinstance(s2, STMT_TYPE_MAP[query["variables"][b]]):
@@ -145,8 +145,8 @@ def process_parent(query, context):
             # 2 - constant and variable
             if isinstance(a, int) and not isinstance(b, int):
                 # Check the variable type
-                # if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][b]]):
-                #    continue
+                if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][b]]):
+                    continue
 
                 # Check relation
                 if parent[stmt.__stmt_id] == a:
@@ -155,8 +155,8 @@ def process_parent(query, context):
             # case 3 - variable and constant
             if not isinstance(a, int) and isinstance(b, int):
                 # Check the variable type
-                # if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][a]]):
-                #    continue
+                if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][a]]):
+                    continue
 
                 # Check relation
                 if parent[b] == stmt.__stmt_id:
@@ -188,6 +188,7 @@ def process_parent(query, context):
 
         except KeyError:
             pass
+    print(parent)
     return result
 
 
