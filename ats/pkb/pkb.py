@@ -190,21 +190,9 @@ def process_parent(query, context):
     return result
 
 
-def process_modifies(query, context):
-    ...
-
-
-def process_uses(query, context):
-    ...
-
-
 def evaluate_query(node: nodes.ASTNode, query):
     context = preprocess_query(node)
     if query["relation"] == "Follows":
         return process_follows(query, context)
     if query["relation"] == "Parent":
         return process_parent(query, context)
-    if query["relation"] == "Modifies":
-        return process_modifies(query, context)
-    if query["relation"] == "Uses":
-        return process_uses(query, context)
