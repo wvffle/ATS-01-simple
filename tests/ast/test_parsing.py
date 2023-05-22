@@ -16,6 +16,54 @@ def test_ast_procedure():
     assert ast.nodes.procedure.name == "proc"
 
 
+def test_ast_procedure_multiple():
+    ast = parse(
+        """
+        procedure proc {
+            a = 1;
+        }
+        procedure proc2 {
+            a = 8;
+        }
+    """
+    )
+
+    assert ast.__class__ == nodes.ProgramNode
+    assert ast.nodes.procedure.__class__ == nodes.ProcedureNode
+    assert ast.nodes.procedure.name == "proc"
+
+    assert len(ast.nodes.procedures) == 1
+    assert ast.nodes.procedures[0].__class__ == nodes.ProcedureNode
+    assert ast.nodes.procedures[0].name == "proc2"
+
+
+def test_ast_procedure_multiple_more():
+    ast = parse(
+        """
+        procedure proc {
+            a = 1;
+        }
+        procedure proc2 {
+            a = 8;
+        }
+        procedure proc3 {
+            a = 10;
+        }
+    """
+    )
+
+    assert ast.__class__ == nodes.ProgramNode
+    assert ast.nodes.procedure.__class__ == nodes.ProcedureNode
+    assert ast.nodes.procedure.name == "proc"
+
+    assert len(ast.nodes.procedures) == 2
+    assert ast.nodes.procedures[0].__class__ == nodes.ProcedureNode
+    assert ast.nodes.procedures[0].name == "proc2"
+
+    assert ast.nodes.procedures[1].__class__ == nodes.ProcedureNode
+    assert ast.nodes.procedures[1].name == "proc3"
+
+
 def test_ast_stmt_lst():
     ast = parse(
         """

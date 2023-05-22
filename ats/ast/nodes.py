@@ -90,9 +90,11 @@ class ProcedureNode(ASTNode):
 
 
 class ProgramNode(ASTNode):
-    def __init__(self, procedure_node: ProcedureNode):
+    def __init__(self, procedure_nodes):
         super().__init__()
-        self.add_node("procedure", procedure_node)
+
+        self.add_node("procedure", procedure_nodes[0])
+        self.add_node("procedures", procedure_nodes[1:])
 
 
 class StmtNode(ASTNode):

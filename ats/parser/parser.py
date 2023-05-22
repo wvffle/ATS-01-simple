@@ -71,9 +71,12 @@ def parse(text: str):
         current_token = get_next_token()
 
         node = process_procedure()
+        procedure_nodes = [node]
+        while current_token == "procedure":
+            procedure_nodes.append(process_procedure())
         assert_no_tokens_left()
 
-        return nodes.ProgramNode(node)
+        return nodes.ProgramNode(procedure_nodes)
 
     # procedure : ‘procedure’ proc_name ‘{‘ stmtLst ‘}’
     def process_procedure():
@@ -83,9 +86,6 @@ def parse(text: str):
         match_token("{")
         node = process_stmt_lst()
         match_token("}")
-
-        if current_token == "procedure":
-            process_procedure()
 
         return nodes.ProcedureNode(name, node)
 
