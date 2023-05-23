@@ -12,8 +12,8 @@ def test_ast_procedure():
     )
 
     assert ast.__class__ == nodes.ProgramNode
-    assert ast.nodes.procedure.__class__ == nodes.ProcedureNode
-    assert ast.nodes.procedure.name == "proc"
+    assert ast.nodes.procedures[0].__class__ == nodes.ProcedureNode
+    assert ast.nodes.procedures[0].name == "proc"
 
 
 def test_ast_procedure_multiple():
@@ -29,12 +29,11 @@ def test_ast_procedure_multiple():
     )
 
     assert ast.__class__ == nodes.ProgramNode
-    assert ast.nodes.procedure.__class__ == nodes.ProcedureNode
-    assert ast.nodes.procedure.name == "proc"
-
-    assert len(ast.nodes.procedures) == 1
     assert ast.nodes.procedures[0].__class__ == nodes.ProcedureNode
-    assert ast.nodes.procedures[0].name == "proc2"
+    assert ast.nodes.procedures[0].name == "proc"
+
+    assert ast.nodes.procedures[1].__class__ == nodes.ProcedureNode
+    assert ast.nodes.procedures[1].name == "proc2"
 
 
 def test_ast_procedure_multiple_more():
@@ -53,15 +52,14 @@ def test_ast_procedure_multiple_more():
     )
 
     assert ast.__class__ == nodes.ProgramNode
-    assert ast.nodes.procedure.__class__ == nodes.ProcedureNode
-    assert ast.nodes.procedure.name == "proc"
-
-    assert len(ast.nodes.procedures) == 2
     assert ast.nodes.procedures[0].__class__ == nodes.ProcedureNode
-    assert ast.nodes.procedures[0].name == "proc2"
+    assert ast.nodes.procedures[0].name == "proc"
 
     assert ast.nodes.procedures[1].__class__ == nodes.ProcedureNode
-    assert ast.nodes.procedures[1].name == "proc3"
+    assert ast.nodes.procedures[1].name == "proc2"
+
+    assert ast.nodes.procedures[2].__class__ == nodes.ProcedureNode
+    assert ast.nodes.procedures[2].name == "proc3"
 
 
 def test_ast_stmt_lst():
@@ -73,7 +71,7 @@ def test_ast_stmt_lst():
     """
     )
 
-    proc = ast.nodes.procedure
+    proc = ast.nodes.procedures[0]
 
     assert proc.nodes.stmt_lst.__class__ == nodes.StmtLstNode
 
@@ -90,7 +88,7 @@ def test_ast_assign_constant():
     """
     )
 
-    stmt_lst = ast.nodes.procedure.nodes.stmt_lst
+    stmt_lst = ast.nodes.procedures[0].nodes.stmt_lst
 
     assert len(stmt_lst.nodes.statements) == 1
     assert stmt_lst.nodes.statements[0].__class__ == nodes.StmtAssignNode
@@ -113,7 +111,7 @@ def test_ast_expr_plus_constants():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprPlusNode
     assert expr.nodes.left.__class__ == nodes.ConstantNode
@@ -132,7 +130,7 @@ def test_ast_expr_plus_variables():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprPlusNode
     assert expr.nodes.left.__class__ == nodes.VariableNode
@@ -151,7 +149,7 @@ def test_ast_expr_plus_long_odd():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprPlusNode
     assert expr.nodes.left.__class__ == nodes.VariableNode
@@ -176,7 +174,7 @@ def test_ast_expr_plus_long_even():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprPlusNode
     assert expr.nodes.left.__class__ == nodes.VariableNode
@@ -207,7 +205,7 @@ def test_ast_expr_minus_constants():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprMinusNode
     assert expr.nodes.left.__class__ == nodes.ConstantNode
@@ -226,7 +224,7 @@ def test_ast_expr_minus_variables():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprMinusNode
     assert expr.nodes.left.__class__ == nodes.VariableNode
@@ -245,7 +243,7 @@ def test_ast_expr_minus_long_odd():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprMinusNode
     assert expr.nodes.left.__class__ == nodes.VariableNode
@@ -270,7 +268,7 @@ def test_ast_expr_minus_long_even():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprMinusNode
     assert expr.nodes.left.__class__ == nodes.VariableNode
@@ -301,7 +299,7 @@ def test_ast_expr_plus_minus_odd():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprPlusNode
     assert expr.nodes.left.__class__ == nodes.VariableNode
@@ -326,7 +324,7 @@ def test_ast_expr_plus_minus_long():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprPlusNode
     assert expr.nodes.left.__class__ == nodes.VariableNode
@@ -357,7 +355,7 @@ def test_ast_term_times_constants():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprTimesNode
     assert expr.nodes.left.__class__ == nodes.ConstantNode
@@ -376,7 +374,7 @@ def test_ast_term_times_variables():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprTimesNode
     assert expr.nodes.left.__class__ == nodes.VariableNode
@@ -395,7 +393,7 @@ def test_ast_expr_plus_times_odd():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprPlusNode
     assert expr.nodes.left.__class__ == nodes.VariableNode
@@ -420,7 +418,7 @@ def test_ast_expr_times_minus_long_odd():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprMinusNode
     assert expr.nodes.left.__class__ == nodes.ExprTimesNode
@@ -445,7 +443,7 @@ def test_ast_bracket_expr_minus_variables():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprMinusNode
     assert expr.nodes.left.__class__ == nodes.VariableNode
@@ -464,7 +462,7 @@ def test_ast_bracket_expr_times_minus_odd():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprTimesNode
     assert expr.nodes.left.__class__ == nodes.ConstantNode
@@ -489,7 +487,7 @@ def test_ast_bracket_expr_plus_times_odd():
     """
     )
 
-    expr = ast.nodes.procedure.nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
 
     assert expr.__class__ == nodes.ExprTimesNode
     assert expr.nodes.left.__class__ == nodes.ExprPlusNode
@@ -516,7 +514,7 @@ def test_ast_while():
     """
     )
 
-    stmt_lst = ast.nodes.procedure.nodes.stmt_lst
+    stmt_lst = ast.nodes.procedures[0].nodes.stmt_lst
 
     assert len(stmt_lst.nodes.statements) == 1
     assert stmt_lst.nodes.statements[0].__class__ == nodes.StmtWhileNode
@@ -543,7 +541,7 @@ def test_ast_if():
     """
     )
 
-    stmt_lst = ast.nodes.procedure.nodes.stmt_lst
+    stmt_lst = ast.nodes.procedures[0].nodes.stmt_lst
 
     assert len(stmt_lst.nodes.statements) == 1
     assert stmt_lst.nodes.statements[0].__class__ == nodes.StmtIfNode
