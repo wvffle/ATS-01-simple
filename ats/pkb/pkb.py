@@ -13,6 +13,7 @@ def preprocess_query(tree: nodes.ProgramNode):
     variables = {}
     follows = {}
     parents = {}
+    uses = {}
 
     def find_all_statements():
         i = 1
@@ -44,18 +45,64 @@ def preprocess_query(tree: nodes.ProgramNode):
                 if isinstance(parent, nodes.StmtNode):
                     parents[node.__stmt_id] = parent.__stmt_id
 
+            if isinstance(
+                node, (nodes.StmtNode, nodes.StmtLstNode, nodes.ProcedureNode)
+            ):
+                uses_stack.append(node)
+                uses_stack.append([])
+
+            else:
+                uses_stack.append(node)
+
+            if isinstance(node, nodes.VariableNode) and node.parent.variable == node:
+                uses_stack.pop()
+
+            if (
+                isinstance(uses_stack[-1], (nodes.VariableNode, nodes.ConstantNode))
+                and node.parent.left != node
+            ):
+                variable_list = []
+                while not isinstance(uses_stack[-1], list):
+                    if isinstance(uses_stack[-1], nodes.VariableNode):
+                        variable_list.append(uses_stack[-1].name)
+                    uses_stack.pop()
+                uses_stack[-1] = variable_list
+                if not isinstance(
+                    uses_stack[-2], (nodes.StmtWhileNode, nodes.StmtIfNode)
+                ):
+                    while True:
+                        variable_list = []
+                        variable_list.extend(uses_stack[-1])
+                        if isinstance(uses_stack[-2], nodes.StmtNode):
+                            uses[uses_stack[-2].__stmt_id] = list(set(variable_list))
+                        if isinstance(uses_stack[-2], nodes.ProcedureNode):
+                            uses[uses_stack[-2].name] = list(set(variable_list))
+                        if uses_stack[-2].parent.children[-1] != uses_stack[-2]:
+                            uses_stack.pop()
+                            uses_stack.pop()
+                            uses_stack[-1].extend(variable_list)
+                            break
+                        uses_stack.pop()
+                        uses_stack.pop()
+                        if isinstance(uses_stack[-1], nodes.ProgramNode):
+                            break
+                        uses_stack[-1].extend(variable_list)
+
             for child in node.children:
                 process_relations(child)
 
         process_relations(tree)
 
+    uses_stack = []
     find_all_statements()
     process_all_relations()
 
     return {
         "statements": statements,
+        "variables": variables,
         "follows": follows,
         "parents": parents,
+        "uses": uses,
     }
 
 
@@ -185,9 +232,64 @@ def process_parent(query, context):
     return result
 
 
+def process_uses(query, context):
+    a = query["parameters"][0]
+    b = query["parameters"][1].strip('"')
+    searching_variable_type = query["variables"][query["searching_variable"]]
+    uses = context["uses"]
+    statements = context["statements"]
+
+    results = []
+
+    try:
+        if isinstance(a, str) and isinstance(b, str):
+            # case 1 - statement and variable
+            if STMT_TYPE_MAP[searching_variable_type] == nodes.StmtNode:
+                for key, value in uses.items():
+                    if b in value and isinstance(key, int):
+                        results.append(key)
+            else:
+                # case 2 - (assign or if or while) and variable
+                if STMT_TYPE_MAP[searching_variable_type]:
+                    for key, value in uses.items():
+                        if b in value and isinstance(key, int):
+                            if isinstance(
+                                statements[key], STMT_TYPE_MAP[query["variables"][a]]
+                            ):
+                                results.append(key)
+
+        if isinstance(a, int) and isinstance(b, str):
+            # case 3 - constant and variable - variable is searched for
+            if searching_variable_type == "variable":
+                results = uses[a]
+            # case 4 - constant and variable - statement is searched for
+            else:
+                if b in uses[a]:
+                    results.append(a)
+
+    except KeyError:
+        try:
+            # case 5 - procedure and variable - variable is searched for
+            if searching_variable_type == "variable":
+                a = a.strip('"')
+                results = uses[a]
+            # case 6 - procedure and variable - procedure is searched for
+            if searching_variable_type == "procedure":
+                for key, value in uses.items():
+                    if b in value and isinstance(key, str):
+                        results.append(key)
+        except KeyError:
+            pass
+
+    results.sort()
+    return results
+
+
 def evaluate_query(node: nodes.ASTNode, query):
     context = preprocess_query(node)
     if query["relations"][0]["relation"] == "Follows":
         return process_follows(query, context)
     if query["relations"][0]["relation"] == "Parent":
         return process_parent(query, context)
+    if query["relation"] == "Uses":
+        return process_uses(query, context)
