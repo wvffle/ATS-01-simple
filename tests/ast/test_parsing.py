@@ -315,6 +315,31 @@ def test_ast_expr_plus_minus_odd():
     assert deep.nodes.right.name == "d"
 
 
+def test_ast_expr_minus_plus_odd():
+    ast = parse(
+        """
+        procedure proc {
+            a = c - 2 + d;
+        }
+    """
+    )
+
+    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
+
+    assert expr.__class__ == nodes.ExprMinusNode
+    assert expr.nodes.left.__class__ == nodes.VariableNode
+    assert expr.nodes.left.name == "c"
+
+    assert expr.nodes.right.__class__ == nodes.ExprPlusNode
+    deep = expr.nodes.right
+
+    assert deep.nodes.left.__class__ == nodes.ConstantNode
+    assert deep.nodes.left.value == "2"
+
+    assert deep.nodes.right.__class__ == nodes.VariableNode
+    assert deep.nodes.right.name == "d"
+
+
 def test_ast_expr_plus_minus_long():
     ast = parse(
         """
@@ -501,6 +526,22 @@ def test_ast_bracket_expr_plus_times_odd():
 
     assert expr.nodes.right.__class__ == nodes.VariableNode
     assert expr.nodes.right.name == "b"
+
+
+def test_ast_call():
+    ast = parse(
+        """
+        procedure proc {
+            call test;
+        }
+    """
+    )
+
+    stmt_lst = ast.nodes.procedures[0].nodes.stmt_lst
+
+    assert len(stmt_lst.nodes.statements) == 1
+    assert stmt_lst.nodes.statements[0].__class__ == nodes.StmtCallNode
+    assert stmt_lst.nodes.statements[0].name == "test"
 
 
 def test_ast_while():

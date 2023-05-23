@@ -30,3 +30,14 @@ def test_empty_call_no_semicolon():
             }
         """
         )
+
+
+def test_call_constant_as_proc_name():
+    with pytest.raises(ValueError, match="Token '8' is not a valid NAME_TOKEN"):
+        parse(
+            """
+            procedure proc {
+                call 8;
+            }
+        """
+        )
