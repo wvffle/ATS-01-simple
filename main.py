@@ -15,7 +15,7 @@ if __name__ == "__main__":
                 a = 8 * (a + c) * 2;
                 call test;
             }
-            
+
             procedure test2 {
                 a = 8;
                 if a then {
