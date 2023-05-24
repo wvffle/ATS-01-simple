@@ -50,3 +50,23 @@ def test_factor_bracket_complex_minus():
         }
     """
     )
+
+
+def test_factor_bracket_complex_plus_back():
+    parse(
+        """
+        procedure proc {
+            test = ( b * 2 ) + 2;
+        }
+    """
+    )
+
+
+def test_factor_bracket_complex_minus_back():
+    parse(
+        """
+        procedure proc {
+            test = ( b * 2 ) - 2;
+        }
+    """
+    )
