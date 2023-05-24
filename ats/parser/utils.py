@@ -1,6 +1,6 @@
 import re
 
-RESTRICTED_TOKENS = ["if", "then", "else", "while", "procedure"]
+RESTRICTED_TOKENS = ["if", "then", "else", "while", "procedure", "call"]
 
 
 def is_name_token(token: str):

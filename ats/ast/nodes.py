@@ -95,6 +95,20 @@ class ExprPlusNode(ExprNode):
         self.add_node("right", right_node)
 
 
+class ExprMinusNode(ExprNode):
+    def __init__(self, left_node, right_node):
+        super().__init__("minus")
+        self.add_node("left", left_node)
+        self.add_node("right", right_node)
+
+
+class ExprTimesNode(ExprNode):
+    def __init__(self, left_node, right_node):
+        super().__init__("times")
+        self.add_node("left", left_node)
+        self.add_node("right", right_node)
+
+
 class StmtLstNode(ASTNode):
     def __init__(self, statements: list):
         super().__init__()
@@ -109,9 +123,9 @@ class ProcedureNode(ASTNode):
 
 
 class ProgramNode(ASTNode):
-    def __init__(self, procedure_node: ProcedureNode):
+    def __init__(self, procedure_nodes):
         super().__init__()
-        self.add_node("procedure", procedure_node)
+        self.add_node("procedures", procedure_nodes)
 
 
 class StmtNode(ASTNode):
@@ -122,6 +136,15 @@ class StmtNode(ASTNode):
 
     def __str__(self):  # pragma: no cover
         return "stmt: " + self.name
+
+
+class StmtCallNode(StmtNode):
+    def __init__(self, procedure_name: str):
+        super().__init__("call")
+        self.name = procedure_name
+
+    def __str__(self):  # pragma: no cover
+        return "call: " + self.name
 
 
 class StmtWhileNode(StmtNode):
