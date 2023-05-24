@@ -1,14 +1,25 @@
+from collections.abc import Callable
+
 from dotmap import DotMap
 from pptree import print_tree
+
+printer_filter = None
 
 
 class ASTNode:
     def __init__(self):
+        self.name = ""
         self.nodes = DotMap()
         self.children = []
 
     def add_node(self, field: str, node):
         self.nodes[field] = node
+
+        if isinstance(node, list):
+            for n in node:
+                n.parent = self
+        else:
+            node.parent = self
 
         if not isinstance(node, list):
             node = [node]
@@ -17,15 +28,37 @@ class ASTNode:
             if isinstance(n, ASTNode):
                 self.children.append(n)
 
-    def print_tree(self):  # pragma: no cover
-        print_tree(self, "children", horizontal=False)
+    # NOTE: this is a hack to filter the tree while pretty printing it or to shorten the access to the nodes
+    def __getattr__(self, name: str):  # pragma: no cover
+        if name not in self.__dict__:
+            if name == "filtered_children":
+                return self._get_filtered_children()
+            if name == "_name":
+                raise AttributeError()
+            return self.nodes[name]
+
+        return self.__dict__[name]
+
+    def _get_filtered_children(self):  # pragma: no cover
+        if printer_filter is None:
+            return self.children
+        else:
+            return [c for c in self.children if printer_filter(c)]
+
+    def print_tree(
+        self, filter: Callable[["ASTNode"], bool] = None
+    ):  # pragma: no cover
+        global printer_filter
+        printer_filter = filter
+
+        print_tree(self, "filtered_children", horizontal=False, nameattr="_name")
 
     def __str__(self):  # pragma: no cover
         name = self.__class__.__name__[0:-4]
         name = name[0].lower() + name[1:]
 
-        if hasattr(self, "name"):
-            name += f": {self.name}"
+        if self.name != "":
+            return f"{name}: {self.name}"
 
         return name
 
@@ -98,6 +131,7 @@ class ProgramNode(ASTNode):
 class StmtNode(ASTNode):
     def __init__(self, name: str):
         super().__init__()
+        self.__stmt_id = -1
         self.name = name
 
     def __str__(self):  # pragma: no cover
