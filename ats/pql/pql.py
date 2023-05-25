@@ -9,10 +9,10 @@ from ats.tokenizer import tokenize
 
 
 class AnyType:
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return self.__str__()
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return "Any"
 
 
