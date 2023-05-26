@@ -68,7 +68,6 @@ def test_not_valid_that_statement():
            """
         )
 
-
 def test_not_valid_relation_in_query():
     with pytest.raises(ValueError, match="Token 'Useless' is not a valid NAME_TOKEN"):
         parse_pql(
@@ -77,7 +76,6 @@ def test_not_valid_relation_in_query():
             Select w3 such that Useless(w3, "x")
             """
         )
-
 
 def test_complex_query_evaluator():
     parse_pql(
@@ -92,7 +90,6 @@ def test_too_fast_end_of_query():
     with pytest.raises(ValueError, match="Expected VARTYPE_TOKEN, got end of file"):
         parse_pql(
             """
-
             """
         )
 
@@ -103,12 +100,10 @@ def test_query_result():
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) with w3.attrName = "x"
             and s2.attrName = "boligrafo"
-
             """
     )
 
     assert result is not None
-
 
 def test_multiply_select_query():
     parse_pql(
@@ -132,7 +127,6 @@ def test_multiply_relations_select_query():
             Select w3 such that Uses(a3, w3) and Calls*("not", "me")
             """
     )
-
 
 def test_multiply_relations_select_query_values():
     result = parse_pql(
