@@ -24,7 +24,7 @@ relationships_stmt_ref_and_stmt_ref = ["Parent", "Parent*", "Follows", "Follows*
 relationships_ent_ref_and_ent_ref = ["Calls", "Calls*"]
 
 
-def parse_query(text: str):
+def parse_pql(text: str):
     tokens = tokenize(text)
     current_token = None
 

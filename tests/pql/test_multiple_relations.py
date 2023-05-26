@@ -1,10 +1,10 @@
 import pytest
 
-from ats.pql.pql import parse_query
+from ats.pql.pql import parse_pql
 
 
 def test_relations_modifies_and_follows_star():
-    result = parse_query(
+    result = parse_pql(
         """
             while w3; stmt s2;
             Select w3 such that Modifies(20, w3) and Follows*(w3, s2)
@@ -16,7 +16,7 @@ def test_relations_modifies_and_follows_star():
 
 
 def test_relations_follows_and_modifies():
-    result = parse_query(
+    result = parse_pql(
         """
             while w3; stmt s2;
             Select w3 such that Follows(20, w3) and Modifies(w3, s2)
@@ -28,7 +28,7 @@ def test_relations_follows_and_modifies():
 
 
 def test_relations_parent_star_and_modifies():
-    result = parse_query(
+    result = parse_pql(
         """
             while w3; stmt s2;
             Select w3 such that Parent*(20, '_') and Modifies('_', s2)
@@ -40,7 +40,7 @@ def test_relations_parent_star_and_modifies():
 
 
 def test_relations_modifies_and_parent():
-    result = parse_query(
+    result = parse_pql(
         """
             while w3; stmt s4;
             Select w3 such that Modifies(20, w3) and Parent(w3, s4)
@@ -52,7 +52,7 @@ def test_relations_modifies_and_parent():
 
 
 def test_relations_modifies_and_uses():
-    result = parse_query(
+    result = parse_pql(
         """
             while w; stmt s4;
             Select w such that Modifies(329, w) and Uses('_', "hello")
@@ -64,7 +64,7 @@ def test_relations_modifies_and_uses():
 
 
 def test_relations_uses_and_modifies():
-    result = parse_query(
+    result = parse_pql(
         """
             while w; stmt s4;
             Select w such that Uses(329, w) and Modifies('_', "hello")
@@ -79,7 +79,7 @@ def test_relations_uses_and_modifies_not_valid_modifies():
     with pytest.raises(
         ValueError, match="Token 'Modyfikuje' is not a valid NAME_TOKEN"
     ):
-        parse_query(
+        parse_pql(
             """
             while w; stmt s4;
             Select w such that Uses(329, w) and Modyfikuje('_', "hello")
@@ -89,7 +89,7 @@ def test_relations_uses_and_modifies_not_valid_modifies():
 
 def test_relations_uses_and_modifies_not_valid_uses():
     with pytest.raises(ValueError, match="Token 'Use' is not a valid NAME_TOKEN"):
-        parse_query(
+        parse_pql(
             """
             while w; stmt s4;
             Select w such that Use(329, w) and Modifies('_', "hello")

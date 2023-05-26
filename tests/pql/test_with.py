@@ -1,10 +1,10 @@
 import pytest
 
-from ats.pql.pql import Any, parse_query
+from ats.pql.pql import Any, parse_pql
 
 
 def test_valid_parameters_with_string_in_relations():
-    result = parse_query(
+    result = parse_pql(
         """ while w3;
             Select w3 such that Uses(w3, "x")
            """
@@ -15,7 +15,7 @@ def test_valid_parameters_with_string_in_relations():
 
 
 def test_valid_parameters_with_integer_in_relations():
-    result = parse_query(
+    result = parse_pql(
         """ while w3;
             Select w3 such that Uses(20, w3)
            """
@@ -26,7 +26,7 @@ def test_valid_parameters_with_integer_in_relations():
 
 
 def test_simply_with_left_query():
-    result = parse_query(
+    result = parse_pql(
         """
             while w3;
             Select w3 such that Uses(20, w3) with w3.attrName = '_'
@@ -41,7 +41,7 @@ def test_simply_with_left_query():
 
 
 def test_simply_with_query():
-    result = parse_query(
+    result = parse_pql(
         """
             while w3;
             Select w3 such that Uses(20, w3) with "x" = w3.attrName
@@ -56,7 +56,7 @@ def test_simply_with_query():
 
 
 def test_multiply_with_query():
-    result = parse_query(
+    result = parse_pql(
         """
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) with w3.attrName = "x"
@@ -83,7 +83,7 @@ def test_multiply_with_query():
 
 def test_not_valid_with_parameter_query():
     with pytest.raises(ValueError, match="Token '=' is not valid WITH_PARAMETER_TOKEN"):
-        parse_query(
+        parse_pql(
             """
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) with w3.attrName = =
@@ -97,7 +97,7 @@ def test_not_valid_with_attrname_parameter_query():
     with pytest.raises(
         ValueError, match="Token 'attrNName' is not valid ATTR_NAME_TOKEN"
     ):
-        parse_query(
+        parse_pql(
             """
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) with w3.attrNName = 30
