@@ -3,7 +3,7 @@ import sys
 from ats.ast.nodes import ProcedureNode, ProgramNode, StmtLstNode, StmtNode
 from ats.parser.parser import parse
 from ats.pkb.pkb import evaluate_query
-from ats.pql.pql import parse_pql
+from ats.pql.pql import parse_query
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -34,7 +34,7 @@ if __name__ == "__main__":
             )
         )
 
-        queries = parse_pql("""while a1; Select a1 such that Uses(2, "c")""")
+        queries = parse_query("""while a1; Select a1 such that Uses(2, "c")""")
 
         evaluate_query(tree, queries[0])
 
