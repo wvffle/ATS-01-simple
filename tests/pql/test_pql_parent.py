@@ -1,10 +1,10 @@
 import pytest
 
-from ats.pql.pql import Any, parse_pql
+from ats.pql.pql import Any, parse_query
 
 
 def test_relation_parent_in_query():
-    result = parse_pql(
+    result = parse_query(
         """ stmt s1;
             Select s1 such that Parent(s1, 3)
            """
@@ -14,7 +14,7 @@ def test_relation_parent_in_query():
 
 
 def test_parameters_relation_parent_in_query():
-    result = parse_pql(
+    result = parse_query(
         """ stmt s1;
             Select s1 such that Parent(s1, 3)
            """
@@ -25,7 +25,7 @@ def test_parameters_relation_parent_in_query():
 
 
 def test_relation_parent_star_in_query():
-    result = parse_pql(
+    result = parse_query(
         """ stmt s1;
             Select s1 such that Parent*(s1, 2)
            """
@@ -35,7 +35,7 @@ def test_relation_parent_star_in_query():
 
 
 def test_parameters_relation_parent_star_in_query():
-    result = parse_pql(
+    result = parse_query(
         """ stmt s1;
             Select s1 such that Parent*(s1, '_')
            """
@@ -49,7 +49,7 @@ def test_not_valid_relation_frst_parameter_parent_in_query():
     with pytest.raises(
         ValueError, match="""Token '"zmienna"' is not valid STMT_REF_TOKEN"""
     ):
-        parse_pql(
+        parse_query(
             """ stmt s1;
                 Select s1 such that Parent("zmienna", '_')
                """
@@ -58,7 +58,7 @@ def test_not_valid_relation_frst_parameter_parent_in_query():
 
 def test_not_valid_relation_second_parameter_parent_in_query():
     with pytest.raises(ValueError, match="""Token '"x"' is not valid STMT_REF_TOKEN"""):
-        parse_pql(
+        parse_query(
             """ stmt s1;
                 Select s1 such that Parent(s1, "x")
                """

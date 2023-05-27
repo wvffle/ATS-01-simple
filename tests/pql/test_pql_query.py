@@ -1,10 +1,10 @@
 import pytest
 
-from ats.pql.pql import parse_pql
+from ats.pql.pql import parse_query
 
 
 def test_simple_evaluator_query():
-    parse_pql(
+    parse_query(
         """ stmt s1;
             Select s1 such that Modifies(s1, "x")
         """
@@ -12,7 +12,7 @@ def test_simple_evaluator_query():
 
 
 def test_searching_variable():
-    result = parse_pql(
+    result = parse_query(
         """ stmt s1;
             Select s1 such that Uses(s1, "x")
         """
@@ -22,7 +22,7 @@ def test_searching_variable():
 
 
 def test_is_valid_searching_variable():
-    result = parse_pql(
+    result = parse_query(
         """ stmt s1;
             Select s1 such that Calls(s1, "x")
         """
@@ -33,7 +33,7 @@ def test_is_valid_searching_variable():
 
 def test_not_valid_searching_variable():
     with pytest.raises(ValueError, match="Token 's4' is not declared"):
-        parse_pql(
+        parse_query(
             """ stmt s1;
                 Select s4 such that Calls*(s1, "x")
            """
@@ -44,7 +44,7 @@ def test_not_valid_select_statement():
     with pytest.raises(
         ValueError, match="Token 'Selekt' is not a valid VARIABLE_TYPE_TOKEN"
     ):
-        parse_pql(
+        parse_query(
             """ stmt s1;
                 Selekt s1 such that Modifies(s1, "x")
            """
@@ -53,7 +53,7 @@ def test_not_valid_select_statement():
 
 def test_not_valid_such_statement():
     with pytest.raises(ValueError, match="Expected token 'such', got 'sum'"):
-        parse_pql(
+        parse_query(
             """ stmt s1;
                 Select s1 sum that Uses(s1, "x")
            """
@@ -62,7 +62,7 @@ def test_not_valid_such_statement():
 
 def test_not_valid_that_statement():
     with pytest.raises(ValueError, match="Expected token 'that', got 'dat'"):
-        parse_pql(
+        parse_query(
             """ stmt s1;
                 Select s1 such dat Calls(s1, "x")
            """
@@ -71,7 +71,7 @@ def test_not_valid_that_statement():
 
 def test_not_valid_relation_in_query():
     with pytest.raises(ValueError, match="Token 'Useless' is not a valid NAME_TOKEN"):
-        parse_pql(
+        parse_query(
             """
             while w3;
             Select w3 such that Useless(w3, "x")
@@ -80,7 +80,7 @@ def test_not_valid_relation_in_query():
 
 
 def test_complex_query_evaluator():
-    parse_pql(
+    parse_query(
         """
             while w3;
             Select w3 such that Uses(20, w3) with w3.attrName = "x"
@@ -90,7 +90,7 @@ def test_complex_query_evaluator():
 
 def test_too_fast_end_of_query():
     with pytest.raises(ValueError, match="Expected VARTYPE_TOKEN, got end of file"):
-        parse_pql(
+        parse_query(
             """
 
             """
@@ -98,7 +98,7 @@ def test_too_fast_end_of_query():
 
 
 def test_query_result():
-    result = parse_pql(
+    result = parse_query(
         """
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) with w3.attrName = "x"
@@ -111,7 +111,7 @@ def test_query_result():
 
 
 def test_multiply_select_query():
-    parse_pql(
+    parse_query(
         """
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) with w3.attrName = "x"
@@ -124,7 +124,7 @@ def test_multiply_select_query():
 
 
 def test_multiply_relations_select_query():
-    parse_pql(
+    parse_query(
         """
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows(w3, s2)
@@ -135,7 +135,7 @@ def test_multiply_relations_select_query():
 
 
 def test_multiply_relations_select_query_values():
-    result = parse_pql(
+    result = parse_query(
         """
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows*(w3, s2)
@@ -152,7 +152,7 @@ def test_multiply_relations_select_query_values():
 
 
 def test_multiply_relations_parameters_select_query_values():
-    result = parse_pql(
+    result = parse_query(
         """
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows*(w3, s2)
@@ -178,7 +178,7 @@ def test_multiply_relations_parameters_select_query_values():
 
 
 def test_multiply_relations_and_multiply_with_select_query():
-    parse_pql(
+    parse_query(
         """
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows(w3, s2)
@@ -191,7 +191,7 @@ def test_multiply_relations_and_multiply_with_select_query():
 
 
 def test_multiply_relations_and_multiply_with_select_query_values():
-    parse_pql(
+    parse_query(
         """
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows(w3, s2)
