@@ -21,7 +21,7 @@ def test_parameters_relation_parent_in_query():
     )
 
     assert result[0]["relations"][0]["parameters"][0] == "s1"
-    assert result[0]["relations"][0]["parameters"][1] == "3"
+    assert result[0]["relations"][0]["parameters"][1] == 3
 
 
 def test_relation_parent_star_in_query():

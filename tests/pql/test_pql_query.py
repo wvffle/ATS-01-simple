@@ -159,10 +159,10 @@ def test_multiply_relations_parameters_select_query_values():
             """
     )
 
-    assert result[0]["relations"][0]["parameters"][0] == "20"
+    assert result[0]["relations"][0]["parameters"][0] == 20
     assert result[0]["relations"][0]["parameters"][1] == "w3"
 
-    assert result[0]["relations"][1]["parameters"][0] == "20"
+    assert result[0]["relations"][1]["parameters"][0] == 20
     assert result[0]["relations"][1]["parameters"][1] == "w3"
 
     assert result[0]["relations"][2]["parameters"][0] == "w3"

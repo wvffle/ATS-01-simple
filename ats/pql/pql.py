@@ -124,8 +124,12 @@ def parse_query(text: str):
         ):
             raise ValueError(f"Token '{current_token}' is not valid STMT_REF_TOKEN")
 
-        parameter = current_token
+        try:
+            parameter = int(current_token)
+        except Exception:
+            parameter = current_token
         current_token = get_next_token()
+
         if is_any_token(parameter):
             return Any
 

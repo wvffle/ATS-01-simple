@@ -20,7 +20,7 @@ def test_parameters_relation_uses_in_query():
            """
     )
 
-    assert result[0]["relations"][0]["parameters"][0] == "10"
+    assert result[0]["relations"][0]["parameters"][0] == 10
     assert result[0]["relations"][0]["parameters"][1] == '"z"'
 
 
