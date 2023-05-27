@@ -175,7 +175,11 @@ def parse_query(text: str):
         if current_token != "attrName":
             raise ValueError(f"Token '{current_token}' is not valid ATTR_NAME_TOKEN")
 
-        parameter = current_token
+        try:
+            parameter = int(current_token)
+        except Exception:
+            parameter = current_token
+
         current_token = get_next_token()
 
         return parameter
