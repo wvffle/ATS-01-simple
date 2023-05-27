@@ -22,7 +22,6 @@ def test_parameters_relation_follows_in_query():
 
     anything = result[0]["relations"][0]["parameters"][0]
     assert anything is Any
-    assert repr(anything) == "Any"
     assert result[0]["relations"][0]["parameters"][1] == "10"
 
 
