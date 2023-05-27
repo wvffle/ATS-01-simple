@@ -60,8 +60,8 @@ def preprocess_query(tree: nodes.ProgramNode):
 
 
 def process_follows(query, context):
-    a = query["parameters"][0]
-    b = query["parameters"][1]
+    a = query["relations"][0]["parameters"][0]
+    b = query["relations"][0]["parameters"][1]
     follows = context["follows"]
     statements = context["statements"]
 
@@ -123,8 +123,8 @@ def process_follows(query, context):
 
 
 def process_parent(query, context):
-    a = query["parameters"][0]
-    b = query["parameters"][1]
+    a = query["relations"][0]["parameters"][0]
+    b = query["relations"][0]["parameters"][1]
     parent = context["parents"]
     statements = context["statements"]
 
@@ -162,7 +162,6 @@ def process_parent(query, context):
                 if query["searching_variable"] == a:
                     s2 = stmt
                     s1 = statements[parent[stmt.__stmt_id]]
-
                 elif query["searching_variable"] == b:
                     s2 = statements[parent[stmt.__stmt_id]]
                     s1 = stmt
@@ -188,7 +187,7 @@ def process_parent(query, context):
 
 def evaluate_query(node: nodes.ASTNode, query):
     context = preprocess_query(node)
-    if query["relation"] == "Follows":
+    if query["relations"][0]["relation"] == "Follows":
         return process_follows(query, context)
-    if query["relation"] == "Parent":
+    if query["relations"][0]["relation"] == "Parent":
         return process_parent(query, context)
