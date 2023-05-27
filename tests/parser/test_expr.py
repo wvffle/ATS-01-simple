@@ -1,3 +1,5 @@
+import pytest
+
 from ats.parser.parser import parse
 
 
@@ -21,31 +23,11 @@ def test_expr_const_plus_const():
     )
 
 
-def test_expr_const_minus_const():
-    parse(
-        """
-        procedure proc {
-            test = 4 - 4;
-        }
-    """
-    )
-
-
 def test_expr_const_plus_const_plus_const():
     parse(
         """
         procedure proc {
             test = 3 + 3 + 2;
-        }
-    """
-    )
-
-
-def test_expr_const_minus_const_plus_const():
-    parse(
-        """
-        procedure proc {
-            test = 3 - 3 - 2;
         }
     """
     )
@@ -61,16 +43,6 @@ def test_expr_var_plus_const():
     )
 
 
-def test_expr_var_minus_const():
-    parse(
-        """
-        procedure proc {
-            test = a - 2;
-        }
-    """
-    )
-
-
 def test_expr_var_plus_var():
     parse(
         """
@@ -81,38 +53,8 @@ def test_expr_var_plus_var():
     )
 
 
-def test_expr_var_minus_var():
-    parse(
-        """
-        procedure proc {
-            test = a - b;
-        }
-    """
-    )
-
-
-def test_expr_const_plus_var():
-    parse(
-        """
-        procedure proc {
-            test = 2 + b;
-        }
-    """
-    )
-
-
-def test_expr_const_minus_var():
-    parse(
-        """
-        procedure proc {
-            test = 2 - b;
-        }
-    """
-    )
-
-
 def test_expr_complex():
-    expr = "8" + " + 1 - 1" * 100
+    expr = "8" + " + 1" * 100
 
     parse(
         f"""
@@ -123,31 +65,20 @@ def test_expr_complex():
     )
 
 
-def test_expr_term_complex_var_plus_times():
+def test_expr_plus():
     parse(
         """
         procedure proc {
-            test = a + b * c;
+            test = a + b;
         }
     """
     )
 
-
-def test_expr_term_complex_var_times_plus():
-    parse(
+    with pytest.raises(ValueError, match="Token ';' is not a valid INTEGER_TOKEN"):
+        parse(
+            """
+            procedure proc {
+                test = 1 +;
+            }
         """
-        procedure proc {
-            test = a * b + c;
-        }
-    """
-    )
-
-
-def test_expr_term_complex_var_minus_times():
-    parse(
-        """
-        procedure proc {
-            test = a - b * c;
-        }
-    """
-    )
+        )

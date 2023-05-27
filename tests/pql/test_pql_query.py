@@ -92,6 +92,7 @@ def test_too_fast_end_of_query():
     with pytest.raises(ValueError, match="Expected VARTYPE_TOKEN, got end of file"):
         parse_pql(
             """
+
             """
         )
 
@@ -102,6 +103,7 @@ def test_query_result():
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) with w3.attrName = "x"
             and s2.attrName = "boligrafo"
+
             """
     )
 

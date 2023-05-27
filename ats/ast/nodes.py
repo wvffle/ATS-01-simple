@@ -1,25 +1,14 @@
-from collections.abc import Callable
-
 from dotmap import DotMap
 from pptree import print_tree
-
-printer_filter = None
 
 
 class ASTNode:
     def __init__(self):
-        self.name = ""
         self.nodes = DotMap()
         self.children = []
 
     def add_node(self, field: str, node):
         self.nodes[field] = node
-
-        if isinstance(node, list):
-            for n in node:
-                n.parent = self
-        else:
-            node.parent = self
 
         if not isinstance(node, list):
             node = [node]
@@ -28,37 +17,15 @@ class ASTNode:
             if isinstance(n, ASTNode):
                 self.children.append(n)
 
-    # NOTE: this is a hack to filter the tree while pretty printing it or to shorten the access to the nodes
-    def __getattr__(self, name: str):  # pragma: no cover
-        if name not in self.__dict__:
-            if name == "filtered_children":
-                return self._get_filtered_children()
-            if name == "_name":
-                raise AttributeError()
-            return self.nodes[name]
-
-        return self.__dict__[name]
-
-    def _get_filtered_children(self):  # pragma: no cover
-        if printer_filter is None:
-            return self.children
-        else:
-            return [c for c in self.children if printer_filter(c)]
-
-    def print_tree(
-        self, filter: Callable[["ASTNode"], bool] = None
-    ):  # pragma: no cover
-        global printer_filter
-        printer_filter = filter
-
-        print_tree(self, "filtered_children", horizontal=False, nameattr="_name")
+    def print_tree(self):  # pragma: no cover
+        print_tree(self, "children", horizontal=False)
 
     def __str__(self):  # pragma: no cover
         name = self.__class__.__name__[0:-4]
         name = name[0].lower() + name[1:]
 
-        if self.name != "":
-            return f"{name}: {self.name}"
+        if hasattr(self, "name"):
+            name += f": {self.name}"
 
         return name
 
@@ -95,20 +62,6 @@ class ExprPlusNode(ExprNode):
         self.add_node("right", right_node)
 
 
-class ExprMinusNode(ExprNode):
-    def __init__(self, left_node, right_node):
-        super().__init__("minus")
-        self.add_node("left", left_node)
-        self.add_node("right", right_node)
-
-
-class ExprTimesNode(ExprNode):
-    def __init__(self, left_node, right_node):
-        super().__init__("times")
-        self.add_node("left", left_node)
-        self.add_node("right", right_node)
-
-
 class StmtLstNode(ASTNode):
     def __init__(self, statements: list):
         super().__init__()
@@ -123,28 +76,18 @@ class ProcedureNode(ASTNode):
 
 
 class ProgramNode(ASTNode):
-    def __init__(self, procedure_nodes):
+    def __init__(self, procedure_node: ProcedureNode):
         super().__init__()
-        self.add_node("procedures", procedure_nodes)
+        self.add_node("procedure", procedure_node)
 
 
 class StmtNode(ASTNode):
     def __init__(self, name: str):
         super().__init__()
-        self.__stmt_id = -1
         self.name = name
 
     def __str__(self):  # pragma: no cover
         return "stmt: " + self.name
-
-
-class StmtCallNode(StmtNode):
-    def __init__(self, procedure_name: str):
-        super().__init__("call")
-        self.name = procedure_name
-
-    def __str__(self):  # pragma: no cover
-        return "call: " + self.name
 
 
 class StmtWhileNode(StmtNode):
@@ -165,8 +108,8 @@ class StmtIfNode(StmtNode):
         self.add_node("condition", condition_node)
         then_node.name = "then"
         else_node.name = "else"
-        self.add_node("then_stmt_lst", then_node)
         self.add_node("else_stmt_lst", else_node)
+        self.add_node("then_stmt_lst", then_node)
 
 
 class StmtAssignNode(StmtNode):

@@ -1,9 +1,6 @@
 import sys
 
-from ats.ast.nodes import ProcedureNode, ProgramNode, StmtLstNode, StmtNode
 from ats.parser.parser import parse
-from ats.pkb.pkb import evaluate_query
-from ats.pql.pql import parse_pql
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -12,31 +9,21 @@ if __name__ == "__main__":
         tree = parse(
             """
             procedure test {
-                a = 8 * (a + c) * 2;
-                call test;
-            }
-
-            procedure test2 {
                 a = 8;
-                if a then {
-                    a = b + 3;
+                while a {
+                    a = a + 1;
+                }
+                if b then {
+                    a = a + 2;
                 }
                 else {
-                    c = d + e;
+                    a = a + 3;
                 }
             }
             """
         )
 
-        tree.print_tree(
-            filter=lambda node: isinstance(
-                node, (ProgramNode, ProcedureNode, StmtLstNode, StmtNode)
-            )
-        )
-
-        queries = parse_pql("""while a1; Select a1 such that Uses(2, "c")""")
-
-        evaluate_query(tree, queries[0])
+        tree.print_tree()
 
     elif len(sys.argv) > 0:
         with open(sys.argv[-1]) as f:

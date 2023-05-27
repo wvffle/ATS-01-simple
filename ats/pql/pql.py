@@ -23,6 +23,7 @@ shallow_relationship = ["Modifies", "Uses"]
 relationships_stmt_ref_and_stmt_ref = ["Parent", "Parent*", "Follows", "Follows*"]
 relationships_ent_ref_and_ent_ref = ["Calls", "Calls*"]
 
+
 def parse_pql(text: str):
     tokens = tokenize(text)
     current_token = None
@@ -174,11 +175,7 @@ def parse_pql(text: str):
         if current_token != "attrName":
             raise ValueError(f"Token '{current_token}' is not valid ATTR_NAME_TOKEN")
 
-        try:
-            parameter = int(current_token)
-        except Exception:
-            parameter = current_token
-
+        parameter = current_token
         current_token = get_next_token()
 
         return parameter
