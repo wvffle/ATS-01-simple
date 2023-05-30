@@ -84,3 +84,6 @@ def test_pkb_uses_procedure_variable():
     queries = parse_pql("""variable v1; Select v1 such that Uses("test", v1)""")
     result = evaluate_query(tree, queries[0])
     assert result == ["a", "b", "c", "d", "e", "f", "g"]
+    queries = parse_pql("""variable v1; Select v1 such that Uses("test1", v1)""")
+    result = evaluate_query(tree, queries[0])
+    assert result == []

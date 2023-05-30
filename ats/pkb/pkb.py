@@ -14,6 +14,7 @@ def preprocess_query(tree: nodes.ProgramNode):
     follows = {}
     parents = {}
     uses = {}
+    modifies = {}
 
     def find_all_statements():
         i = 1
@@ -50,12 +51,17 @@ def preprocess_query(tree: nodes.ProgramNode):
             ):
                 uses_stack.append(node)
                 uses_stack.append([])
+                modifies_stack.append(node)
+                modifies_stack.append([])
 
             else:
                 uses_stack.append(node)
+                modifies_stack.append(node)
 
             if isinstance(node, nodes.VariableNode) and node.parent.variable == node:
                 uses_stack.pop()
+                modifies_stack[-2].append(modifies_stack[-1].name)
+                modifies_stack.pop()
 
             if (
                 isinstance(uses_stack[-1], (nodes.VariableNode, nodes.ConstantNode))
@@ -66,6 +72,7 @@ def preprocess_query(tree: nodes.ProgramNode):
                     if isinstance(uses_stack[-1], nodes.VariableNode):
                         variable_list.append(uses_stack[-1].name)
                     uses_stack.pop()
+                    modifies_stack.pop()
                 uses_stack[-1] = variable_list
                 if not isinstance(
                     uses_stack[-2], (nodes.StmtWhileNode, nodes.StmtIfNode)
@@ -87,6 +94,25 @@ def preprocess_query(tree: nodes.ProgramNode):
                         if isinstance(uses_stack[-1], nodes.ProgramNode):
                             break
                         uses_stack[-1].extend(variable_list)
+                    while True:
+                        variable_list = []
+                        variable_list.extend(modifies_stack[-1])
+                        if isinstance(modifies_stack[-2], nodes.StmtNode):
+                            modifies[modifies_stack[-2].__stmt_id] = list(
+                                set(variable_list)
+                            )
+                        if isinstance(modifies_stack[-2], nodes.ProcedureNode):
+                            modifies[modifies_stack[-2].name] = list(set(variable_list))
+                        if modifies_stack[-2].parent.children[-1] != modifies_stack[-2]:
+                            modifies_stack.pop()
+                            modifies_stack.pop()
+                            modifies_stack[-1].extend(variable_list)
+                            break
+                        modifies_stack.pop()
+                        modifies_stack.pop()
+                        if isinstance(modifies_stack[-1], nodes.ProgramNode):
+                            break
+                        modifies_stack[-1].extend(variable_list)
 
             for child in node.children:
                 process_relations(child)
@@ -94,6 +120,7 @@ def preprocess_query(tree: nodes.ProgramNode):
         process_relations(tree)
 
     uses_stack = []
+    modifies_stack = []
     find_all_statements()
     process_all_relations()
 
@@ -103,6 +130,7 @@ def preprocess_query(tree: nodes.ProgramNode):
         "follows": follows,
         "parents": parents,
         "uses": uses,
+        "modifies": modifies,
     }
 
 
@@ -285,6 +313,59 @@ def process_uses(query, context):
     return results
 
 
+def process_modifies(query, context):
+    a = query["parameters"][0]
+    b = query["parameters"][1].strip('"')
+    searching_variable_type = query["variables"][query["searching_variable"]]
+    modifies = context["modifies"]
+    statements = context["statements"]
+
+    results = []
+
+    try:
+        if isinstance(a, str) and isinstance(b, str):
+            # case 1 - statement and variable
+            if STMT_TYPE_MAP[searching_variable_type] == nodes.StmtNode:
+                for key, value in modifies.items():
+                    if b in value and isinstance(key, int):
+                        results.append(key)
+            else:
+                # case 2 - (assign or if or while) and variable
+                if STMT_TYPE_MAP[searching_variable_type]:
+                    for key, value in modifies.items():
+                        if b in value and isinstance(key, int):
+                            if isinstance(
+                                statements[key], STMT_TYPE_MAP[query["variables"][a]]
+                            ):
+                                results.append(key)
+
+        if isinstance(a, int) and isinstance(b, str):
+            # case 3 - constant and variable - variable is searched for
+            if searching_variable_type == "variable":
+                results = modifies[a]
+            # case 4 - constant and variable - statement is searched for
+            else:
+                if b in modifies[a]:
+                    results.append(a)
+
+    except KeyError:
+        try:
+            # case 5 - procedure and variable - variable is searched for
+            if searching_variable_type == "variable":
+                a = a.strip('"')
+                results = modifies[a]
+            # case 6 - procedure and variable - procedure is searched for
+            if searching_variable_type == "procedure":
+                for key, value in modifies.items():
+                    if b in value and isinstance(key, str):
+                        results.append(key)
+        except KeyError:
+            pass
+
+    results.sort()
+    return results
+
+
 def evaluate_query(node: nodes.ASTNode, query):
     context = preprocess_query(node)
     if query["relations"][0]["relation"] == "Follows":
@@ -293,3 +374,5 @@ def evaluate_query(node: nodes.ASTNode, query):
         return process_parent(query, context)
     if query["relation"] == "Uses":
         return process_uses(query, context)
+    if query["relation"] == "Modifies":
+        return process_modifies(query, context)
