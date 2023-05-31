@@ -1,5 +1,6 @@
 from ats.parser.utils import is_integer_token, is_name_token
 from ats.pql.utils import (
+    is_any_token,
     is_program_design_entity_relationship_token,
     is_string_token,
     is_variable_type_token,
@@ -7,7 +8,23 @@ from ats.pql.utils import (
 from ats.tokenizer import tokenize
 
 
-def parse_pql(text: str):
+class AnyType:
+    def __repr__(self):  # pragma: no cover
+        return self.__str__()
+
+    def __str__(self):  # pragma: no cover
+        return "Any"
+
+
+Any = AnyType()
+
+
+shallow_relationship = ["Modifies", "Uses"]
+relationships_stmt_ref_and_stmt_ref = ["Parent", "Parent*", "Follows", "Follows*"]
+relationships_ent_ref_and_ent_ref = ["Calls", "Calls*"]
+
+
+def parse_query(text: str):
     tokens = tokenize(text)
     current_token = None
 
@@ -68,12 +85,17 @@ def parse_pql(text: str):
     def match_design_entity_relationship():
         assert_token("DESIGN_ENTITY_RELATIONSHIP_TOKEN")
         nonlocal current_token
+
         if not is_program_design_entity_relationship_token(current_token):
             raise ValueError(f"Token '{current_token}' is not a valid NAME_TOKEN")
 
         relationship = current_token
+
         current_token = get_next_token()
         if current_token == "*":
+            if relationship in shallow_relationship:
+                raise ValueError(f"Token '{relationship}*' is not a valid NAME_TOKEN")
+
             relationship += "*"
             current_token = get_next_token()
 
@@ -92,15 +114,70 @@ def parse_pql(text: str):
 
         return name
 
-    def match_parameter_token(variables):
+    def match_stmt_ref_token(variables):
+        assert_token("RELATIONSHIP_PARAMETER_TOKEN")
+        nonlocal current_token
+        if (
+            not is_integer_token(current_token)
+            and not is_any_token(current_token)
+            and current_token not in variables
+        ):
+            raise ValueError(f"Token '{current_token}' is not valid STMT_REF_TOKEN")
+
+        try:
+            parameter = int(current_token)
+        except Exception:
+            parameter = current_token
+        current_token = get_next_token()
+
+        if is_any_token(parameter):
+            return Any
+
+        return parameter
+
+    def match_ent_ref_token(variables):
         assert_token("RELATIONSHIP_PARAMETER_TOKEN")
         nonlocal current_token
         if (
             not is_string_token(current_token)
-            and not is_integer_token(current_token)
+            and not is_any_token(current_token)
             and current_token not in variables
         ):
-            raise ValueError(f"Variable '{current_token}' is not declared")
+            raise ValueError(f"Token '{current_token}' is not valid ENT_REF_TOKEN")
+
+        parameter = current_token
+        current_token = get_next_token()
+        if is_any_token(parameter):
+            return Any
+
+        return parameter
+
+    def match_with_parameter_token(variables):
+        assert_token("RELATIONSHIP_PARAMETER_TOKEN")
+        nonlocal current_token
+        if (
+            not is_name_token(current_token)
+            and not is_integer_token(current_token)
+            and not is_string_token(current_token)
+            and not is_any_token(current_token)
+            and current_token not in variables
+        ):
+            raise ValueError(
+                f"Token '{current_token}' is not valid WITH_PARAMETER_TOKEN"
+            )
+
+        parameter = current_token
+        current_token = get_next_token()
+        if is_any_token(parameter):
+            return Any
+
+        return parameter
+
+    def match_attr_name_token():
+        assert_token("ATTR_NAME_TOKEN")
+        nonlocal current_token
+        if current_token != "attrName":
+            raise ValueError(f"Token '{current_token}' is not valid ATTR_NAME_TOKEN")
 
         try:
             parameter = int(current_token)
@@ -131,65 +208,103 @@ def parse_pql(text: str):
 
     def process_query(variables):
         nonlocal current_token
+
         match_token("Select")
         searching_variable = match_variable_is_in_list_token(variables)
-        # is_with = False
-
         match_token("such")
         match_token("that")
-        relationship = match_design_entity_relationship()
-        match_token("(")
-        first_parameter = match_parameter_token(variables)
-        match_token(",")
-        second_parameter = match_parameter_token(variables)
-        match_token(")")
+
+        relationships = []
+        process_relationship(variables, relationships)
+        while current_token == "and":
+            match_token("and")
+            process_relationship(variables, relationships)
 
         withs = []
-        while current_token == "with":
+        if current_token == "with":
             match_token("with")
+            process_optional_with(withs, variables)
 
-            attr_left = None
-            attr_right = None
-
-            if current_token in variables:
-                left = match_parameter_token(variables)
-
-                match_token(".")
-                attr_left = current_token
-                current_token = get_next_token()
-            else:
-                left = match_parameter_token(variables)
-
-            match_token("=")
-
-            if current_token in variables:
-                right = match_parameter_token(variables)
-
-                match_token(".")
-                attr_right = current_token
-                current_token = get_next_token()
-            else:
-                right = match_parameter_token(variables)
-
-            withs.append(
-                {
-                    "left": left,
-                    "attr_left": attr_left,
-                    "right": right,
-                    "attr_right": attr_right,
-                }
-            )
+        while current_token == "and":
+            match_token("and")
+            process_optional_with(withs, variables)
 
         return {
-            "relation": relationship,
+            "relations": relationships,
             "searching_variable": searching_variable,
             "variables": dict(variables),
-            "parameters": [
-                first_parameter,
-                second_parameter,
-            ],
-            "with": withs,
+            "withs": withs,
         }
+
+    def process_relationship_stmt_ref_and_ent_ref(variables):
+        first_parameter = match_stmt_ref_token(variables)
+        match_token(",")
+        second_parameter = match_ent_ref_token(variables)
+        match_token(")")
+
+        return [first_parameter, second_parameter]
+
+    def process_relationship_stmt_ref_and_stmt_ref(variables):
+        first_parameter = match_stmt_ref_token(variables)
+        match_token(",")
+        second_parameter = match_stmt_ref_token(variables)
+        match_token(")")
+
+        return [first_parameter, second_parameter]
+
+    def process_relationship_ent_ref_and_ent_ref(variables):
+        first_parameter = match_ent_ref_token(variables)
+        match_token(",")
+        second_parameter = match_ent_ref_token(variables)
+        match_token(")")
+
+        return [first_parameter, second_parameter]
+
+    def process_relationship(variables, relationships):
+        relationship = match_design_entity_relationship()
+
+        match_token("(")
+        parameters = []
+        if relationship in shallow_relationship:
+            parameters = process_relationship_stmt_ref_and_ent_ref(variables)
+        elif relationship in relationships_stmt_ref_and_stmt_ref:
+            parameters = process_relationship_stmt_ref_and_stmt_ref(variables)
+        elif relationship in relationships_ent_ref_and_ent_ref:
+            parameters = process_relationship_ent_ref_and_ent_ref(variables)
+
+        relationships.append({"relation": relationship, "parameters": parameters})
+
+    def process_optional_with(withs, variables):
+        nonlocal current_token
+        attr_left = None
+        attr_right = None
+
+        if current_token in variables:
+            left = match_variable_is_in_list_token(variables)
+
+            match_token(".")
+            attr_left = match_attr_name_token()
+        else:
+            left = match_with_parameter_token(variables)
+
+        match_token("=")
+
+        if current_token in variables:
+            right = match_variable_is_in_list_token(variables)
+
+            match_token(".")
+            attr_right = match_attr_name_token()
+        else:
+            right = match_with_parameter_token(variables)
+
+        withs.append(
+            {
+                "left": left,
+                "attr_left": attr_left,
+                "right": right,
+                "attr_right": attr_right,
+            }
+        )
 
     def process_variable(variables):
         nonlocal current_token
