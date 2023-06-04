@@ -10,7 +10,6 @@ STMT_TYPE_MAP = {
 
 def preprocess_query(tree: nodes.ProgramNode):
     statements = {}
-    variables = {}
     follows = {}
     parents = {}
     uses = {}
@@ -19,20 +18,23 @@ def preprocess_query(tree: nodes.ProgramNode):
     def find_all_statements():
         i = 1
 
-        def find_statements_and_variables(node: nodes.ASTNode):
+        def find_statements_and_procedures(node: nodes.ASTNode):
             if isinstance(node, nodes.StmtNode):
                 nonlocal i
                 statements[i] = node
                 node.__stmt_id = i
                 i += 1
+                modifies[node.__stmt_id] = []
+                uses[node.__stmt_id] = []
 
-            if isinstance(node, nodes.VariableNode):
-                variables[node] = node.name
+            if isinstance(node, nodes.ProcedureNode):
+                modifies[node.name] = []
+                uses[node.name] = []
 
             for n in node.children:
-                find_statements_and_variables(n)
+                find_statements_and_procedures(n)
 
-        find_statements_and_variables(tree)
+        find_statements_and_procedures(tree)
 
     def process_all_relations():
         def process_relations(node: nodes.ASTNode):
@@ -46,87 +48,73 @@ def preprocess_query(tree: nodes.ProgramNode):
                 if isinstance(parent, nodes.StmtNode):
                     parents[node.__stmt_id] = parent.__stmt_id
 
-            if isinstance(
-                node, (nodes.StmtNode, nodes.StmtLstNode, nodes.ProcedureNode)
-            ):
-                uses_stack.append(node)
-                uses_stack.append([])
-                modifies_stack.append(node)
-                modifies_stack.append([])
-
-            else:
-                uses_stack.append(node)
-                modifies_stack.append(node)
-
-            if isinstance(node, nodes.VariableNode) and node.parent.variable == node:
-                uses_stack.pop()
-                modifies_stack[-2].append(modifies_stack[-1].name)
-                modifies_stack.pop()
-
-            if (
-                isinstance(uses_stack[-1], (nodes.VariableNode, nodes.ConstantNode))
-                and node.parent.left != node
-            ):
-                variable_list = []
-                while not isinstance(uses_stack[-1], list):
-                    if isinstance(uses_stack[-1], nodes.VariableNode):
-                        variable_list.append(uses_stack[-1].name)
-                    uses_stack.pop()
-                    modifies_stack.pop()
-                uses_stack[-1] = variable_list
-                if not isinstance(
-                    uses_stack[-2], (nodes.StmtWhileNode, nodes.StmtIfNode)
-                ):
-                    while True:
-                        variable_list = []
-                        variable_list.extend(uses_stack[-1])
-                        if isinstance(uses_stack[-2], nodes.StmtNode):
-                            uses[uses_stack[-2].__stmt_id] = list(set(variable_list))
-                        if isinstance(uses_stack[-2], nodes.ProcedureNode):
-                            uses[uses_stack[-2].name] = list(set(variable_list))
-                        if uses_stack[-2].parent.children[-1] != uses_stack[-2]:
-                            uses_stack.pop()
-                            uses_stack.pop()
-                            uses_stack[-1].extend(variable_list)
-                            break
-                        uses_stack.pop()
-                        uses_stack.pop()
-                        if isinstance(uses_stack[-1], nodes.ProgramNode):
-                            break
-                        uses_stack[-1].extend(variable_list)
-                    while True:
-                        variable_list = []
-                        variable_list.extend(modifies_stack[-1])
-                        if isinstance(modifies_stack[-2], nodes.StmtNode):
-                            modifies[modifies_stack[-2].__stmt_id] = list(
-                                set(variable_list)
-                            )
-                        if isinstance(modifies_stack[-2], nodes.ProcedureNode):
-                            modifies[modifies_stack[-2].name] = list(set(variable_list))
-                        if modifies_stack[-2].parent.children[-1] != modifies_stack[-2]:
-                            modifies_stack.pop()
-                            modifies_stack.pop()
-                            modifies_stack[-1].extend(variable_list)
-                            break
-                        modifies_stack.pop()
-                        modifies_stack.pop()
-                        if isinstance(modifies_stack[-1], nodes.ProgramNode):
-                            break
-                        modifies_stack[-1].extend(variable_list)
-
             for child in node.children:
+                nonlocal variable_list
+                nodes_stack.append(child)
                 process_relations(child)
 
+                if isinstance(nodes_stack[-1], nodes.VariableNode):
+                    if nodes_stack[-1].parent.condition == nodes_stack[-1]:
+                        uses[nodes_stack[-1].parent.__stmt_id] = [nodes_stack[-1].name]
+                    else:
+                        variable_list.append(nodes_stack[-1].name)
+
+                if isinstance(nodes_stack[-1].parent, nodes.StmtAssignNode):
+                    if nodes_stack[-1].parent.variable == nodes_stack[-1]:
+                        modifies[nodes_stack[-1].parent.__stmt_id] = [
+                            nodes_stack[-1].name
+                        ]
+                    else:
+                        uses[nodes_stack[-1].parent.__stmt_id] = variable_list
+                    variable_list = []
+
+                if isinstance(nodes_stack[-1], nodes.StmtCallNode):
+                    modifies[nodes_stack[-1].__stmt_id] = [
+                        modifies[nodes_stack[-1].name]
+                    ]
+                    uses[nodes_stack[-1].__stmt_id] = [uses[nodes_stack[-1].name]]
+
+                if isinstance(nodes_stack[-1].parent, nodes.StmtLstNode):
+                    parent_node = nodes_stack[-1].parent
+                    if isinstance(parent_node.parent, nodes.StmtNode):
+                        modifies[parent_node.parent.__stmt_id].extend(
+                            modifies[nodes_stack[-1].__stmt_id]
+                        )
+                        uses[parent_node.parent.__stmt_id].extend(
+                            uses[nodes_stack[-1].__stmt_id]
+                        )
+                    if isinstance(parent_node.parent, nodes.ProcedureNode):
+                        modifies[parent_node.parent.name].extend(
+                            modifies[nodes_stack[-1].__stmt_id]
+                        )
+                        uses[parent_node.parent.name].extend(
+                            uses[nodes_stack[-1].__stmt_id]
+                        )
+
+                nodes_stack.pop()
+
+        variable_list = []
+        nodes_stack.append(tree)
         process_relations(tree)
 
-    uses_stack = []
-    modifies_stack = []
+    nodes_stack = []
     find_all_statements()
     process_all_relations()
 
+    for key, value in modifies.items():
+        flattened_list = []
+        for element in value:
+            flattened_list.extend(element)
+        modifies[key] = list(set(flattened_list))
+
+    for key, value in uses.items():
+        flattened_list = []
+        for element in value:
+            flattened_list.extend(element)
+        uses[key] = list(set(flattened_list))
+
     return {
         "statements": statements,
-        "variables": variables,
         "follows": follows,
         "parents": parents,
         "uses": uses,
@@ -261,8 +249,8 @@ def process_parent(query, context):
 
 
 def process_uses(query, context):
-    a = query["parameters"][0]
-    b = query["parameters"][1].strip('"')
+    a = query["relations"][0]["parameters"][0]
+    b = query["relations"][0]["parameters"][1].strip('"')
     searching_variable_type = query["variables"][query["searching_variable"]]
     uses = context["uses"]
     statements = context["statements"]
@@ -296,26 +284,19 @@ def process_uses(query, context):
                     results.append(a)
 
     except KeyError:
-        try:
-            # case 5 - procedure and variable - variable is searched for
-            if searching_variable_type == "variable":
-                a = a.strip('"')
-                results = uses[a]
-            # case 6 - procedure and variable - procedure is searched for
-            if searching_variable_type == "procedure":
-                for key, value in uses.items():
-                    if b in value and isinstance(key, str):
-                        results.append(key)
-        except KeyError:
-            pass
+        # case 5 - procedure and variable - procedure is searched for
+        if searching_variable_type == "procedure":
+            for key, value in uses.items():
+                if b in value and isinstance(key, str):
+                    results.append(key)
 
     results.sort()
     return results
 
 
 def process_modifies(query, context):
-    a = query["parameters"][0]
-    b = query["parameters"][1].strip('"')
+    a = query["relations"][0]["parameters"][0]
+    b = query["relations"][0]["parameters"][1].strip('"')
     searching_variable_type = query["variables"][query["searching_variable"]]
     modifies = context["modifies"]
     statements = context["statements"]
@@ -349,18 +330,11 @@ def process_modifies(query, context):
                     results.append(a)
 
     except KeyError:
-        try:
-            # case 5 - procedure and variable - variable is searched for
-            if searching_variable_type == "variable":
-                a = a.strip('"')
-                results = modifies[a]
-            # case 6 - procedure and variable - procedure is searched for
-            if searching_variable_type == "procedure":
-                for key, value in modifies.items():
-                    if b in value and isinstance(key, str):
-                        results.append(key)
-        except KeyError:
-            pass
+        # case 5 - procedure and variable - procedure is searched for
+        if searching_variable_type == "procedure":
+            for key, value in modifies.items():
+                if b in value and isinstance(key, str):
+                    results.append(key)
 
     results.sort()
     return results
@@ -372,7 +346,7 @@ def evaluate_query(node: nodes.ASTNode, query):
         return process_follows(query, context)
     if query["relations"][0]["relation"] == "Parent":
         return process_parent(query, context)
-    if query["relation"] == "Uses":
+    if query["relations"][0]["relation"] == "Uses":
         return process_uses(query, context)
-    if query["relation"] == "Modifies":
+    if query["relations"][0]["relation"] == "Modifies":
         return process_modifies(query, context)
