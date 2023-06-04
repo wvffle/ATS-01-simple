@@ -69,10 +69,8 @@ def preprocess_query(tree: nodes.ProgramNode):
                     variable_list = []
 
                 if isinstance(nodes_stack[-1], nodes.StmtCallNode):
-                    modifies[nodes_stack[-1].__stmt_id] = [
-                        modifies[nodes_stack[-1].name]
-                    ]
-                    uses[nodes_stack[-1].__stmt_id] = [uses[nodes_stack[-1].name]]
+                    modifies[nodes_stack[-1].__stmt_id] = [nodes_stack[-1]]
+                    uses[nodes_stack[-1].__stmt_id] = [nodes_stack[-1]]
 
                 if isinstance(nodes_stack[-1].parent, nodes.StmtLstNode):
                     parent_node = nodes_stack[-1].parent
@@ -102,16 +100,24 @@ def preprocess_query(tree: nodes.ProgramNode):
     process_all_relations()
 
     for key, value in modifies.items():
-        flattened_list = []
+        variable_list = []
         for element in value:
-            flattened_list.extend(element)
-        modifies[key] = list(set(flattened_list))
+            if isinstance(element, nodes.StmtCallNode):
+                if key != element.name:
+                    variable_list.extend(modifies[element.name])
+            else:
+                variable_list.append(element)
+        modifies[key] = list(set(variable_list))
 
     for key, value in uses.items():
-        flattened_list = []
+        variable_list = []
         for element in value:
-            flattened_list.extend(element)
-        uses[key] = list(set(flattened_list))
+            if isinstance(element, nodes.StmtCallNode):
+                if key != element.name:
+                    variable_list.extend(uses[element.name])
+            else:
+                variable_list.append(element)
+        uses[key] = list(set(variable_list))
 
     return {
         "statements": statements,

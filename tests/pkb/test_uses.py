@@ -36,6 +36,11 @@ def _get_ast_tree():
                 }
                 i = j;
             }
+
+            procedure test3 {
+                a = a;
+                call test3;
+            }
             """
     )
 
@@ -64,7 +69,7 @@ def test_pkb_uses_assign_variable():
     tree = _get_ast_tree()
     queries = parse_query("""assign a1; Select a1 such that Uses(a1, "a")""")
     result = evaluate_query(tree, queries[0])
-    assert result == [5, 9]
+    assert result == [5, 9, 17]
 
     queries = parse_query("""assign a1; Select a1 such that Uses(a1, "c")""")
     result = evaluate_query(tree, queries[0])
@@ -96,7 +101,7 @@ def test_pkb_uses_procedure_variable():
     tree = _get_ast_tree()
     queries = parse_query("""procedure p1; Select p1 such that Uses(p1, "a")""")
     result = evaluate_query(tree, queries[0])
-    assert result == ["test", "test2"]
+    assert result == ["test", "test2", "test3"]
     queries = parse_query("""procedure p1; Select p1 such that Uses(p1, "j")""")
     result = evaluate_query(tree, queries[0])
     assert result == ["test2"]
