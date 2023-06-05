@@ -47,10 +47,17 @@ def preprocess_query(tree: nodes.ProgramNode):
                 parent = node.parent.parent
                 if isinstance(parent, nodes.StmtNode):
                     parents[node.__stmt_id] = parent.__stmt_id
+                nodes_with_call[node.__stmt_id] = []
+
+            if isinstance(node, nodes.ProcedureNode):
+                nodes_with_call[node.name] = []
 
             for child in node.children:
                 nonlocal variable_list
+                nonlocal current_procedure
                 nodes_stack.append(child)
+                if isinstance(child, nodes.ProcedureNode):
+                    current_procedure = child.name
                 process_relations(child)
 
                 if isinstance(nodes_stack[-1], nodes.VariableNode):
@@ -69,8 +76,15 @@ def preprocess_query(tree: nodes.ProgramNode):
                     variable_list = []
 
                 if isinstance(nodes_stack[-1], nodes.StmtCallNode):
-                    modifies[nodes_stack[-1].__stmt_id] = [nodes_stack[-1]]
-                    uses[nodes_stack[-1].__stmt_id] = [nodes_stack[-1]]
+                    if nodes_stack[-1].name == current_procedure:
+                        raise RuntimeError("SIMPLE does not support recursion")
+                    if nodes_stack[-1].name not in modifies:
+                        raise RuntimeError(
+                            'Procedure: "' + nodes_stack[-1].name + '" is not declared'
+                        )
+                    nodes_with_call[nodes_stack[-1].__stmt_id].append(
+                        nodes_stack[-1].name
+                    )
 
                 if isinstance(nodes_stack[-1].parent, nodes.StmtLstNode):
                     parent_node = nodes_stack[-1].parent
@@ -81,6 +95,9 @@ def preprocess_query(tree: nodes.ProgramNode):
                         uses[parent_node.parent.__stmt_id].extend(
                             uses[nodes_stack[-1].__stmt_id]
                         )
+                        nodes_with_call[parent_node.parent.__stmt_id].extend(
+                            nodes_with_call[nodes_stack[-1].__stmt_id]
+                        )
                     if isinstance(parent_node.parent, nodes.ProcedureNode):
                         modifies[parent_node.parent.name].extend(
                             modifies[nodes_stack[-1].__stmt_id]
@@ -88,36 +105,28 @@ def preprocess_query(tree: nodes.ProgramNode):
                         uses[parent_node.parent.name].extend(
                             uses[nodes_stack[-1].__stmt_id]
                         )
+                        nodes_with_call[parent_node.parent.name].extend(
+                            nodes_with_call[nodes_stack[-1].__stmt_id]
+                        )
 
                 nodes_stack.pop()
 
         variable_list = []
+        current_procedure = ""
         nodes_stack.append(tree)
         process_relations(tree)
 
+    nodes_with_call = {}
     nodes_stack = []
     find_all_statements()
     process_all_relations()
 
-    for key, value in modifies.items():
-        variable_list = []
-        for element in value:
-            if isinstance(element, nodes.StmtCallNode):
-                if key != element.name:
-                    variable_list.extend(modifies[element.name])
-            else:
-                variable_list.append(element)
-        modifies[key] = list(set(variable_list))
-
-    for key, value in uses.items():
-        variable_list = []
-        for element in value:
-            if isinstance(element, nodes.StmtCallNode):
-                if key != element.name:
-                    variable_list.extend(uses[element.name])
-            else:
-                variable_list.append(element)
-        uses[key] = list(set(variable_list))
+    for key, value in nodes_with_call.items():
+        for v in value:
+            modifies[key].extend(modifies[v])
+            uses[key].extend(uses[v])
+        modifies[key] = list(set(modifies[key]))
+        uses[key] = list(set(uses[key]))
 
     return {
         "statements": statements,

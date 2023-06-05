@@ -36,11 +36,6 @@ def _get_ast_tree():
                 }
                 i = j;
             }
-
-            procedure test3 {
-                a = a;
-                call test3;
-            }
             """
     )
 
@@ -66,7 +61,7 @@ def test_pkb_modifies_assign_variable():
     tree = _get_ast_tree()
     queries = parse_query("""assign a1; Select a1 such that Modifies(a1, "a")""")
     result = evaluate_query(tree, queries[0])
-    assert result == [1, 3, 11, 15, 17]
+    assert result == [1, 3, 11, 15]
 
     queries = parse_query("""assign a1; Select a1 such that Modifies(a1, "c")""")
     result = evaluate_query(tree, queries[0])
@@ -101,7 +96,7 @@ def test_pkb_modifies_procedure_variable():
     tree = _get_ast_tree()
     queries = parse_query("""procedure p1; Select p1 such that Modifies(p1, "a")""")
     result = evaluate_query(tree, queries[0])
-    assert result == ["test", "test2", "test3"]
+    assert result == ["test", "test2"]
     queries = parse_query("""procedure p1; Select p1 such that Modifies(p1, "i")""")
     result = evaluate_query(tree, queries[0])
     assert result == ["test2"]
