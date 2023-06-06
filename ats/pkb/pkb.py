@@ -200,6 +200,98 @@ def process_follows(query, context):
     return result
 
 
+def process_follows_star(query, context):
+    a = query["relations"][0]["parameters"][0]
+    b = query["relations"][0]["parameters"][1]
+    follows = context["follows"]
+    statements = context["statements"]
+    result = []
+
+    for stmt in context["statements"].values():
+
+        def recu_follows_deep(a, b):
+            if follows[b] == a:
+                result.append(stmt.__stmt_id)
+            else:
+                b1 = follows[b]
+                recu_follows_deep(a, b1)
+
+        def recu_follows_deep_return_a(s1, s2):
+            if isinstance(
+                statements[s1],
+                STMT_TYPE_MAP[query["variables"][query["searching_variable"]]],
+            ):
+                result.append(s1)
+
+                if follows.get(s1) is not None:
+                    recu_follows_deep_return_a(follows[s1], s1)
+
+            elif follows.get(s1) is not None:
+                recu_follows_deep_return_a(follows[s1], s1)
+
+        def recu_follows_deep_return_b(s1, s2):
+            if isinstance(statements[s1], STMT_TYPE_MAP[query["variables"][a]]):
+                result.append(stmt.__stmt_id)
+
+                if follows.get(s1) is not None:
+                    recu_follows_deep_return_b(follows[s1], s1)
+
+            elif follows.get(s1) is not None:
+                recu_follows_deep_return_b(follows[s1], s1)
+
+        try:
+            # case 1 - constant and constant
+            if isinstance(a, int) and isinstance(b, int):
+                recu_follows_deep(a, b)
+
+            # 2 - constant and variable
+            if isinstance(a, int) and not isinstance(b, int):
+                # Check the variable type
+                if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][b]]):
+                    continue
+
+                # Check relation
+                recu_follows_deep(a, stmt.__stmt_id)
+
+            # case 3 - variable and constant
+            if not isinstance(a, int) and isinstance(b, int):
+                # Check the variable type
+                if not isinstance(stmt, STMT_TYPE_MAP[query["variables"][a]]):
+                    continue
+
+                # Check relation
+                recu_follows_deep(stmt.__stmt_id, b)
+
+            #  case 4 - varibale and variable
+            if not isinstance(a, int) and not isinstance(b, int):
+                s2 = stmt
+                s1 = statements[follows[stmt.__stmt_id]]
+                if query["searching_variable"] == a:
+                    if isinstance(
+                        s1, STMT_TYPE_MAP[query["variables"][a]]
+                    ) and isinstance(s2, STMT_TYPE_MAP[query["variables"][b]]):
+                        result.append(s1.__stmt_id)
+
+                    if isinstance(s2, STMT_TYPE_MAP[query["variables"][b]]):
+                        if follows.get(s1.__stmt_id) is not None:
+                            recu_follows_deep_return_a(
+                                follows[s1.__stmt_id], s1.__stmt_id
+                            )
+
+                elif query["searching_variable"] == b:
+                    if isinstance(
+                        s1, STMT_TYPE_MAP[query["variables"][a]]
+                    ) and isinstance(s2, STMT_TYPE_MAP[query["variables"][b]]):
+                        result.append(s2.__stmt_id)
+                    if isinstance(s2, STMT_TYPE_MAP[query["variables"][b]]):
+                        if follows.get(s1.__stmt_id) is not None:
+                            recu_follows_deep_return_b(s1.__stmt_id, s2.__stmt_id)
+
+        except KeyError:
+            pass
+    return result
+
+
 def process_parent(query, context):
     a = query["relations"][0]["parameters"][0]
     b = query["relations"][0]["parameters"][1]
@@ -359,6 +451,8 @@ def evaluate_query(node: nodes.ASTNode, query):
     context = preprocess_query(node)
     if query["relations"][0]["relation"] == "Follows":
         return process_follows(query, context)
+    if query["relations"][0]["relation"] == "Follows*":
+        return process_follows_star(query, context)
     if query["relations"][0]["relation"] == "Parent":
         return process_parent(query, context)
     if query["relations"][0]["relation"] == "Uses":
