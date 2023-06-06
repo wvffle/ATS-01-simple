@@ -100,3 +100,6 @@ def test_pkb_modifies_procedure_variable():
     queries = parse_query("""procedure p1; Select p1 such that Modifies(p1, "i")""")
     result = evaluate_query(tree, queries[0])
     assert result == ["test2"]
+    queries = parse_query("""procedure p1; Select p1 such that Modifies(p1, "q")""")
+    result = evaluate_query(tree, queries[0])
+    assert result == []
