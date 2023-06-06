@@ -1,4 +1,5 @@
 from ats.ast import nodes
+from ats.pql.pql import Any
 
 STMT_TYPE_MAP = {
     "stmt": nodes.StmtNode,
@@ -14,6 +15,7 @@ def preprocess_query(tree: nodes.ProgramNode):
     parents = {}
     uses = {}
     modifies = {}
+    calls = {}
 
     proc_parents = {}
 
@@ -33,11 +35,14 @@ def preprocess_query(tree: nodes.ProgramNode):
                 uses[node.name] = []
 
             if isinstance(node, nodes.ProcedureNode):
+                calls[node.name] = []
                 stack.append(node.name)
 
             if isinstance(node, nodes.StmtNode):
                 stack.append(node.__stmt_id)
                 if isinstance(node, nodes.StmtCallNode):
+                    if node.name not in calls[stack[0]] and node.name != stack[0]:
+                        calls[stack[0]].append(node.name)
                     if node.name in proc_parents:
                         proc_parents[node.name].extend(stack)
                     else:
@@ -104,14 +109,13 @@ def preprocess_query(tree: nodes.ProgramNode):
         modifies[key] = list(set(modifies[key]))
         uses[key] = list(set(uses[key]))
 
-    print(modifies)
-
     return {
         "statements": statements,
         "follows": follows,
         "parents": parents,
         "uses": uses,
         "modifies": modifies,
+        "calls": calls,
     }
 
 
@@ -435,6 +439,63 @@ def process_modifies(query, context):
     return results
 
 
+def process_calls(query, context):
+    a = query["relations"][0]["parameters"][0]
+    b = query["relations"][0]["parameters"][1]
+    searching_variable_type = query["variables"][query["searching_variable"]]
+    calls = context["calls"]
+
+    results = []
+
+    if searching_variable_type == "procedure":
+        # case 1 - procedure and Any
+        if isinstance(a, str) and b is Any:
+            if a == query["searching_variable"]:
+                for key, value in calls.items():
+                    if len(value):
+                        results.append(key)
+
+        # case 2 - Any and procedure
+        elif a is Any and isinstance(b, str):
+            if b == query["searching_variable"]:
+                for key, value in calls.items():
+                    results.extend(value)
+                results = list(set(results))
+
+        elif isinstance(a, str) and isinstance(b, str):
+            # case 3 - procedure and procedure - a is search for
+            if (
+                a in query["variables"]
+                and b in query["variables"]
+                and a == query["searching_variable"]
+            ):
+                for key, value in calls.items():
+                    if len(value):
+                        results.append(key)
+            # case 4 - procedure and procedure - b is search for
+            elif (
+                a in query["variables"]
+                and b in query["variables"]
+                and b == query["searching_variable"]
+            ):
+                for key, value in calls.items():
+                    results.extend(value)
+                results = list(set(results))
+            # case 5 procedure and procedure name
+            elif a == query["searching_variable"]:
+                b = b.strip('"')
+                for key, value in calls.items():
+                    if b in value:
+                        results.append(key)
+            # case 6 procedure name and procedure
+            elif b == query["searching_variable"]:
+                a = a.strip('"')
+                results.extend(calls[a])
+
+    results.sort()
+    return results
+
+
 def evaluate_query(node: nodes.ASTNode, query):
     context = preprocess_query(node)
     if query["relations"][0]["relation"] == "Follows":
@@ -447,3 +508,5 @@ def evaluate_query(node: nodes.ASTNode, query):
         return process_uses(query, context)
     if query["relations"][0]["relation"] == "Modifies":
         return process_modifies(query, context)
+    if query["relations"][0]["relation"] == "Calls":
+        return process_calls(query, context)
