@@ -2,7 +2,21 @@ import re
 
 
 def is_variable_type_token(text: str):
-    return text in ["stmt", "procedure", "variable", "if", "assign", "while"]
+    return text in [
+        "stmt",
+        "procedure",
+        "variable",
+        "if",
+        "assign",
+        "while",
+        "constant",
+        "prog_line",
+        "call",
+        "stmtLst",
+        "plus",
+        "minus",
+        "times",
+    ]
 
 
 def is_program_design_entity_relationship_token(text: str):

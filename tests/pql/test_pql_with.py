@@ -10,8 +10,8 @@ def test_valid_parameters_with_string_in_relations():
            """
     )
 
-    assert result[0]["relations"][0]["parameters"][0] == "w3"
-    assert result[0]["relations"][0]["parameters"][1] == '"x"'
+    assert result[0]["such_thats"][0]["relations"][0]["parameters"][0] == "w3"
+    assert result[0]["such_thats"][0]["relations"][0]["parameters"][1] == '"x"'
 
 
 def test_valid_parameters_with_integer_in_relations():
@@ -21,8 +21,8 @@ def test_valid_parameters_with_integer_in_relations():
            """
     )
 
-    assert result[0]["relations"][0]["parameters"][0] == 20
-    assert result[0]["relations"][0]["parameters"][1] == "w3"
+    assert result[0]["such_thats"][0]["relations"][0]["parameters"][0] == 20
+    assert result[0]["such_thats"][0]["relations"][0]["parameters"][1] == "w3"
 
 
 def test_simply_with_left_query():
@@ -33,11 +33,11 @@ def test_simply_with_left_query():
         """
     )
 
-    assert len(result[0]["withs"]) == 1
-    assert result[0]["withs"][0]["left"] == "w3"
-    assert result[0]["withs"][0]["attr_left"] == "attrName"
-    assert result[0]["withs"][0]["right"] is Any
-    assert result[0]["withs"][0]["attr_right"] is None
+    assert len(result[0]["such_thats"][0]["withs"]) == 1
+    assert result[0]["such_thats"][0]["withs"][0]["left"] == "w3"
+    assert result[0]["such_thats"][0]["withs"][0]["attr_left"] == "attrName"
+    assert result[0]["such_thats"][0]["withs"][0]["right"] is Any
+    assert result[0]["such_thats"][0]["withs"][0]["attr_right"] is None
 
 
 def test_simply_with_query():
@@ -48,11 +48,11 @@ def test_simply_with_query():
         """
     )
 
-    assert len(result[0]["withs"]) == 1
-    assert result[0]["withs"][0]["right"] == "w3"
-    assert result[0]["withs"][0]["attr_right"] == "attrName"
-    assert result[0]["withs"][0]["left"] == '"x"'
-    assert result[0]["withs"][0]["attr_left"] is None
+    assert len(result[0]["such_thats"][0]["withs"]) == 1
+    assert result[0]["such_thats"][0]["withs"][0]["right"] == "w3"
+    assert result[0]["such_thats"][0]["withs"][0]["attr_right"] == "attrName"
+    assert result[0]["such_thats"][0]["withs"][0]["left"] == '"x"'
+    assert result[0]["such_thats"][0]["withs"][0]["attr_left"] is None
 
 
 def test_multiply_with_query():
@@ -64,21 +64,21 @@ def test_multiply_with_query():
         """
     )
 
-    assert len(result[0]["withs"]) == 3
-    assert result[0]["withs"][0]["left"] == "w3"
-    assert result[0]["withs"][0]["attr_left"] == "attrName"
-    assert result[0]["withs"][0]["right"] == '"x"'
-    assert result[0]["withs"][0]["attr_right"] is None
+    assert len(result[0]["such_thats"][0]["withs"]) == 3
+    assert result[0]["such_thats"][0]["withs"][0]["left"] == "w3"
+    assert result[0]["such_thats"][0]["withs"][0]["attr_left"] == "attrName"
+    assert result[0]["such_thats"][0]["withs"][0]["right"] == '"x"'
+    assert result[0]["such_thats"][0]["withs"][0]["attr_right"] is None
 
-    assert result[0]["withs"][1]["left"] == "s2"
-    assert result[0]["withs"][1]["attr_left"] == "attrName"
-    assert result[0]["withs"][1]["right"] == '"boligrafo"'
-    assert result[0]["withs"][1]["attr_right"] is None
+    assert result[0]["such_thats"][0]["withs"][1]["left"] == "s2"
+    assert result[0]["such_thats"][0]["withs"][1]["attr_left"] == "attrName"
+    assert result[0]["such_thats"][0]["withs"][1]["right"] == '"boligrafo"'
+    assert result[0]["such_thats"][0]["withs"][1]["attr_right"] is None
 
-    assert result[0]["withs"][2]["left"] == '"pen"'
-    assert result[0]["withs"][2]["attr_left"] is None
-    assert result[0]["withs"][2]["right"] == "s2"
-    assert result[0]["withs"][2]["attr_right"] == "attrName"
+    assert result[0]["such_thats"][0]["withs"][2]["left"] == '"pen"'
+    assert result[0]["such_thats"][0]["withs"][2]["attr_left"] is None
+    assert result[0]["such_thats"][0]["withs"][2]["right"] == "s2"
+    assert result[0]["such_thats"][0]["withs"][2]["attr_right"] == "attrName"
 
 
 def test_not_valid_with_parameter_query():
