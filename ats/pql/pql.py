@@ -26,6 +26,7 @@ relationships_stmt_ref_and_stmt_ref = [
     "Follows",
     "Follows*",
     "Next",
+    "Next*",
 ]
 relationships_ent_ref_and_ent_ref = ["Calls", "Calls*"]
 
@@ -217,16 +218,29 @@ def parse_query(text: str):
 
         match_token("Select")
         searching_variable = match_variable_is_in_list_token(variables)
+        such_thats = []
+        such_thats.append(process_such_that(variables))
+
+        while current_token == "such":
+            such_thats.append(process_such_that(variables))
+
+        return {
+            "such_thats": such_thats,
+            "searching_variable": searching_variable,
+            "variables": dict(variables),
+        }
+
+    def process_such_that(variables):
         match_token("such")
         match_token("that")
-
+        withs = []
         relationships = []
         process_relationship(variables, relationships)
+
         while current_token == "and":
             match_token("and")
             process_relationship(variables, relationships)
 
-        withs = []
         if current_token == "with":
             match_token("with")
             process_optional_with(withs, variables)
@@ -237,8 +251,6 @@ def parse_query(text: str):
 
         return {
             "relations": relationships,
-            "searching_variable": searching_variable,
-            "variables": dict(variables),
             "withs": withs,
         }
 

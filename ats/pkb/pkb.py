@@ -525,7 +525,7 @@ def process_next(query, context):
 
 def evaluate_query(node: nodes.ProgramNode, query):
     context = preprocess_query(node)
-    if query["relations"][0]["relation"] == "Follows":
+    if query["such_thats"][0]["relations"][0]["relation"] == "Follows":
         return process_follows(query, context)
 
     if query["relations"][0]["relation"] == "Follows*":

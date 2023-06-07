@@ -11,8 +11,8 @@ def test_relations_modifies_and_follows_star():
             """
     )
 
-    assert result[0]["relations"][0]["relation"] == "Modifies"
-    assert result[0]["relations"][1]["relation"] == "Follows*"
+    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Modifies"
+    assert result[0]["such_thats"][0]["relations"][1]["relation"] == "Follows*"
 
 
 def test_relations_follows_and_modifies():
@@ -23,8 +23,8 @@ def test_relations_follows_and_modifies():
             """
     )
 
-    assert result[0]["relations"][0]["relation"] == "Follows"
-    assert result[0]["relations"][1]["relation"] == "Modifies"
+    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Follows"
+    assert result[0]["such_thats"][0]["relations"][1]["relation"] == "Modifies"
 
 
 def test_relations_parent_star_and_modifies():
@@ -35,8 +35,8 @@ def test_relations_parent_star_and_modifies():
             """
     )
 
-    assert result[0]["relations"][0]["relation"] == "Parent*"
-    assert result[0]["relations"][1]["relation"] == "Modifies"
+    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Parent*"
+    assert result[0]["such_thats"][0]["relations"][1]["relation"] == "Modifies"
 
 
 def test_relations_modifies_and_parent():
@@ -47,8 +47,8 @@ def test_relations_modifies_and_parent():
             """
     )
 
-    assert result[0]["relations"][0]["relation"] == "Modifies"
-    assert result[0]["relations"][1]["relation"] == "Parent"
+    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Modifies"
+    assert result[0]["such_thats"][0]["relations"][1]["relation"] == "Parent"
 
 
 def test_relations_modifies_and_uses():
@@ -59,8 +59,8 @@ def test_relations_modifies_and_uses():
             """
     )
 
-    assert result[0]["relations"][0]["relation"] == "Modifies"
-    assert result[0]["relations"][1]["relation"] == "Uses"
+    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Modifies"
+    assert result[0]["such_thats"][0]["relations"][1]["relation"] == "Uses"
 
 
 def test_relations_uses_and_modifies():
@@ -71,8 +71,8 @@ def test_relations_uses_and_modifies():
             """
     )
 
-    assert result[0]["relations"][0]["relation"] == "Uses"
-    assert result[0]["relations"][1]["relation"] == "Modifies"
+    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Uses"
+    assert result[0]["such_thats"][0]["relations"][1]["relation"] == "Modifies"
 
 
 def test_relations_uses_and_modifies_not_valid_modifies():
