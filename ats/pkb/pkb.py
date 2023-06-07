@@ -16,6 +16,7 @@ def preprocess_query(tree: nodes.ProgramNode):
     uses = {}
     modifies = {}
     calls = {}
+    next = {}
 
     proc_parents = {}
 
@@ -39,6 +40,7 @@ def preprocess_query(tree: nodes.ProgramNode):
                 stack.append(node.name)
 
             if isinstance(node, nodes.StmtNode):
+                next[node.__stmt_id] = []
                 stack.append(node.__stmt_id)
                 if isinstance(node, nodes.StmtCallNode):
                     if node.name not in calls[stack[0]] and node.name != stack[0]:
@@ -65,6 +67,17 @@ def preprocess_query(tree: nodes.ProgramNode):
                 for i, child in enumerate(node.children):
                     if i > 0:
                         follows[child.__stmt_id] = node.children[i - 1].__stmt_id
+                        if isinstance(node.children[i - 1], nodes.StmtIfNode):
+                            if_while_stack.append(node.children[i - 1])
+                            if_while_stack.append(child.__stmt_id)
+                        else:
+                            next[node.children[i - 1].__stmt_id].append(child.__stmt_id)
+                if isinstance(node.parent, nodes.StmtWhileNode):
+                    if isinstance(node.children[-1], nodes.StmtIfNode):
+                        if_while_stack.append(node.parent)
+                        if_while_stack.append(node.parent.__stmt_id)
+                    else:
+                        next[node.children[-1].__stmt_id].append(node.parent.__stmt_id)
 
             if isinstance(node, nodes.StmtNode):
                 parent = node.parent.parent
@@ -73,12 +86,32 @@ def preprocess_query(tree: nodes.ProgramNode):
 
             for child in node.children:
                 nodes_stack.append(child)
+
                 if isinstance(child, nodes.ProcedureNode):
                     proc_stmt_stack.append(child.name)
+
                 if isinstance(child, nodes.StmtNode):
                     proc_stmt_stack.append(child.__stmt_id)
+                    if child.parent.children[0] == child and isinstance(
+                        child.parent.parent, nodes.StmtNode
+                    ):
+                        next[proc_stmt_stack[-2]].append(child.__stmt_id)
 
                 process_relations(child)
+
+                if len(if_while_stack) > 0:
+                    if nodes_stack[-1] == if_while_stack[-2]:
+                        if_while_stack.pop()
+                        if_while_stack.pop()
+
+                if isinstance(child, nodes.StmtNode):
+                    if (
+                        not isinstance(child, nodes.StmtIfNode)
+                        and child.parent.children[-1] == child
+                    ):
+                        if child.parent.name == "then" or child.parent.name == "else":
+                            if len(if_while_stack) > 0:
+                                next[child.__stmt_id].append(if_while_stack[-1])
 
                 if isinstance(nodes_stack[-1], nodes.VariableNode):
                     if nodes_stack[-1].parent.variable == nodes_stack[-1]:
@@ -101,6 +134,7 @@ def preprocess_query(tree: nodes.ProgramNode):
         process_relations(tree)
 
     nodes_stack = []
+    if_while_stack = []
     proc_stmt_stack = []
     find_all_statements()
     process_all_relations()
