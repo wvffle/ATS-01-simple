@@ -83,7 +83,7 @@ def test_complex_query_evaluator():
     parse_query(
         """
             while w3;
-            Select w3 such that Uses(20, w3) with w3.attrName = "x"
+            Select w3 such that Uses(20, w3) with w3.procName = "x"
         """
     )
 
@@ -100,8 +100,8 @@ def test_query_result():
     result = parse_query(
         """
             while w3; stmt s2;
-            Select w3 such that Uses(20, w3) with w3.attrName = "x"
-            and s2.attrName = "boligrafo"
+            Select w3 such that Uses(20, w3) with w3.procName = "x"
+            and s2.procName = "boligrafo"
         """
     )
 
@@ -112,11 +112,11 @@ def test_multiply_select_query():
     parse_query(
         """
             while w3; stmt s2;
-            Select w3 such that Uses(20, w3) with w3.attrName = "x"
-            and s2.attrName = "boligrafo"
+            Select w3 such that Uses(20, w3) with w3.procName = "x"
+            and s2.procName = "boligrafo"
             assign a3;
-            Select w3 such that Uses(a3, w3) with w3.attrName = "x"
-            and s2.attrName = "boligrafo"
+            Select w3 such that Uses(a3, w3) with w3.procName = "x"
+            and s2.procName = "boligrafo"
             """
     )
 
@@ -180,10 +180,10 @@ def test_multiply_relations_and_multiply_with_select_query():
         """
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows(w3, s2)
-            with w3.attrName = "x" and s2.attrName = "boligrafo"
+            with w3.procName = "x" and s2.varName = "boligrafo"
             assign a3;
-            Select w3 such that Uses(a3, w3) and Calls*("not", "me") with w3.attrName = "x"
-            and s2.attrName = "boligrafo"
+            Select w3 such that Uses(a3, w3) and Calls*("not", "me") with w3.varName = "x"
+            and s2.varName = "boligrafo"
         """
     )
 
@@ -193,9 +193,9 @@ def test_multiply_relations_and_multiply_with_select_query_values():
         """
             while w3; stmt s2;
             Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows(w3, s2)
-            with w3.attrName = "x" and s2.attrName = "boligrafo"
+            with w3.varName = "x" and s2.varName = "boligrafo"
             assign a3;
-            Select w3 such that Uses(a3, w3) and Calls*("not", "me") with w3.attrName = "x"
-            and s2.attrName = "boligrafo"
+            Select w3 such that Uses(a3, w3) and Calls*("not", "me") with w3.varName = "x"
+            and s2.varName = "boligrafo"
         """
     )

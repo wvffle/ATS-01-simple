@@ -183,7 +183,12 @@ def parse_query(text: str):
     def match_attr_name_token():
         assert_token("ATTR_NAME_TOKEN")
         nonlocal current_token
-        if current_token != "attrName":
+        if (
+            current_token != "stmt"
+            and current_token != "value"
+            and current_token != "procName"
+            and current_token != "varName"
+        ):
             raise ValueError(f"Token '{current_token}' is not valid ATTR_NAME_TOKEN")
 
         try:
