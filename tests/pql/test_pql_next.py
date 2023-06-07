@@ -37,11 +37,11 @@ def test_relation_next_star_in_query():
 def test_parameters_relation_next_star_in_query():
     result = parse_query(
         """ stmt s2;
-            Select s1 such that Next*(s2, '_')
+            Select s2 such that Next*(s2, '_')
            """
     )
 
-    assert result[0]["such_thats"][0]["relations"][0]["parameters"][0] == "s1"
+    assert result[0]["such_thats"][0]["relations"][0]["parameters"][0] == "s2"
     assert result[0]["such_thats"][0]["relations"][0]["parameters"][1] is Any
 
 
