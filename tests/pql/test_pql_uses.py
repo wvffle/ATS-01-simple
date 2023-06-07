@@ -10,7 +10,7 @@ def test_relation_uses_in_query():
            """
     )
 
-    assert result[0]["relations"][0]["relation"] == "Uses"
+    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Uses"
 
 
 def test_parameters_relation_uses_in_query():
@@ -20,8 +20,8 @@ def test_parameters_relation_uses_in_query():
            """
     )
 
-    assert result[0]["relations"][0]["parameters"][0] == 10
-    assert result[0]["relations"][0]["parameters"][1] == '"z"'
+    assert result[0]["such_thats"][0]["relations"][0]["parameters"][0] == 10
+    assert result[0]["such_thats"][0]["relations"][0]["parameters"][1] == '"z"'
 
 
 def test_not_valid_relation_first_parameter_uses_in_query():

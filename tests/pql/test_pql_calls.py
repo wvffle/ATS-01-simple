@@ -10,7 +10,7 @@ def test_relation_calls_in_query():
            """
     )
 
-    assert result[0]["relations"][0]["relation"] == "Calls"
+    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Calls"
 
 
 def test_parameters_relation_calls_in_query():
@@ -20,8 +20,8 @@ def test_parameters_relation_calls_in_query():
            """
     )
 
-    assert result[0]["relations"][0]["parameters"][0] is Any
-    assert result[0]["relations"][0]["parameters"][1] == "s1"
+    assert result[0]["such_thats"][0]["relations"][0]["parameters"][0] is Any
+    assert result[0]["such_thats"][0]["relations"][0]["parameters"][1] == "s1"
 
 
 def test_relation_calls_star_in_query():
@@ -31,7 +31,7 @@ def test_relation_calls_star_in_query():
            """
     )
 
-    assert result[0]["relations"][0]["relation"] == "Calls*"
+    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Calls*"
 
 
 def test_parameters_relation_calls_star_in_query():
@@ -41,8 +41,8 @@ def test_parameters_relation_calls_star_in_query():
            """
     )
 
-    assert result[0]["relations"][0]["parameters"][0] == '"tres"'
-    assert result[0]["relations"][0]["parameters"][1] == '"cuatro"'
+    assert result[0]["such_thats"][0]["relations"][0]["parameters"][0] == '"tres"'
+    assert result[0]["such_thats"][0]["relations"][0]["parameters"][1] == '"cuatro"'
 
 
 def test_not_valid_relation_calls_in_query():
