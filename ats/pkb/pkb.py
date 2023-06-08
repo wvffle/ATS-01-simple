@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from ats.ast import nodes
 
 STMT_TYPE_MAP = {
@@ -8,16 +10,29 @@ STMT_TYPE_MAP = {
 }
 
 
+def dfs(
+    node: nodes.ASTNode,
+    on_node_enter: Callable[[nodes.ASTNode], None] = lambda _: None,
+    on_node_exit: Callable[[nodes.ASTNode], None] = lambda _: None,
+):
+    on_node_enter(node)
+
+    for child in node.children:
+        dfs(child, on_node_enter, on_node_exit)
+
+    on_node_exit(node)
+
+
 def preprocess_query(tree: nodes.ProgramNode):
     statements = {}
     variables = {}
     follows = {}
 
-    def find_all_statements():
+    def find_statements():
         stmt_index = 0
         stmt_id = 1
 
-        def find_statements_and_variables(node: nodes.ASTNode):
+        def on_node_enter(node: nodes.ASTNode):
             nonlocal stmt_index
             nonlocal stmt_id
 
@@ -34,34 +49,23 @@ def preprocess_query(tree: nodes.ProgramNode):
                 stmt_index += 1
                 stmt_id += 1
 
+            # Find all variables
             if isinstance(node, nodes.VariableNode):
                 variables[node] = node.name
 
-            for n in node.children:
-                find_statements_and_variables(n)
+        dfs(tree, on_node_enter=on_node_enter)
 
-        find_statements_and_variables(tree)
-
-    def process_all_relations():
-        def process_relations(node: nodes.ASTNode):
-            # NOTE: Enter current node
-
+    def process_relations():
+        def on_node_enter(node: nodes.ASTNode):
             # Build the follows relation map
             if isinstance(node, nodes.StmtNode):
                 if node.__stmt_index > 0:
                     follows[node] = node.parent.children[node.__stmt_index - 1]
 
-            # NOTE: Process children in DFS
-            for child in node.children:
-                process_relations(child)
+        dfs(tree, on_node_enter=on_node_enter)
 
-            # NOTE: Exit current node
-            ...
-
-        process_relations(tree)
-
-    find_all_statements()
-    process_all_relations()
+    find_statements()
+    process_relations()
 
     return {
         "statements": statements,
