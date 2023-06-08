@@ -10,10 +10,14 @@ STMT_TYPE_MAP = {
 }
 
 
+def _dfs_noop(_: nodes.ASTNode):
+    ...
+
+
 def dfs(
     node: nodes.ASTNode,
-    on_node_enter: Callable[[nodes.ASTNode], None] = lambda _: None,
-    on_node_exit: Callable[[nodes.ASTNode], None] = lambda _: None,
+    on_node_enter: Callable[[nodes.ASTNode], None] = _dfs_noop,
+    on_node_exit: Callable[[nodes.ASTNode], None] = _dfs_noop,
 ):
     on_node_enter(node)
 
@@ -29,31 +33,39 @@ def preprocess_query(tree: nodes.ProgramNode):
     follows = {}
 
     def find_statements():
-        stmt_index = 0
+        stmt_index = []
         stmt_id = 1
 
         def on_node_enter(node: nodes.ASTNode):
-            nonlocal stmt_index
             nonlocal stmt_id
 
-            # Reset the index when we enter a new statement list
+            # Push the index to the stack when entering a statement list
             if isinstance(node, nodes.StmtLstNode):
-                stmt_index = 0
+                stmt_index.append(0)
 
             # Assign an index and a unique id to each statement
             if isinstance(node, nodes.StmtNode):
                 statements[stmt_id] = node
                 node.__stmt_id = stmt_id
-                node.__stmt_index = stmt_index
+                node.__stmt_index = stmt_index[-1]
 
-                stmt_index += 1
+                stmt_index[-1] += 1
                 stmt_id += 1
 
             # Find all variables
             if isinstance(node, nodes.VariableNode):
                 variables[node] = node.name
 
-        dfs(tree, on_node_enter=on_node_enter)
+        def on_node_exit(node: nodes.ASTNode):
+            # Pop the index from the stack when exiting a statement list
+            if isinstance(node, nodes.StmtLstNode):
+                stmt_index.pop()
+
+        dfs(
+            tree,
+            on_node_enter=on_node_enter,
+            on_node_exit=on_node_exit,
+        )
 
     def process_relations():
         def on_node_enter(node: nodes.ASTNode):
