@@ -134,6 +134,19 @@ def _get_ast_tree_call():
             procedure test6 {
                 call test5;
             }
+
+            procedure test7 {
+                call test8;
+                call test9;
+            }
+
+            procedure test8 {
+                call test7;
+            }
+
+            procedure test9 {
+                call test8;
+            }
             """
     )
 
