@@ -81,34 +81,19 @@ def test_pkb_parent_star_stmt_stmt():
 
     queries = parse_query("stmt s1, s2; Select s1 such that  Parent*(s1, s2)")
     result = evaluate_query(tree, queries[0])
-    assert result == [
-        1,
-        1,
-        3,
-        1,
-        3,
-        1,
-        5,
-        3,
-        1,
-        1,
-        1,
-        8,
-        1,
-        8,
-        1,
-        10,
-        8,
-        1,
-        12,
-        12,
-        14,
-        12,
-    ]
+    assert result == [1, 3, 5, 8, 10, 12, 14]
 
     queries = parse_query("if if; while w; Select w such that  Parent*(if, w)")
     result = evaluate_query(tree, queries[0])
     assert result == [3, 5, 8, 10]
+
+    queries = parse_query("while w1, w2; Select w2 such that Parent*(w1, w2)")
+    result = evaluate_query(tree, queries[0])
+    assert result == [5, 10, 14]
+
+    queries = parse_query("assign a1, a2; Select a1 such that  Parent*(a1, a2)")
+    result = evaluate_query(tree, queries[0])
+    assert result == []
 
     queries = parse_query("if if; while w; Select if such that  Parent*(w, if)")
     result = evaluate_query(tree, queries[0])

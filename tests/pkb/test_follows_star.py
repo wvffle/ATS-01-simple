@@ -107,39 +107,16 @@ def test_pkb_follows_star_stmt_stmt():
 
     queries = parse_query("stmt s1, s2; Select s1 such that Follows*(s1, s2)")
     result = evaluate_query(tree, queries[0])
-    assert result == [
-        1,
-        2,
-        1,
-        4,
-        2,
-        1,
-        6,
-        7,
-        6,
-        8,
-        7,
-        6,
-        10,
-        5,
-        4,
-        2,
-        1,
-        12,
-        5,
-        4,
-        2,
-        1,
-    ]
+    assert result == [1, 2, 4, 5, 6, 7, 8, 10, 12]
 
     queries = parse_query("assign a1; while w1; Select a1 such that Follows*(a1, w1)")
     result = evaluate_query(tree, queries[0])
-    assert result == [1, 4, 1, 4, 1]
+    assert result == [1, 4]
 
     queries = parse_query("assign a1; while w1; Select w1 such that Follows*(a1, w1)")
     result = evaluate_query(tree, queries[0])
-    assert result == [2, 12, 12, 14, 14]
+    assert result == [2, 12, 14]
 
     queries = parse_query("assign a1, a2; Select a1 such that Follows*(a1, a2)")
     result = evaluate_query(tree, queries[0])
-    assert result == [1, 6, 7, 6, 8, 7, 6, 10]
+    assert result == [1, 6, 7, 8, 10]

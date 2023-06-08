@@ -323,6 +323,9 @@ def process_follows_star(query, context):
 
         except KeyError:
             pass
+
+    result = list(set(result))
+    result.sort()
     return result
 
 
@@ -478,6 +481,8 @@ def process_parent_star(query, context):
         except KeyError:
             pass
 
+    result = list(set(result))
+    result.sort()
     return result
 
 
@@ -642,6 +647,7 @@ def process_calls(query, context):
 
 def evaluate_query(node: nodes.ASTNode, query):
     context = preprocess_query(node)
+    print(query)
     if query["relations"][0]["relation"] == "Follows":
         return process_follows(query, context)
     if query["relations"][0]["relation"] == "Follows*":
