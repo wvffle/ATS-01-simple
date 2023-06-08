@@ -18,11 +18,10 @@ def preprocess_query(tree: nodes.ProgramNode):
     calls = {}
     next = {}
 
-    proc_parents = {}
-
     def find_all_statements():
         i = 1
         stack = []
+        call_order = []
 
         def find_statements_and_procedures(node: nodes.ASTNode):
             if isinstance(node, nodes.StmtNode):
@@ -49,10 +48,19 @@ def preprocess_query(tree: nodes.ProgramNode):
                         proc_parents[node.name].extend(stack)
                     else:
                         proc_parents[node.name] = stack[:]
-                    if stack[0] in proc_parents:
-                        proc_parents[node.name].extend(proc_parents[stack[0]])
+
+                    if stack[0] not in call_order and node.name not in call_order:
+                        call_order.append(stack[0])
+                        call_order.append(node.name)
+                    elif stack[0] not in call_order and node.name in call_order:
+                        call_order.insert(call_order.index(node.name), stack[0])
+                    elif stack[0] in call_order and node.name not in call_order:
+                        call_order.insert(call_order.index(stack[0]) + 1, node.name)
                     else:
-                        ...
+                        if call_order.index(node.name) < call_order.index(stack[0]):
+                            call_order.insert(call_order.index(stack[0]) + 1, node.name)
+                        if call_order.index(node.name) > call_order.index(stack[0]):
+                            call_order.insert(call_order.index(node.name), stack[0])
 
             for n in node.children:
                 find_statements_and_procedures(n)
@@ -60,6 +68,15 @@ def preprocess_query(tree: nodes.ProgramNode):
                     stack.pop()
 
         find_statements_and_procedures(tree)
+
+        extend_parents = []
+        for name in call_order:
+            if name in proc_parents:
+                proc_parents[name].extend(extend_parents)
+                proc_parents[name] = list(set(proc_parents[name]))
+                extend_parents.extend(proc_parents[name])
+            else:
+                extend_parents = []
 
     def process_all_relations():
         def process_relations(node: nodes.ASTNode):
@@ -136,13 +153,14 @@ def preprocess_query(tree: nodes.ProgramNode):
     nodes_stack = []
     if_while_stack = []
     proc_stmt_stack = []
+    proc_parents = {}
     find_all_statements()
     process_all_relations()
 
     for key in modifies:
         modifies[key] = list(set(modifies[key]))
         uses[key] = list(set(uses[key]))
-    print(calls)
+
     return {
         "statements": statements,
         "follows": follows,

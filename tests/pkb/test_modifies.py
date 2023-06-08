@@ -103,3 +103,56 @@ def test_pkb_modifies_procedure_variable():
     queries = parse_query("""procedure p1; Select p1 such that Modifies(p1, "q")""")
     result = evaluate_query(tree, queries[0])
     assert result == []
+
+
+def _get_ast_tree_call():
+    return parse(
+        """
+            procedure test1 {
+                a = b;
+                while a {
+                    call test2;
+                }
+            }
+
+            procedure test2 {
+               call test3;
+            }
+
+            procedure test3 {
+                c = d;
+            }
+
+            procedure test4 {
+                e = f;
+            }
+
+            procedure test5 {
+                call test4;
+            }
+
+            procedure test6 {
+                call test5;
+            }
+            """
+    )
+
+
+def test_pkb_modifies_call_procedure_variable():
+    tree = _get_ast_tree_call()
+    queries = parse_query("""procedure p1; Select p1 such that Modifies(p1, "c")""")
+    result = evaluate_query(tree, queries[0])
+    assert result == ["test1", "test2", "test3"]
+    queries = parse_query("""procedure p1; Select p1 such that Modifies(p1, "e")""")
+    result = evaluate_query(tree, queries[0])
+    assert result == ["test4", "test5", "test6"]
+
+
+def test_pkb_modifies_call_stmt_variable():
+    tree = _get_ast_tree_call()
+    queries = parse_query("""stmt s1; Select s1 such that Modifies(s1, "c")""")
+    result = evaluate_query(tree, queries[0])
+    assert result == [2, 3, 4, 5]
+    queries = parse_query("""stmt s1; Select s1 such that Modifies(s1, "e")""")
+    result = evaluate_query(tree, queries[0])
+    assert result == [6, 7, 8]
