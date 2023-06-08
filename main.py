@@ -13,7 +13,6 @@ if __name__ == "__main__":
             """
             procedure test {
                 a = 8 * (a + c) * 2;
-                call test;
             }
 
             procedure test2 {
@@ -23,6 +22,7 @@ if __name__ == "__main__":
                 }
                 else {
                     c = d + e;
+                    call test;
                 }
             }
             """
@@ -34,9 +34,9 @@ if __name__ == "__main__":
             )
         )
 
-        queries = parse_query("""while a1; Select a1 such that Uses(2, "c")""")
+        queries = parse_query("""procedure p; Select p such that Calls(p, "test")""")
 
-        evaluate_query(tree, queries[0])
+        print(evaluate_query(tree, queries[0]))
 
     elif len(sys.argv) > 0:
         with open(sys.argv[-1]) as f:
