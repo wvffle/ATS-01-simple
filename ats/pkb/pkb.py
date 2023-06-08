@@ -81,11 +81,11 @@ def _get_node(query, context, statement, parameter):
 
 def _resolve_statements(query, a, b, statement, related_statement):
     if query["searching_variable"] == a:
-        return related_statement(), statement, related_statement()
+        return related_statement(statement), statement, related_statement(statement)
     if query["searching_variable"] == b:
-        return related_statement(), statement, statement
+        return related_statement(statement), statement, statement
     if not isinstance(a, int) and not isinstance(b, int):
-        return related_statement(), statement, related_statement()
+        return related_statement(statement), statement, related_statement(statement)
     return statement, statement, statement
 
 
@@ -97,13 +97,15 @@ def process_follows(query, context):
     result = set()
     for stmt in context["statements"].values():
         try:
-            stmt_a, stmt_b, searching = _resolve_statements(
-                query, a, b, stmt, lambda: follows[stmt]
-            )
+
+            def relation(statement):
+                return follows[statement]
+
+            stmt_a, stmt_b, searching = _resolve_statements(query, a, b, stmt, relation)
             node_a = _get_node(query, context, stmt_a, a)
             node_b = _get_node(query, context, stmt_b, b)
 
-            if follows[node_b] == node_a:
+            if relation(node_b) == node_a:
                 result.add(searching.__stmt_id)
 
         except KeyError:
@@ -119,13 +121,15 @@ def process_parent(query, context):
     result = set()
     for stmt in context["statements"].values():
         try:
-            stmt_a, stmt_b, searching = _resolve_statements(
-                query, a, b, stmt, lambda: stmt.parent.parent
-            )
+
+            def relation(statement):
+                return statement.parent.parent
+
+            stmt_a, stmt_b, searching = _resolve_statements(query, a, b, stmt, relation)
             node_a = _get_node(query, context, stmt_a, a)
             node_b = _get_node(query, context, stmt_b, b)
 
-            if node_b.parent.parent == node_a:
+            if relation(node_b) == node_a:
                 result.add(searching.__stmt_id)
 
         except KeyError:
