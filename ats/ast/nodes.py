@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import Union
 
 from dotmap import DotMap
 from pptree import print_tree
@@ -7,10 +8,13 @@ printer_filter = None
 
 
 class ASTNode:
+    parent: Union["ASTNode", None]
+
     def __init__(self):
         self.name = ""
         self.nodes = DotMap()
         self.children = []
+        self.parent = None
 
     def add_node(self, field: str, node):
         self.nodes[field] = node
@@ -46,7 +50,7 @@ class ASTNode:
             return [c for c in self.children if printer_filter(c)]
 
     def print_tree(
-        self, filter: Callable[["ASTNode"], bool] = None
+        self, filter: Callable[["ASTNode"], bool] | None = None
     ):  # pragma: no cover
         global printer_filter
         printer_filter = filter
@@ -80,6 +84,8 @@ class VariableNode(ASTNode):
 
 
 class ExprNode(ASTNode):
+    parent: "StmtAssignNode"
+
     def __init__(self, name: str):
         super().__init__()
         self.name = name
@@ -116,6 +122,8 @@ class StmtLstNode(ASTNode):
 
 
 class ProcedureNode(ASTNode):
+    parent: "ProgramNode"
+
     def __init__(self, name: str, stmt_lst_node: StmtLstNode):
         super().__init__()
         self.name = name
@@ -123,15 +131,24 @@ class ProcedureNode(ASTNode):
 
 
 class ProgramNode(ASTNode):
+    parent: None
+
     def __init__(self, procedure_nodes):
         super().__init__()
         self.add_node("procedures", procedure_nodes)
 
 
 class StmtNode(ASTNode):
+    parent: "StmtLstNode"
+
+    __stmt_index: int
+    __stmt_id: int
+
     def __init__(self, name: str):
         super().__init__()
+        self.__stmt_index = -1
         self.__stmt_id = -1
+
         self.name = name
 
     def __str__(self):  # pragma: no cover

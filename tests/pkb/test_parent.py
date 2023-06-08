@@ -75,7 +75,7 @@ def test_pkb_parent_stmt_stmt():
 
     queries = parse_query("stmt s1, s2; Select s1 such that Parent(s1, s2)")
     result = evaluate_query(tree, queries[0])
-    assert result == [2, 3, 3, 2]
+    assert result == [2, 3]
 
     queries = parse_query("assign a1, a2; Select a2 such that Parent(a1, a2)")
     result = evaluate_query(tree, queries[0])
@@ -95,4 +95,4 @@ def test_pkb_parent_stmt_stmt():
 
     queries = parse_query("stmt s1, s2, s3; Select s3 such that Parent(s1, s2)")
     result = evaluate_query(tree, queries[0])
-    assert result == [2, 3, 3, 2]
+    assert result == [2, 3]
