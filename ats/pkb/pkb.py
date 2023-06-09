@@ -122,7 +122,7 @@ def preprocess_query(tree: nodes.ProgramNode):
             # Find all procedures
             if isinstance(node, nodes.ProcedureNode):
                 procedures[node.name] = node
-                statements_by_type["procedure"].append(node)         
+                statements_by_type["procedure"].append(node)
                 proc_stmt_stack.append(node)
 
             # Find all statements by type
@@ -305,6 +305,8 @@ def preprocess_query(tree: nodes.ProgramNode):
     find_statements()
     process_relations()
 
+    print(modifies)
+
     return {
         "statements_by_type": statements_by_type,
         "statements": statements,
@@ -312,7 +314,7 @@ def preprocess_query(tree: nodes.ProgramNode):
         "follows": follows,
         "calls": calls,
         "uses": uses,
-        "modifies": modifies,  
+        "modifies": modifies,
         "next": next,
     }
 
@@ -455,6 +457,7 @@ def process_calls(query, context):
     )
 
 
+# To change
 def process_uses(query, context):
     a = query["relations"][0]["parameters"][0]
     b = query["relations"][0]["parameters"][1].strip('"')
@@ -514,6 +517,7 @@ def process_uses(query, context):
     return results
 
 
+# To change
 def process_modifies(query, context):
     a = query["relations"][0]["parameters"][0]
     b = query["relations"][0]["parameters"][1].strip('"')
@@ -583,5 +587,11 @@ def evaluate_query(node: nodes.ProgramNode, query):
 
     if query["relations"][0]["relation"] == "Calls":
         return process_calls(query, context)
+
+    if query["relations"][0]["relation"] == "Modifies":
+        return process_modifies(query, context)
+
+    if query["relations"][0]["relation"] == "Uses":
+        return process_uses(query, context)
 
     return []
