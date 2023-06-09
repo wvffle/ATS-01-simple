@@ -23,6 +23,7 @@ if __name__ == "__main__":
                 else {
                     c = d + e;
                     call test;
+                    a = d + e;
                 }
 
                 while a {

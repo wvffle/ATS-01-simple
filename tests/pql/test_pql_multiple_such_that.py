@@ -35,17 +35,24 @@ def test_double_such_that_multiple_relation_using_ands_assert():
 
 def test_double_such_that_using_with_assert():
     result = parse_query(
-        """ prog_line pr; stmt s1;
-            Select s1 such that Next(pr, 3) with pr.procName = "hello there" such that Follows(s1, 3) with s1.value = 5
-           """
+        """
+        procedure p1;
+        stmt s1;
+        Select s1
+            such that Calls(p1, p1)
+            with p1.procName = "hello there"
+
+            such that Follows(s1, 3)
+            with s1.stmt# = 5
+        """
     )
 
-    assert result[0]["conditions"]["attributes"][0]["left"] == "pr"
+    assert result[0]["conditions"]["attributes"][0]["left"] == "p1"
     assert result[0]["conditions"]["attributes"][0]["attr_left"] == "procName"
     assert result[0]["conditions"]["attributes"][0]["right"] == '"hello there"'
     assert result[0]["conditions"]["attributes"][0]["attr_right"] is None
     assert result[0]["conditions"]["attributes"][1]["left"] == "s1"
-    assert result[0]["conditions"]["attributes"][1]["attr_left"] == "value"
+    assert result[0]["conditions"]["attributes"][1]["attr_left"] == "stmt#"
     assert result[0]["conditions"]["attributes"][1]["right"] == "5"
     assert result[0]["conditions"]["attributes"][1]["attr_right"] is None
 
