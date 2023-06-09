@@ -400,16 +400,52 @@ def parse_query(text: str):
 
         relationships.append({"relation": relationship, "parameters": parameters})
 
+    def assert_attribute_type(variable, attr, variables):
+        if variables[variable] == "call":
+            if attr not in ["procName"]:
+                raise ValueError(f"Call '{variable}' does not have attribute '{attr}'")
+
+        elif variables[variable] == "procedure":
+            if attr not in ["procName"]:
+                raise ValueError(
+                    f"Procedure '{variable}' does not have attribute '{attr}'"
+                )
+
+        elif variables[variable] == "variable":
+            if attr not in ["varName"]:
+                raise ValueError(
+                    f"Variable '{variable}' does not have attribute '{attr}'"
+                )
+
+        elif variables[variable] == "constant":
+            if attr not in ["value"]:
+                raise ValueError(
+                    f"Constant '{variable}' does not have attribute '{attr}'"
+                )
+
+        elif variables[variable] in ["stmt", "while", "if", "assign"]:
+            if attr not in ["stmt#"]:
+                raise ValueError(
+                    f"Statement '{variable}' does not have attribute '{attr}'"
+                )
+        else:
+            raise ValueError(
+                f"The {variables[variable]} '{variable}' does not have attribute '{attr}'"
+            )
+
     def process_optional_with(withs, variables):
         nonlocal current_token
         attr_left = None
         attr_right = None
+        print(variables)
 
         if current_token in variables:
             left = match_variable_is_in_list_token(variables)
-
             match_token(".")
             attr_left = match_attr_name_token()
+
+            assert_attribute_type(left, attr_left, variables)
+
         else:
             left = match_with_parameter_token(variables)
 
@@ -417,9 +453,10 @@ def parse_query(text: str):
 
         if current_token in variables:
             right = match_variable_is_in_list_token(variables)
-
             match_token(".")
             attr_right = match_attr_name_token()
+
+            assert_attribute_type(right, attr_right, variables)
         else:
             right = match_with_parameter_token(variables)
 
