@@ -1,6 +1,7 @@
 from itertools import chain
 
 from ats.ast import nodes
+from ats.ast.nodes import ProcedureNode
 from ats.pkb.utils import is_variable
 
 
@@ -162,6 +163,47 @@ def process_follows(query, context):
     return list(result)
 
 
+def process_follows_deep(query, context):
+    a = query["relations"][0]["parameters"][0]
+    b = query["relations"][0]["parameters"][1]
+    follows = context["follows"]
+
+    result = set()
+
+    if is_variable(query, a) and is_variable(query, b):
+        if query["searching_variable"] == a:
+            return list(set(map(lambda stmt: stmt.name, chain(*follows.values()))))
+
+        if query["searching_variable"] == b:
+            return map(lambda stmt: stmt.name, follows.keys())
+
+    for stmt in context["statements"].values():
+        try:
+
+            def relation(statement):
+                return statement
+
+            stmt_a, stmt_b, searching = _resolve_statements(
+                query, a, b, stmt, lambda _: stmt
+            )
+            # stmt_a, stmt_b, searching = _resolve_statements(query, a, b, stmt, relation)
+            node_a = _get_node(query, context, stmt_a, a)
+            node_b = _get_node(query, context, stmt_b, b)
+
+            node = follows[node_b]
+            while node:
+                if node == node_a:
+                    result.add(searching.__stmt_id)
+                node = follows[node]
+
+        except KeyError:
+            pass
+        except TypeError:
+            pass
+
+    return list(result)
+
+
 def process_parent(query, context):
     a = query["relations"][0]["parameters"][0]
     b = query["relations"][0]["parameters"][1]
@@ -179,6 +221,38 @@ def process_parent(query, context):
 
             if relation(node_b) == node_a:
                 result.add(searching.__stmt_id)
+
+        except KeyError:
+            pass
+        except TypeError:
+            pass
+
+    return list(result)
+
+
+def process_parent_deep(query, context):
+    a = query["relations"][0]["parameters"][0]
+    b = query["relations"][0]["parameters"][1]
+
+    result = set()
+    for stmt in context["statements"].values():
+        try:
+
+            def relation(statement):
+                return statement.parent.parent
+
+            stmt_a, stmt_b, searching = _resolve_statements(query, a, b, stmt, relation)
+            node_a = _get_node(query, context, stmt_a, a)
+            node_b = _get_node(query, context, stmt_b, b)
+
+            if relation(node_b) == node_a:
+                result.add(searching.__stmt_id)
+
+            node = relation(node_b)
+            while not isinstance(node, ProcedureNode):
+                if node == node_a:
+                    result.add(searching.__stmt_id)
+                node = relation(node)
 
         except KeyError:
             pass
@@ -231,8 +305,14 @@ def evaluate_query(node: nodes.ProgramNode, query):
     if query["relations"][0]["relation"] == "Follows":
         return process_follows(query, context)
 
+    if query["relations"][0]["relation"] == "Follows*":
+        return process_follows_deep(query, context)
+
     if query["relations"][0]["relation"] == "Parent":
         return process_parent(query, context)
+
+    if query["relations"][0]["relation"] == "Parent*":
+        return process_parent_deep(query, context)
 
     if query["relations"][0]["relation"] == "Calls":
         return process_calls(query, context)
