@@ -150,6 +150,7 @@ class StmtNode(ASTNode):
         self.__stmt_id = -1
 
         self.name = name
+        self._type = name
 
     def __str__(self):  # pragma: no cover
         return "stmt: " + self.name

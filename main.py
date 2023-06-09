@@ -24,6 +24,10 @@ if __name__ == "__main__":
                     c = d + e;
                     call test;
                 }
+
+                while a {
+                    a = a + 1;
+                }
             }
             """
         )
@@ -34,7 +38,9 @@ if __name__ == "__main__":
             )
         )
 
-        queries = parse_query("""procedure p; Select p such that Calls(p, "test")""")
+        queries = parse_query(
+            """stmt s1; while w1; Select s1 such that Follows(s1, w1)"""
+        )
 
         print(evaluate_query(tree, queries[0]))
 

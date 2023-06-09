@@ -10,8 +10,12 @@ NODE_TYPE_MAP = {
 }
 
 
+def is_valid_type(query, parameter, node):
+    return isinstance(node, NODE_TYPE_MAP[query["variables"][parameter]])
+
+
 def assert_variable_type(query, parameter, node):
-    if not isinstance(node, NODE_TYPE_MAP[query["variables"][parameter]]):
+    if not is_valid_type(query, parameter, node):
         raise TypeError("Invalid variable type")
 
 
