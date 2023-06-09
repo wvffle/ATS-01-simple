@@ -34,8 +34,15 @@ relationships_ent_ref_and_ent_ref = ["Calls", "Calls*"]
 def parse_query(text: str):
     tokens = tokenize(text)
     current_token = None
+    line_number = 1
 
     def get_next_token():
+        nonlocal line_number
+
+        while len(tokens) > 0 and tokens[0] == "\n":
+            tokens.pop(0)
+            line_number += 1
+
         if len(tokens) > 0:
             return tokens.pop(0)
 
@@ -44,13 +51,17 @@ def parse_query(text: str):
     def assert_token(expected_token: str):
         nonlocal current_token
         if current_token is None:
-            raise ValueError(f"Expected {expected_token}, got end of file")
+            raise ValueError(
+                f"Expected {expected_token}, got end of file\non line: {line_number}"
+            )
 
     def match_token(token: str):
         assert_token(f"token '{token}'")
         nonlocal current_token
         if current_token != token:
-            raise ValueError(f"Expected token '{token}', got '{current_token}'")
+            raise ValueError(
+                f"Expected token '{token}', got '{current_token}'\non line: {line_number}"
+            )
 
         current_token = get_next_token()
 
@@ -60,7 +71,7 @@ def parse_query(text: str):
         var_type = current_token
         if not is_variable_type_token(current_token):
             raise ValueError(
-                f"Token '{current_token}' is not a valid VARIABLE_TYPE_TOKEN"
+                rf"Token '{current_token}' is not a valid VARIABLE_TYPE_TOKEN\mon line: {line_number}"
             )
 
         current_token = get_next_token()
@@ -71,7 +82,9 @@ def parse_query(text: str):
         assert_token("DECLARED_VARIABLE_TOKEN")
         nonlocal current_token
         if current_token not in variables:
-            raise ValueError(f"Token '{current_token}' is not declared")
+            raise ValueError(
+                f"Token '{current_token}' is not declared\non line: {line_number}"
+            )
 
         searchingVariable = current_token
         current_token = get_next_token()
@@ -82,7 +95,9 @@ def parse_query(text: str):
         assert_token("NAME_TOKEN")
         nonlocal current_token
         if not is_name_token(current_token):
-            raise ValueError(f"Token '{current_token}' is not a valid NAME_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not a valid NAME_TOKEN\non line: {line_number}"
+            )
 
         name = current_token
         current_token = get_next_token()
@@ -94,14 +109,18 @@ def parse_query(text: str):
         nonlocal current_token
 
         if not is_program_design_entity_relationship_token(current_token):
-            raise ValueError(f"Token '{current_token}' is not a valid NAME_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not a valid NAME_TOKEN\non line: {line_number}"
+            )
 
         relationship = current_token
 
         current_token = get_next_token()
         if current_token == "*":
             if relationship in shallow_relationship:
-                raise ValueError(f"Token '{relationship}*' is not a valid NAME_TOKEN")
+                raise ValueError(
+                    f"Token '{relationship}*' is not a valid NAME_TOKEN\non line: {line_number}"
+                )
 
             relationship += "*"
             current_token = get_next_token()
@@ -113,7 +132,7 @@ def parse_query(text: str):
         nonlocal current_token
         if current_token != "," and current_token != ";":
             raise ValueError(
-                f"Token '{current_token}' is not a valid NAME_DECLARATION_TOKEN"
+                f"Token '{current_token}' is not a valid NAME_DECLARATION_TOKEN\non line: {line_number}"
             )
 
         name = current_token
@@ -129,7 +148,9 @@ def parse_query(text: str):
             and not is_any_token(current_token)
             and current_token not in variables
         ):
-            raise ValueError(f"Token '{current_token}' is not valid STMT_REF_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not valid STMT_REF_TOKEN\non line: {line_number}"
+            )
 
         try:
             parameter = int(current_token)
@@ -157,7 +178,9 @@ def parse_query(text: str):
         # // ‘synonym’ above must be of type ‘while’
 
         if not is_any_token(current_token) and current_token not in variables:
-            raise ValueError(f"Token '{current_token}' is not valid VAR_REF_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not valid VAR_REF_TOKEN\non line: {line_number}"
+            )
 
         parameter = current_token
         current_token = get_next_token()
@@ -174,7 +197,9 @@ def parse_query(text: str):
             and not is_any_token(current_token)
             and current_token not in variables
         ):
-            raise ValueError(f"Token '{current_token}' is not valid ENT_REF_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not valid ENT_REF_TOKEN\non line: {line_number}"
+            )
 
         parameter = current_token
         current_token = get_next_token()
@@ -194,7 +219,7 @@ def parse_query(text: str):
             and current_token not in variables
         ):
             raise ValueError(
-                f"Token '{current_token}' is not valid WITH_PARAMETER_TOKEN"
+                f"Token '{current_token}' is not valid WITH_PARAMETER_TOKEN\non line: {line_number}"
             )
 
         parameter = current_token
@@ -208,7 +233,9 @@ def parse_query(text: str):
         assert_token("ANY_TOKEN")
         nonlocal current_token
         if not is_any_token(current_token):
-            raise ValueError(f"Token '{current_token}' is not valid ANY_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not valid ANY_TOKEN\non line: {line_number}"
+            )
 
         current_token = get_next_token()
         return Any
@@ -222,7 +249,9 @@ def parse_query(text: str):
             and current_token != "procName"
             and current_token != "varName"
         ):
-            raise ValueError(f"Token '{current_token}' is not valid ATTR_NAME_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not valid ATTR_NAME_TOKEN\non line: {line_number}"
+            )
 
         if current_token == "stmt":
             current_token = current_token + "#"
@@ -415,34 +444,36 @@ def parse_query(text: str):
     def assert_attribute_type(variable, attr, variables):
         if variables[variable] == "call":
             if attr not in ["procName"]:
-                raise ValueError(f"Call '{variable}' does not have attribute '{attr}'")
+                raise ValueError(
+                    f"Call '{variable}' does not have attribute '{attr}'\non line {line_number}"
+                )
 
         elif variables[variable] == "procedure":
             if attr not in ["procName"]:
                 raise ValueError(
-                    f"Procedure '{variable}' does not have attribute '{attr}'"
+                    f"Procedure '{variable}' does not have attribute '{attr}'\non line {line_number}"
                 )
 
         elif variables[variable] == "variable":
             if attr not in ["varName"]:
                 raise ValueError(
-                    f"Variable '{variable}' does not have attribute '{attr}'"
+                    f"Variable '{variable}' does not have attribute '{attr}'\non line {line_number}"
                 )
 
         elif variables[variable] == "constant":
             if attr not in ["value"]:
                 raise ValueError(
-                    f"Constant '{variable}' does not have attribute '{attr}'"
+                    f"Constant '{variable}' does not have attribute '{attr}'\non line {line_number}"
                 )
 
         elif variables[variable] in ["stmt", "while", "if", "assign"]:
             if attr not in ["stmt#"]:
                 raise ValueError(
-                    f"Statement '{variable}' does not have attribute '{attr}'"
+                    f"Statement '{variable}' does not have attribute '{attr}'\non line {line_number}"
                 )
         else:
             raise ValueError(
-                f"The {variables[variable]} '{variable}' does not have attribute '{attr}'"
+                f"The {variables[variable]} '{variable}' does not have attribute '{attr}'\non line {line_number}"
             )
 
     def process_optional_with(withs, variables):

@@ -13,7 +13,17 @@ def tokenize(text: str):
             tokens += tokenize(token.string[1:])
             continue
 
-        if token.type != tk.NEWLINE and token.string.strip() != "":
-            tokens.append(token.string)
+        if token.type == tk.NEWLINE:
+            tokens.append("\n")
+            continue
+
+        if len(token.string) > 0 and token.string[-1] == "\n":
+            if len(token.string.strip()) > 1:
+                tokens.append(token.string.strip())
+            tokens.append("\n")
+            continue
+
+        if token.string.strip() != "":
+            tokens.append(token.string.strip())
 
     return tokens
