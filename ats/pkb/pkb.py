@@ -196,6 +196,42 @@ def preprocess_query(tree: nodes.ProgramNode):
                     else:
                         next[node.children[-1]].append(node.parent)
 
+                # dict Next
+                # if the node is the first child and its parent is statement
+                # then the node is next for the parent
+                if node.parent.children[0] == node and isinstance(
+                    node.parent.parent, nodes.StmtNode
+                ):
+                    next[proc_stmt_stack[-2]].append(node.__stmt_id)
+
+            # dict Next
+            if isinstance(node, nodes.StmtNode):
+                if node.__stmt_index > 0:
+                    # if previous stmt in stmtLst is if stmt
+                    # then add to stack if stmt node and id current node
+                    if isinstance(
+                        node.parent.children[node.__stmt_index - 1], nodes.StmtIfNode
+                    ):
+                        if_while_stack.append(node.children[node.__stmt_index - 1])
+                        if_while_stack.append(node.__stmt_id)
+                    # add current node to next for previous stmt in stmtLst
+                    else:
+                        next[
+                            node.parent.children[node.__stmt_index - 1].__stmt_id
+                        ].append(node.__stmt_id)
+
+            # dict Next
+            if isinstance(node, nodes.StmtLstNode):
+                if isinstance(node.parent, nodes.StmtWhileNode):
+                    # if last child in while is if
+                    # then add to stack while stmt node and its id
+                    if isinstance(node.children[-1], nodes.StmtIfNode):
+                        if_while_stack.append(node.parent)
+                        if_while_stack.append(node.parent.__stmt_id)
+                    # while is next for the last child
+                    else:
+                        next[node.children[-1].__stmt_id].append(node.parent.__stmt_id)
+
             # Build the follows relation map
             if isinstance(node, nodes.StmtNode):
                 if node.__stmt_index > 0:
