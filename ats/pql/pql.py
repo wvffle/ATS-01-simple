@@ -1,3 +1,4 @@
+from ats.parser.parser import parse
 from ats.parser.utils import is_integer_token, is_name_token
 from ats.pql.utils import (
     is_any_token,
@@ -103,6 +104,19 @@ def parse_query(text: str):
         current_token = get_next_token()
 
         return name
+
+    def match_integer_token():
+        assert_token("INTEGER_TOKEN")
+
+        nonlocal current_token
+        if not is_integer_token(current_token):
+            raise ValueError(
+                f"Token '{current_token}' is not a valid INTEGER_TOKEN\non line: {line_number}"
+            )
+
+        value = current_token
+        current_token = get_next_token()
+        return value
 
     def match_design_entity_relationship():
         assert_token("DESIGN_ENTITY_RELATIONSHIP_TOKEN")
@@ -357,11 +371,6 @@ def parse_query(text: str):
                 }
             )
 
-    def process_expression(variables):
-        nonlocal current_token
-        # if is_term_token(current_token):
-        #     first_parameter = match_term_token(variables)
-
     def process_pattern_clause(variables, pattern_type):
         nonlocal current_token
         match_variable_is_in_list_token(variables)
@@ -377,11 +386,17 @@ def parse_query(text: str):
         nonlocal current_token
         first_parameter = match_var_ref_token(variables)
         match_token(",")
-        # second_parameter = process_expression(variables)
 
-        match_with_parameter_token(variables)
+        if current_token == "_":
+            second_parameter = match_any_token()
+        else:
+            expression = current_token.strip('"')
+            parse(f"procedure proc {{ assign = {expression}; }}")
+            second_parameter = current_token
+            current_token = get_next_token()
+
         match_token(")")
-        return [first_parameter]
+        return [first_parameter, second_parameter]
 
     def process_pattern_while(variables):
         nonlocal current_token
