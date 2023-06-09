@@ -202,7 +202,7 @@ def preprocess_query(tree: nodes.ProgramNode):
                 if node.parent.children[0] == node and isinstance(
                     node.parent.parent, nodes.StmtNode
                 ):
-                    next[proc_stmt_stack[-2]].append(node.__stmt_id)
+                    next[proc_stmt_stack[-2]].append(node)
 
             # dict Next
             if isinstance(node, nodes.StmtNode):
@@ -213,12 +213,10 @@ def preprocess_query(tree: nodes.ProgramNode):
                         node.parent.children[node.__stmt_index - 1], nodes.StmtIfNode
                     ):
                         if_while_stack.append(node.children[node.__stmt_index - 1])
-                        if_while_stack.append(node.__stmt_id)
+                        if_while_stack.append(node)
                     # add current node to next for previous stmt in stmtLst
                     else:
-                        next[
-                            node.parent.children[node.__stmt_index - 1].__stmt_id
-                        ].append(node.__stmt_id)
+                        next[node.parent.children[node.__stmt_index - 1]].append(node)
 
             # dict Next
             if isinstance(node, nodes.StmtLstNode):
@@ -227,10 +225,10 @@ def preprocess_query(tree: nodes.ProgramNode):
                     # then add to stack while stmt node and its id
                     if isinstance(node.children[-1], nodes.StmtIfNode):
                         if_while_stack.append(node.parent)
-                        if_while_stack.append(node.parent.__stmt_id)
+                        if_while_stack.append(node.parent)
                     # while is next for the last child
                     else:
-                        next[node.children[-1].__stmt_id].append(node.parent.__stmt_id)
+                        next[node.children[-1]].append(node.parent)
 
             # Build the follows relation map
             if isinstance(node, nodes.StmtNode):
@@ -466,6 +464,16 @@ def process_uses(query, context):
 
     results = []
 
+    # temporary only for passing tests
+    for key, value in uses.items():
+        value_list = []
+        for v in value:
+            if isinstance(v, nodes.ProcedureNode):
+                value_list.append(v.name)
+            if isinstance(v, nodes.StmtNode):
+                value_list.append(v.__stmt_id)
+        uses[key] = value_list
+
     try:
         if isinstance(a, str) and isinstance(b, str):
             # case 1 - statement and variable
@@ -514,6 +522,16 @@ def process_modifies(query, context):
     statements = context["statements"]
 
     results = []
+
+    # temporary only for passing tests
+    for key, value in modifies.items():
+        value_list = []
+        for v in value:
+            if isinstance(v, nodes.ProcedureNode):
+                value_list.append(v.name)
+            if isinstance(v, nodes.StmtNode):
+                value_list.append(v.__stmt_id)
+        modifies[key] = value_list
 
     try:
         if isinstance(a, str) and isinstance(b, str):
