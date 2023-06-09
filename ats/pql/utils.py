@@ -28,4 +28,4 @@ def is_string_token(text: str):
 
 
 def is_any_token(text: str):
-    return text == "'_'"
+    return text == "_"

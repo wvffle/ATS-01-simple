@@ -223,23 +223,22 @@ def parse_query(text: str):
 
         match_token("Select")
         searching_variable = match_variable_is_in_list_token(variables)
-        such_thats = []
-        such_thats.append(process_such_that(variables))
-
-        while current_token == "such":
-            such_thats.append(process_such_that(variables))
+        withs = []
+        relationships = []
+        conditions = process_conditions(variables, withs, relationships)
 
         return {
-            "such_thats": such_thats,
+            "conditions": {
+                "relations": conditions["relations"],
+                "attributes": conditions["withs"],
+            },
             "searching_variable": searching_variable,
             "variables": dict(variables),
         }
 
-    def process_such_that(variables):
+    def process_conditions(variables, withs, relationships):
         match_token("such")
         match_token("that")
-        withs = []
-        relationships = []
         process_relationship(variables, relationships)
 
         while current_token == "and":
@@ -253,6 +252,9 @@ def parse_query(text: str):
         while current_token == "and":
             match_token("and")
             process_optional_with(withs, variables)
+
+        if current_token == "such":
+            return process_conditions(variables, withs, relationships)
 
         return {
             "relations": relationships,

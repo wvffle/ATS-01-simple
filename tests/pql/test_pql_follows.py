@@ -10,19 +10,19 @@ def test_relation_follows_in_query():
            """
     )
 
-    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Follows"
+    assert result[0]["conditions"]["relations"][0]["relation"] == "Follows"
 
 
 def test_parameters_relation_follows_in_query():
     result = parse_query(
         """ stmt s1;
-            Select s1 such that Follows('_', 10)
+            Select s1 such that Follows(_, 10)
            """
     )
 
-    anything = result[0]["such_thats"][0]["relations"][0]["parameters"][0]
+    anything = result[0]["conditions"]["relations"][0]["parameters"][0]
     assert anything is Any
-    assert result[0]["such_thats"][0]["relations"][0]["parameters"][1] == 10
+    assert result[0]["conditions"]["relations"][0]["parameters"][1] == 10
 
 
 def test_relation_follows_star_in_query():
@@ -32,7 +32,7 @@ def test_relation_follows_star_in_query():
            """
     )
 
-    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Follows*"
+    assert result[0]["conditions"]["relations"][0]["relation"] == "Follows*"
 
 
 def test_parameters_relation_follows_star_in_query():
@@ -42,8 +42,8 @@ def test_parameters_relation_follows_star_in_query():
            """
     )
 
-    assert result[0]["such_thats"][0]["relations"][0]["parameters"][0] == 20
-    assert result[0]["such_thats"][0]["relations"][0]["parameters"][1] == 30
+    assert result[0]["conditions"]["relations"][0]["parameters"][0] == 20
+    assert result[0]["conditions"]["relations"][0]["parameters"][1] == 30
 
 
 def test_not_valid_relation_follows_in_query():
@@ -52,7 +52,7 @@ def test_not_valid_relation_follows_in_query():
     ):
         parse_query(
             """ stmt s1;
-                Select s1 such that Follows('_', "ats")
+                Select s1 such that Follows(_, "ats")
                """
         )
 
