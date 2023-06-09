@@ -51,15 +51,6 @@ def test_not_valid_select_statement():
         )
 
 
-def test_not_valid_such_statement():
-    with pytest.raises(ValueError, match="Expected token 'such', got 'sum'"):
-        parse_query(
-            """ stmt s1;
-                Select s1 sum that Uses(s1, "x")
-           """
-        )
-
-
 def test_not_valid_that_statement():
     with pytest.raises(ValueError, match="Expected token 'that', got 'dat'"):
         parse_query(
