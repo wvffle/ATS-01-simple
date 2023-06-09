@@ -142,6 +142,30 @@ def parse_query(text: str):
 
         return parameter
 
+    def match_var_ref_token(variables):
+        assert_token("VARIABLE_PARAMETER_TOKEN")
+        nonlocal current_token
+        # varRef : synonym | ‘_’ | ‘“’ IDENT ‘“’
+        # assign : synonym ‘(’ varRef ‘,’ expression-spec | ‘_’ ‘)’
+        # expression-spec : ‘“’ expr ‘“’| ‘_’ ‘“’ expr ‘“’ ‘_’
+        # /* ‘synonym’ above must be of type ‘assign’
+        # expr must be a well-formed expression in SIMPLE
+        # refer to query examples in section 7.5 in the Project Handbook */
+        # if : synonym ‘(’ varRef ‘,’ ‘_’ ‘,’ ‘_’ ‘)’
+        # // ‘synonym’ above must be of type ‘if’
+        # while : synonym ‘(’ varRef ‘,’ ‘_’ ‘)’
+        # // ‘synonym’ above must be of type ‘while’
+
+        if not is_any_token(current_token) and current_token not in variables:
+            raise ValueError(f"Token '{current_token}' is not valid VAR_REF_TOKEN")
+
+        parameter = current_token
+        current_token = get_next_token()
+        if is_any_token(parameter):
+            return Any
+
+        return parameter
+
     def match_ent_ref_token(variables):
         assert_token("RELATIONSHIP_PARAMETER_TOKEN")
         nonlocal current_token
@@ -179,6 +203,15 @@ def parse_query(text: str):
             return Any
 
         return parameter
+
+    def match_any_token():
+        assert_token("ANY_TOKEN")
+        nonlocal current_token
+        if not is_any_token(current_token):
+            raise ValueError(f"Token '{current_token}' is not valid ANY_TOKEN")
+
+        get_next_token()
+        return Any
 
     def match_attr_name_token():
         assert_token("ATTR_NAME_TOKEN")
@@ -225,7 +258,8 @@ def parse_query(text: str):
         searching_variable = match_variable_is_in_list_token(variables)
         withs = []
         relationships = []
-        conditions = process_conditions(variables, withs, relationships)
+        patterns = []
+        conditions = process_conditions(variables, withs, relationships, patterns)
 
         return {
             "conditions": {
@@ -236,14 +270,22 @@ def parse_query(text: str):
             "variables": dict(variables),
         }
 
-    def process_conditions(variables, withs, relationships):
-        match_token("such")
-        match_token("that")
-        process_relationship(variables, relationships)
-
-        while current_token == "and":
-            match_token("and")
+    def process_conditions(variables, withs, relationships, patterns):
+        nonlocal current_token
+        while current_token == "such":
+            match_token("such")
+            match_token("that")
             process_relationship(variables, relationships)
+            while current_token == "and":
+                match_token("and")
+                process_relationship(variables, relationships)
+
+        if current_token == "pattern":
+            match_token("pattern")
+            process_pattern(variables, patterns)
+            while current_token == "and":
+                match_token("and")
+                process_pattern(variables, patterns)
 
         if current_token == "with":
             match_token("with")
@@ -253,13 +295,72 @@ def parse_query(text: str):
             match_token("and")
             process_optional_with(withs, variables)
 
-        if current_token == "such":
-            return process_conditions(variables, withs, relationships)
+        if (
+            current_token == "such"
+            or current_token == "pattern"
+            or current_token == "with"
+        ):
+            return process_conditions(variables, withs, relationships, patterns)
 
-        return {
-            "relations": relationships,
-            "withs": withs,
-        }
+        return {"relations": relationships, "withs": withs, "patterns": patterns}
+
+    def process_pattern(variables, patterns):
+        nonlocal current_token
+        if (
+            variables[current_token] == "assign"
+            or variables[current_token] == "while"
+            or variables[current_token] == "if"
+        ):
+            pattern_variable = current_token
+            pattern_type = variables[current_token]
+            parameters = process_pattern_clause(variables, pattern_type)
+
+            return patterns.append(
+                {
+                    "variable": pattern_variable,
+                    "parameters": parameters,
+                    "type": pattern_type,
+                }
+            )
+
+    def process_pattern_clause(variables, pattern_type):
+        nonlocal current_token
+        match_variable_is_in_list_token(variables)
+        match_token("(")
+        if pattern_type == "assign":
+            return process_pattern_assign(variables)
+        if pattern_type == "while":
+            return process_pattern_while(variables)
+        if pattern_type == "if":
+            return process_pattern_if(variables)
+
+    def process_pattern_assign(variables):
+        nonlocal current_token
+        first_parameter = match_var_ref_token(variables)
+        match_token(",")
+        match_with_parameter_token(variables)
+        match_token(")")
+        return [first_parameter]
+
+    def process_pattern_while(variables):
+        nonlocal current_token
+        first_parameter = match_var_ref_token(variables)
+        match_token(",")
+        second_parameter = match_any_token()
+        match_token(",")
+        third_parameter = match_any_token()
+        match_token(")")
+
+        return [first_parameter, second_parameter, third_parameter]
+
+    def process_pattern_if(variables):
+        nonlocal current_token
+        first_parameter = match_var_ref_token(variables)
+        match_token(",")
+        second_parameter = match_any_token()
+        match_token(")")
+
+        return [first_parameter, second_parameter]
 
     def process_relationship_stmt_ref_and_ent_ref(variables):
         first_parameter = match_stmt_ref_token(variables)
