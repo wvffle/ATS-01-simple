@@ -6,8 +6,15 @@ from ats.tokenizer import tokenize
 def parse(text: str):
     tokens = tokenize(text)
     current_token = None
+    line_number = 1
 
     def get_next_token():
+        nonlocal line_number
+
+        while len(tokens) > 0 and tokens[0] == "\n":
+            tokens.pop(0)
+            line_number += 1
+
         if len(tokens) > 0:
             return tokens.pop(0)
 
@@ -20,19 +27,25 @@ def parse(text: str):
     def assert_token(expected_token: str):
         nonlocal current_token
         if current_token is None:
-            raise ValueError(f"Expected {expected_token}, got end of file")
+            raise ValueError(
+                f"Expected {expected_token}, got end of file\non line: {line_number}"
+            )
 
     def assert_no_tokens_left():
         nonlocal current_token
         if current_token is not None:
-            raise ValueError(f"Expected end of file, got '{current_token}'")
+            raise ValueError(
+                f"Expected end of file, got '{current_token}'\non line: {line_number}"
+            )
 
     def match_token(token: str):
         assert_token(f"token '{token}'")
 
         nonlocal current_token
         if current_token != token:
-            raise ValueError(f"Expected token '{token}', got '{current_token}'")
+            raise ValueError(
+                f"Expected token '{token}', got '{current_token}'\non line: {line_number}"
+            )
 
         current_token = get_next_token()
 
@@ -41,10 +54,14 @@ def parse(text: str):
 
         nonlocal current_token
         if is_reserved_keyword(current_token):
-            raise ValueError(f"Token '{current_token}' is a reserved keyword")
+            raise ValueError(
+                f"Token '{current_token}' is a reserved keyword\non line: {line_number}"
+            )
 
         if not is_name_token(current_token):
-            raise ValueError(f"Token '{current_token}' is not a valid NAME_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not a valid NAME_TOKEN\non line: {line_number}"
+            )
 
         name = current_token
         current_token = get_next_token()
@@ -55,7 +72,9 @@ def parse(text: str):
 
         nonlocal current_token
         if not is_integer_token(current_token):
-            raise ValueError(f"Token '{current_token}' is not a valid INTEGER_TOKEN")
+            raise ValueError(
+                f"Token '{current_token}' is not a valid INTEGER_TOKEN\non line: {line_number}"
+            )
 
         value = current_token
         current_token = get_next_token()
