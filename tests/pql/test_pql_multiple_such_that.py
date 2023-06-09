@@ -43,7 +43,7 @@ def test_double_such_that_using_with_assert():
             with p1.procName = "hello there"
 
             such that Follows(s1, 3)
-            with s1.stmt# = 5
+            with s1.stmt# = "isp"
         """
     )
 
@@ -53,7 +53,7 @@ def test_double_such_that_using_with_assert():
     assert result[0]["conditions"]["attributes"][0]["attr_right"] is None
     assert result[0]["conditions"]["attributes"][1]["left"] == "s1"
     assert result[0]["conditions"]["attributes"][1]["attr_left"] == "stmt#"
-    assert result[0]["conditions"]["attributes"][1]["right"] == "5"
+    assert result[0]["conditions"]["attributes"][1]["right"] == '"isp"'
     assert result[0]["conditions"]["attributes"][1]["attr_right"] is None
 
 
@@ -72,9 +72,9 @@ def test_triple_such_that_multiple_relation_using_ands_assert():
 
 def test_triple_such_that_using_with_assert():
     result = parse_query(
-        """ prog_line pr; stmt s1, s2;
-            Select s1 such that Next(pr, 3) with pr.procName = "general Kenobi" such that Follows(s1, 3) with s1.value = 109
-            such that Parent*(s1, 5) with "bestname" = s2.varName
+        """ procedure pr; variable v1, v2;
+            Select v1 such that Next(pr, 3) with pr.procName = "general Kenobi" such that Follows(v1, 3) with v1.varName = "hello there"
+            such that Parent*(v2, 5) with "bestname" = v2.varName
            """
     )
 
@@ -82,11 +82,11 @@ def test_triple_such_that_using_with_assert():
     assert result[0]["conditions"]["attributes"][0]["attr_left"] == "procName"
     assert result[0]["conditions"]["attributes"][0]["right"] == '"general Kenobi"'
     assert result[0]["conditions"]["attributes"][0]["attr_right"] is None
-    assert result[0]["conditions"]["attributes"][1]["left"] == "s1"
-    assert result[0]["conditions"]["attributes"][1]["attr_left"] == "value"
-    assert result[0]["conditions"]["attributes"][1]["right"] == "109"
+    assert result[0]["conditions"]["attributes"][1]["left"] == "v1"
+    assert result[0]["conditions"]["attributes"][1]["attr_left"] == "varName"
+    assert result[0]["conditions"]["attributes"][1]["right"] == '"hello there"'
     assert result[0]["conditions"]["attributes"][1]["attr_right"] is None
     assert result[0]["conditions"]["attributes"][2]["left"] == '"bestname"'
     assert result[0]["conditions"]["attributes"][2]["attr_left"] is None
-    assert result[0]["conditions"]["attributes"][2]["right"] == "s2"
+    assert result[0]["conditions"]["attributes"][2]["right"] == "v2"
     assert result[0]["conditions"]["attributes"][2]["attr_right"] == "varName"

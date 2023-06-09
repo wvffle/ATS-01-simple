@@ -338,7 +338,7 @@ def process_relation(
         except KeyError:
             pass
 
-    for i, relation in enumerate(query["relations"]):
+    for i, relation in enumerate(query["conditions"]["relations"]):
         results = all_results if i == 0 else set()
         a, b = relation["parameters"]
 
@@ -527,25 +527,25 @@ def evaluate_query(node: nodes.ProgramNode, query):
     if query["conditions"]["relations"][0]["relation"] == "Follows":
         return process_follows(query, context)
 
-    if query["relations"][0]["relation"] == "Follows*":
+    if query["conditions"]["relations"][0]["relation"] == "Follows*":
         return process_follows_deep(query, context)
 
-    if query["relations"][0]["relation"] == "Parent":
+    if query["conditions"]["relations"][0]["relation"] == "Parent":
         return process_parent(query, context)
 
-    if query["relations"][0]["relation"] == "Parent*":
+    if query["conditions"]["relations"][0]["relation"] == "Parent*":
         return process_parent_deep(query, context)
 
     if query["conditions"]["relations"][0]["relation"] == "Calls":
         return process_calls(query, context)
 
-    if query["relations"][0]["relation"] == "Calls*":
+    if query["conditions"]["relations"][0]["relation"] == "Calls*":
         return process_calls_deep(query, context)
 
-    if query["relations"][0]["relation"] == "Modifies":
+    if query["conditions"]["relations"][0]["relation"] == "Modifies":
         return process_modifies(query, context)
 
-    if query["relations"][0]["relation"] == "Uses":
+    if query["conditions"]["relations"][0]["relation"] == "Uses":
         return process_uses(query, context)
 
     if query["relations"][0]["relation"] == "Next":

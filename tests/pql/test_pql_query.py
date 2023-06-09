@@ -73,8 +73,8 @@ def test_not_valid_relation_in_query():
 def test_complex_query_evaluator():
     parse_query(
         """
-            while w3;
-            Select w3 such that Uses(20, w3) with w3.procName = "x"
+            while w3; procedure p1;
+            Select w3 such that Uses(20, w3) with p1.procName = "xDDD"
         """
     )
 
@@ -90,26 +90,13 @@ def test_too_fast_end_of_query():
 def test_query_result():
     result = parse_query(
         """
-            while w3; stmt s2;
-            Select w3 such that Uses(20, w3) with w3.procName = "x"
-            and s2.procName = "boligrafo"
+            while w3; stmt s2; variable v1; procedure p1;
+            Select w3 such that Uses(20, w3) with v1.varName = "best"
+            and p1.procName = "boligrafo"
         """
     )
 
     assert result is not None
-
-
-def test_multiply_select_query():
-    parse_query(
-        """
-            while w3; stmt s2;
-            Select w3 such that Uses(20, w3) with w3.procName = "x"
-            and s2.procName = "boligrafo"
-            assign a3;
-            Select w3 such that Uses(a3, w3) with w3.procName = "x"
-            and s2.procName = "boligrafo"
-            """
-    )
 
 
 def test_multiply_relations_select_query():
@@ -169,12 +156,12 @@ def test_multiply_relations_parameters_select_query_values():
 def test_multiply_relations_and_multiply_with_select_query():
     parse_query(
         """
-            while w3; stmt s2;
+            while w3; stmt s2, s3; variable v1;
             Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows(w3, s2)
-            with w3.procName = "x" and s2.varName = "boligrafo"
+            with s2.stmt# = "xdd" and v1.varName = "boligrafo"
             assign a3;
-            Select w3 such that Uses(a3, w3) and Calls*("not", "me") with w3.varName = "x"
-            and s2.varName = "boligrafo"
+            Select w3 such that Uses(a3, w3) and Calls*("not", "me") with s3.stmt# = "x"
+            and v1.varName = "boligrafo"
         """
     )
 
@@ -182,11 +169,11 @@ def test_multiply_relations_and_multiply_with_select_query():
 def test_multiply_relations_and_multiply_with_select_query_values():
     parse_query(
         """
-            while w3; stmt s2;
+            while w3; stmt s2; procedure p1; variable v1;
             Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows(w3, s2)
-            with w3.varName = "x" and s2.varName = "boligrafo"
+            with p1.procName = "allow" and s2.stmt# = "boligrafo"
             assign a3;
-            Select w3 such that Uses(a3, w3) and Calls*("not", "me") with w3.varName = "x"
-            and s2.varName = "boligrafo"
+            Select w3 such that Uses(a3, w3) and Calls*("not", "me") with v1.varName = "y"
+            and s2.stmt# = "boligrafo"
         """
     )
