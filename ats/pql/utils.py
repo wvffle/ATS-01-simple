@@ -29,3 +29,20 @@ def is_string_token(text: str):
 
 def is_any_token(text: str):
     return text == "_"
+
+
+# def is_term_token(text: str):
+#     if is_factor_token(text):
+#         return True
+
+
+# def is_factor_token(text: str):
+#     if is_variable_type_token(text):
+#         return True
+#     if is_string_token(text):
+#         return True
+#     if is_any_token(text):
+#         return True
+#     if is_number_token(text):
+#         return True
+#     return False

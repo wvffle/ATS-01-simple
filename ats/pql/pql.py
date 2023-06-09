@@ -210,7 +210,7 @@ def parse_query(text: str):
         if not is_any_token(current_token):
             raise ValueError(f"Token '{current_token}' is not valid ANY_TOKEN")
 
-        get_next_token()
+        current_token = get_next_token()
         return Any
 
     def match_attr_name_token():
@@ -223,6 +223,10 @@ def parse_query(text: str):
             and current_token != "varName"
         ):
             raise ValueError(f"Token '{current_token}' is not valid ATTR_NAME_TOKEN")
+
+        if current_token == "stmt":
+            current_token = current_token + "#"
+            get_next_token()
 
         try:
             parameter = int(current_token)
@@ -265,6 +269,7 @@ def parse_query(text: str):
             "conditions": {
                 "relations": conditions["relations"],
                 "attributes": conditions["withs"],
+                "patterns": conditions["patterns"],
             },
             "searching_variable": searching_variable,
             "variables": dict(variables),
@@ -323,6 +328,11 @@ def parse_query(text: str):
                 }
             )
 
+    def process_expression(variables):
+        nonlocal current_token
+        # if is_term_token(current_token):
+        #     first_parameter = match_term_token(variables)
+
     def process_pattern_clause(variables, pattern_type):
         nonlocal current_token
         match_variable_is_in_list_token(variables)
@@ -338,6 +348,8 @@ def parse_query(text: str):
         nonlocal current_token
         first_parameter = match_var_ref_token(variables)
         match_token(",")
+        # second_parameter = process_expression(variables)
+
         match_with_parameter_token(variables)
         match_token(")")
         return [first_parameter]
@@ -347,20 +359,20 @@ def parse_query(text: str):
         first_parameter = match_var_ref_token(variables)
         match_token(",")
         second_parameter = match_any_token()
-        match_token(",")
-        third_parameter = match_any_token()
         match_token(")")
 
-        return [first_parameter, second_parameter, third_parameter]
+        return [first_parameter, second_parameter]
 
     def process_pattern_if(variables):
         nonlocal current_token
         first_parameter = match_var_ref_token(variables)
         match_token(",")
         second_parameter = match_any_token()
+        match_token(",")
+        third_parameter = match_any_token()
         match_token(")")
 
-        return [first_parameter, second_parameter]
+        return [first_parameter, second_parameter, third_parameter]
 
     def process_relationship_stmt_ref_and_ent_ref(variables):
         first_parameter = match_stmt_ref_token(variables)
