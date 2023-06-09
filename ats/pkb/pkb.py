@@ -444,7 +444,6 @@ def process_calls(query, context):
         # NOTE: We got a string
         if param[0] == '"':
             return context["procedures"][param[1:-1]]
-
         # NOTE: We got a procedure name
         return context["procedures"][param]
 
@@ -562,7 +561,7 @@ def evaluate_query(node: nodes.ProgramNode, query):
     if query["relations"][0]["relation"] == "Parent*":
         return process_parent_deep(query, context)
 
-    if query["relations"][0]["relation"] == "Calls":
+    if query["conditions"]["relations"][0]["relation"] == "Calls":
         return process_calls(query, context)
 
     if query["relations"][0]["relation"] == "Calls*":
