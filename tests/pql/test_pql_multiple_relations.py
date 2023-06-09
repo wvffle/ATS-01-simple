@@ -39,6 +39,31 @@ def test_relations_parent_star_and_modifies():
     assert result[0]["conditions"]["relations"][1]["relation"] == "Modifies"
 
 
+def test_relations_parent_and_follows():
+    result = parse_query(
+        """
+            while w3; stmt s2;
+            Select w3 such that Parent(20, _) and Follows(_, s2)
+            """
+    )
+
+    assert result[0]["conditions"]["relations"][0]["relation"] == "Parent"
+    assert result[0]["conditions"]["relations"][1]["relation"] == "Follows"
+
+
+def test_relations_follows_star_and_next_and_modifies():
+    result = parse_query(
+        """
+            while w3; stmt s2;
+            Select w3 such that Follows*(20, _) and Next(_, _) and Modifies(_, s2)
+            """
+    )
+
+    assert result[0]["conditions"]["relations"][0]["relation"] == "Follows*"
+    assert result[0]["conditions"]["relations"][1]["relation"] == "Next"
+    assert result[0]["conditions"]["relations"][2]["relation"] == "Modifies"
+
+
 def test_relations_modifies_and_parent():
     result = parse_query(
         """
