@@ -38,13 +38,13 @@ tree = _get_ast_tree()
 
 
 def test_pkb_calls_procedure_any():
-    queries = parse_query("""procedure p; Select p such that Calls(p, '_')""")
+    queries = parse_query("""procedure p; Select p such that Calls(p, _)""")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == ["test1", "test2", "test3", "test4"]
 
 
 def test_pkb_calls_procedure_any_1():
-    queries = parse_query("""procedure q; Select q such that Calls('_', q)""")
+    queries = parse_query("""procedure q; Select q such that Calls(_, q)""")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == ["test1", "test2", "test3", "test4", "test5"]
 
