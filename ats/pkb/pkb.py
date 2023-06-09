@@ -1,5 +1,5 @@
 from ats.ast import nodes
-from ats.pkb.utils import STMT_TYPE_MAP, is_variable
+from ats.pkb.utils import NODE_TYPE_MAP, is_variable
 
 
 def _dfs_noop(node: nodes.ASTNode, context: dict):
@@ -433,40 +433,38 @@ def process_uses(query, context):
     try:
         if isinstance(a, str) and isinstance(b, str):
             # case 1 - statement and variable
-            if STMT_TYPE_MAP[searching_variable_type] == nodes.StmtNode:
+            if NODE_TYPE_MAP[searching_variable_type] == nodes.StmtNode:
                 for value in uses[b]:
                     if isinstance(value, int):
                         results.append(value)
+            # case 2 - procedure and variable - procedure is searched for
+            elif NODE_TYPE_MAP[searching_variable_type] == nodes.ProcedureNode:
+                for value in uses[b]:
+                    if isinstance(value, str):
+                        results.append(value)
             else:
-                # case 2 - (assign or if or while) and variable
-                if STMT_TYPE_MAP[searching_variable_type]:
+                # case 3 - (assign or if or while) and variable
+                if NODE_TYPE_MAP[searching_variable_type]:
                     for value in uses[b]:
                         if isinstance(value, int):
                             if isinstance(
-                                statements[value], STMT_TYPE_MAP[query["variables"][a]]
+                                statements[value], NODE_TYPE_MAP[query["variables"][a]]
                             ):
                                 results.append(value)
 
         if isinstance(a, int) and isinstance(b, str):
-            # case 3 - constant and variable - variable is searched for
+            # case 4 - constant and variable - variable is searched for
             if searching_variable_type == "variable":
                 for key, value in uses.items():
                     if a in value:
                         results.append(key)
-            # case 4 - constant and variable - statement is searched for
+            # case 5 - constant and variable - statement is searched for
             else:
                 if a in uses[b]:
                     results.append(a)
 
     except KeyError:
-        try:
-            # case 5 - procedure and variable - procedure is searched for
-            if searching_variable_type == "procedure":
-                for value in uses[b]:
-                    if isinstance(value, str):
-                        results.append(value)
-        except KeyError:
-            pass
+        pass
 
     results.sort()
     return results
@@ -484,40 +482,38 @@ def process_modifies(query, context):
     try:
         if isinstance(a, str) and isinstance(b, str):
             # case 1 - statement and variable
-            if STMT_TYPE_MAP[searching_variable_type] == nodes.StmtNode:
+            if NODE_TYPE_MAP[searching_variable_type] == nodes.StmtNode:
                 for value in modifies[b]:
                     if isinstance(value, int):
                         results.append(value)
+            # case 2 - procedure and variable - procedure is searched for
+            elif NODE_TYPE_MAP[searching_variable_type] == nodes.ProcedureNode:
+                for value in modifies[b]:
+                    if isinstance(value, str):
+                        results.append(value)
             else:
-                # case 2 - (assign or if or while) and variable
-                if STMT_TYPE_MAP[searching_variable_type]:
+                # case 3 - (assign or if or while) and variable
+                if NODE_TYPE_MAP[searching_variable_type]:
                     for value in modifies[b]:
                         if isinstance(value, int):
                             if isinstance(
-                                statements[value], STMT_TYPE_MAP[query["variables"][a]]
+                                statements[value], NODE_TYPE_MAP[query["variables"][a]]
                             ):
                                 results.append(value)
 
         if isinstance(a, int) and isinstance(b, str):
-            # case 3 - constant and variable - variable is searched for
+            # case 4 - constant and variable - variable is searched for
             if searching_variable_type == "variable":
                 for key, value in modifies.items():
                     if a in value:
                         results.append(key)
-            # case 4 - constant and variable - statement is searched for
+            # case 5 - constant and variable - statement is searched for
             else:
                 if a in modifies[b]:
                     results.append(a)
 
     except KeyError:
-        try:
-            # case 5 - procedure and variable - procedure is searched for
-            if searching_variable_type == "procedure":
-                for value in modifies[b]:
-                    if isinstance(value, str):
-                        results.append(value)
-        except KeyError:
-            pass
+        pass
 
     results.sort()
     return results
