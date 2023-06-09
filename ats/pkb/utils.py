@@ -9,6 +9,13 @@ NODE_TYPE_MAP = {
     "procedure": nodes.ProcedureNode,
 }
 
+STMT_TYPE_MAP = {
+    "stmt": nodes.StmtNode,
+    "assign": nodes.StmtAssignNode,
+    "while": nodes.StmtWhileNode,
+    "if": nodes.StmtIfNode,
+}
+
 
 def is_valid_type(query, parameter, node):
     return isinstance(node, NODE_TYPE_MAP[query["variables"][parameter]])
