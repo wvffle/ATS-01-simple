@@ -16,8 +16,8 @@ def test_double_such_that_assert():
            """
     )
 
-    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Next"
-    assert result[0]["such_thats"][1]["relations"][0]["relation"] == "Follows"
+    assert result[0]["conditions"]["relations"][0]["relation"] == "Next"
+    assert result[0]["conditions"]["relations"][1]["relation"] == "Follows"
 
 
 def test_double_such_that_multiple_relation_using_ands_assert():
@@ -27,10 +27,10 @@ def test_double_such_that_multiple_relation_using_ands_assert():
            """
     )
 
-    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Next"
-    assert result[0]["such_thats"][0]["relations"][1]["relation"] == "Calls"
-    assert result[0]["such_thats"][1]["relations"][0]["relation"] == "Follows"
-    assert result[0]["such_thats"][1]["relations"][1]["relation"] == "Parent*"
+    assert result[0]["conditions"]["relations"][0]["relation"] == "Next"
+    assert result[0]["conditions"]["relations"][1]["relation"] == "Calls"
+    assert result[0]["conditions"]["relations"][2]["relation"] == "Follows"
+    assert result[0]["conditions"]["relations"][3]["relation"] == "Parent*"
 
 
 def test_double_such_that_using_with_assert():
@@ -40,14 +40,14 @@ def test_double_such_that_using_with_assert():
            """
     )
 
-    assert result[0]["such_thats"][0]["withs"][0]["left"] == "pr"
-    assert result[0]["such_thats"][0]["withs"][0]["attr_left"] == "procName"
-    assert result[0]["such_thats"][0]["withs"][0]["right"] == '"hello there"'
-    assert result[0]["such_thats"][0]["withs"][0]["attr_right"] is None
-    assert result[0]["such_thats"][1]["withs"][0]["left"] == "s1"
-    assert result[0]["such_thats"][1]["withs"][0]["attr_left"] == "value"
-    assert result[0]["such_thats"][1]["withs"][0]["right"] == "5"
-    assert result[0]["such_thats"][1]["withs"][0]["attr_right"] is None
+    assert result[0]["conditions"]["attributes"][0]["left"] == "pr"
+    assert result[0]["conditions"]["attributes"][0]["attr_left"] == "procName"
+    assert result[0]["conditions"]["attributes"][0]["right"] == '"hello there"'
+    assert result[0]["conditions"]["attributes"][0]["attr_right"] is None
+    assert result[0]["conditions"]["attributes"][1]["left"] == "s1"
+    assert result[0]["conditions"]["attributes"][1]["attr_left"] == "value"
+    assert result[0]["conditions"]["attributes"][1]["right"] == "5"
+    assert result[0]["conditions"]["attributes"][1]["attr_right"] is None
 
 
 def test_triple_such_that_multiple_relation_using_ands_assert():
@@ -58,9 +58,9 @@ def test_triple_such_that_multiple_relation_using_ands_assert():
            """
     )
 
-    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Next"
-    assert result[0]["such_thats"][1]["relations"][0]["relation"] == "Follows"
-    assert result[0]["such_thats"][2]["relations"][0]["relation"] == "Parent*"
+    assert result[0]["conditions"]["relations"][0]["relation"] == "Next"
+    assert result[0]["conditions"]["relations"][1]["relation"] == "Follows"
+    assert result[0]["conditions"]["relations"][2]["relation"] == "Parent*"
 
 
 def test_triple_such_that_using_with_assert():
@@ -71,15 +71,15 @@ def test_triple_such_that_using_with_assert():
            """
     )
 
-    assert result[0]["such_thats"][0]["withs"][0]["left"] == "pr"
-    assert result[0]["such_thats"][0]["withs"][0]["attr_left"] == "procName"
-    assert result[0]["such_thats"][0]["withs"][0]["right"] == '"general Kenobi"'
-    assert result[0]["such_thats"][0]["withs"][0]["attr_right"] is None
-    assert result[0]["such_thats"][1]["withs"][0]["left"] == "s1"
-    assert result[0]["such_thats"][1]["withs"][0]["attr_left"] == "value"
-    assert result[0]["such_thats"][1]["withs"][0]["right"] == "109"
-    assert result[0]["such_thats"][1]["withs"][0]["attr_right"] is None
-    assert result[0]["such_thats"][2]["withs"][0]["left"] == '"bestname"'
-    assert result[0]["such_thats"][2]["withs"][0]["attr_left"] is None
-    assert result[0]["such_thats"][2]["withs"][0]["right"] == "s2"
-    assert result[0]["such_thats"][2]["withs"][0]["attr_right"] == "varName"
+    assert result[0]["conditions"]["attributes"][0]["left"] == "pr"
+    assert result[0]["conditions"]["attributes"][0]["attr_left"] == "procName"
+    assert result[0]["conditions"]["attributes"][0]["right"] == '"general Kenobi"'
+    assert result[0]["conditions"]["attributes"][0]["attr_right"] is None
+    assert result[0]["conditions"]["attributes"][1]["left"] == "s1"
+    assert result[0]["conditions"]["attributes"][1]["attr_left"] == "value"
+    assert result[0]["conditions"]["attributes"][1]["right"] == "109"
+    assert result[0]["conditions"]["attributes"][1]["attr_right"] is None
+    assert result[0]["conditions"]["attributes"][2]["left"] == '"bestname"'
+    assert result[0]["conditions"]["attributes"][2]["attr_left"] is None
+    assert result[0]["conditions"]["attributes"][2]["right"] == "s2"
+    assert result[0]["conditions"]["attributes"][2]["attr_right"] == "varName"

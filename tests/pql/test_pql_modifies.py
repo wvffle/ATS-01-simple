@@ -10,7 +10,7 @@ def test_relation_modifies_in_query():
            """
     )
 
-    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Modifies"
+    assert result[0]["conditions"]["relations"][0]["relation"] == "Modifies"
 
 
 def test_parameters_relation_modifies_in_query():
@@ -20,8 +20,8 @@ def test_parameters_relation_modifies_in_query():
            """
     )
 
-    assert result[0]["such_thats"][0]["relations"][0]["parameters"][0] == 4
-    assert result[0]["such_thats"][0]["relations"][0]["parameters"][1] == '"y"'
+    assert result[0]["conditions"]["relations"][0]["parameters"][0] == 4
+    assert result[0]["conditions"]["relations"][0]["parameters"][1] == '"y"'
 
 
 def test_not_valid_relation_first_parameter_modifies_in_query():
