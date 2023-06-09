@@ -142,11 +142,11 @@ def test_multiply_relations_select_query_values():
             """
     )
 
-    assert result[0]["such_thats"][0]["relations"][0]["relation"] == "Uses"
-    assert result[0]["such_thats"][0]["relations"][1]["relation"] == "Modifies"
-    assert result[0]["such_thats"][0]["relations"][2]["relation"] == "Follows*"
-    assert result[1]["such_thats"][0]["relations"][0]["relation"] == "Uses"
-    assert result[1]["such_thats"][0]["relations"][1]["relation"] == "Calls*"
+    assert result[0]["conditions"]["relations"][0]["relation"] == "Uses"
+    assert result[0]["conditions"]["relations"][1]["relation"] == "Modifies"
+    assert result[0]["conditions"]["relations"][2]["relation"] == "Follows*"
+    assert result[1]["conditions"]["relations"][0]["relation"] == "Uses"
+    assert result[1]["conditions"]["relations"][1]["relation"] == "Calls*"
 
 
 def test_multiply_relations_parameters_select_query_values():
@@ -159,20 +159,20 @@ def test_multiply_relations_parameters_select_query_values():
             """
     )
 
-    assert result[0]["such_thats"][0]["relations"][0]["parameters"][0] == 20
-    assert result[0]["such_thats"][0]["relations"][0]["parameters"][1] == "w3"
+    assert result[0]["conditions"]["relations"][0]["parameters"][0] == 20
+    assert result[0]["conditions"]["relations"][0]["parameters"][1] == "w3"
 
-    assert result[0]["such_thats"][0]["relations"][1]["parameters"][0] == 20
-    assert result[0]["such_thats"][0]["relations"][1]["parameters"][1] == "w3"
+    assert result[0]["conditions"]["relations"][1]["parameters"][0] == 20
+    assert result[0]["conditions"]["relations"][1]["parameters"][1] == "w3"
 
-    assert result[0]["such_thats"][0]["relations"][2]["parameters"][0] == "w3"
-    assert result[0]["such_thats"][0]["relations"][2]["parameters"][1] == "s2"
+    assert result[0]["conditions"]["relations"][2]["parameters"][0] == "w3"
+    assert result[0]["conditions"]["relations"][2]["parameters"][1] == "s2"
 
-    assert result[1]["such_thats"][0]["relations"][0]["parameters"][0] == "a3"
-    assert result[1]["such_thats"][0]["relations"][0]["parameters"][1] == "w3"
+    assert result[1]["conditions"]["relations"][0]["parameters"][0] == "a3"
+    assert result[1]["conditions"]["relations"][0]["parameters"][1] == "w3"
 
-    assert result[1]["such_thats"][0]["relations"][1]["parameters"][0] == '"not"'
-    assert result[1]["such_thats"][0]["relations"][1]["parameters"][1] == '"me"'
+    assert result[1]["conditions"]["relations"][1]["parameters"][0] == '"not"'
+    assert result[1]["conditions"]["relations"][1]["parameters"][1] == '"me"'
 
 
 def test_multiply_relations_and_multiply_with_select_query():
