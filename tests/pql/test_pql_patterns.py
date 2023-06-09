@@ -10,6 +10,20 @@ def test_basic_pattern():
     )
 
 
+def test_assign_pattern_assert():
+    result = parse_query(
+        """
+        assign a2;
+        Select a2 pattern a2(a2, "x + y + 6")
+        """
+    )
+
+    assert result[0]["conditions"]["patterns"][0]["variable"] == "a2"
+    assert result[0]["conditions"]["patterns"][0]["type"] == "assign"
+    assert result[0]["conditions"]["patterns"][0]["parameters"][0] == "a2"
+    assert result[0]["conditions"]["patterns"][0]["parameters"][1] == '"x + y + 6"'
+
+
 def test_if_pattern_assert():
     result = parse_query(
         """
