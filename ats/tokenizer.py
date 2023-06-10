@@ -18,8 +18,6 @@ def tokenize(text: str):
             continue
 
         if len(token.string) > 0 and token.string[-1] == "\n":
-            if len(token.string.strip()) > 1:
-                tokens.append(token.string.strip())
             tokens.append("\n")
             continue
 
