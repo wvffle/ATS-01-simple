@@ -105,19 +105,6 @@ def parse_query(text: str):
 
         return name
 
-    def match_integer_token():
-        assert_token("INTEGER_TOKEN")
-
-        nonlocal current_token
-        if not is_integer_token(current_token):
-            raise ValueError(
-                f"Token '{current_token}' is not a valid INTEGER_TOKEN\non line: {line_number}"
-            )
-
-        value = current_token
-        current_token = get_next_token()
-        return value
-
     def match_design_entity_relationship():
         assert_token("DESIGN_ENTITY_RELATIONSHIP_TOKEN")
         nonlocal current_token

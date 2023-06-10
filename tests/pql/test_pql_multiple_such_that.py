@@ -40,7 +40,7 @@ def test_double_such_that_using_with_assert():
         stmt s1;
         Select s1
             such that Calls(p1, p1)
-            with p1.procName = "hello there"
+            with p1.procName = "onetwothree"
 
             such that Follows(s1, 3)
             with s1.stmt# = "isp"
@@ -49,7 +49,7 @@ def test_double_such_that_using_with_assert():
 
     assert result[0]["conditions"]["attributes"][0]["left"] == "p1"
     assert result[0]["conditions"]["attributes"][0]["attr_left"] == "procName"
-    assert result[0]["conditions"]["attributes"][0]["right"] == '"hello there"'
+    assert result[0]["conditions"]["attributes"][0]["right"] == '"onetwothree"'
     assert result[0]["conditions"]["attributes"][0]["attr_right"] is None
     assert result[0]["conditions"]["attributes"][1]["left"] == "s1"
     assert result[0]["conditions"]["attributes"][1]["attr_left"] == "stmt#"
