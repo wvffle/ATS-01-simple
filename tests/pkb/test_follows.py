@@ -150,3 +150,14 @@ def test_pkb_follows_stmt_stmt_if_2():
     queries = parse_query("assign a1; if i1; Select i1 such that Follows(a1, i1)")
     result = evaluate_query(tree_if, queries[0])
     assert sorted(result) == [8]
+
+
+# Note: tests that not have their code implementation yet
+# def test_pkb_boolean_follows_with_condition():
+#     queries = parse_query("""
+#         if i1, i2;
+#         Select BOOLEAN such that Follows* (i1, i2) with i2.stmt# = i1.stmt#
+#     """)
+
+#     result = evaluate_query(tree, queries[0])
+#     assert result == False
