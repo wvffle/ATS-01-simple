@@ -33,12 +33,12 @@ DEFINED_RELATIONSHIPS = {}
 def define_relationship(name, param_1, param_2):
     if not is_variable_type_token(param_1):
         raise ValueError(
-            f"Parameter '{param_1}' at index 0 of the definition of relationship '{name} ' is not a valid design entity."
+            f"Parameter '{param_1}' at index 0 of the definition of relationship '{name}' is not a valid design entity."
         )
 
     if not is_variable_type_token(param_2):
         raise ValueError(
-            f"Parameter '{param_2}' at index 1 of the definition of relationship '{name} ' is not a valid design entity."
+            f"Parameter '{param_2}' at index 1 of the definition of relationship '{name}' is not a valid design entity."
         )
 
     if name not in DEFINED_RELATIONSHIPS:

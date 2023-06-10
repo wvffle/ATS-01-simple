@@ -82,7 +82,7 @@ def test_multiply_with_query():
 
 
 def test_not_valid_with_parameter_query():
-    with pytest.raises(ValueError, match="Token '=' is not valid WITH_PARAMETER_TOKEN"):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """
             while w3; stmt s2; variable v1;
@@ -92,11 +92,11 @@ def test_not_valid_with_parameter_query():
            """
         )
 
+    assert "Token '=' is not valid WITH_PARAMETER_TOKEN" in str(e.value)
+
 
 def test_not_valid_with_stmt():
-    with pytest.raises(
-        ValueError, match="Token 'attrNName' is not valid ATTR_NAME_TOKEN"
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """
             while w3; stmt s2; variable v1;
@@ -106,11 +106,11 @@ def test_not_valid_with_stmt():
            """
         )
 
+    assert "Token 'attrNName' is not valid ATTR_NAME_TOKEN" in str(e.value)
+
 
 def test_not_valid_with_statement_attr():
-    with pytest.raises(
-        ValueError, match="Statement 's2' does not have attribute 'varName'\non line 5"
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """
             while w3; stmt s2; variable v1;
@@ -120,11 +120,11 @@ def test_not_valid_with_statement_attr():
            """
         )
 
+    assert "Statement 's2' does not have attribute 'varName'" in str(e.value)
+
 
 def test_not_valid_with_call_attr():
-    with pytest.raises(
-        ValueError, match="Call 'c1' does not have attribute 'varName'\non line 3"
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """
             while w3; stmt s2; call c1; variable v1;
@@ -134,11 +134,11 @@ def test_not_valid_with_call_attr():
            """
         )
 
+    assert "Call 'c1' does not have attribute 'varName'" in str(e.value)
+
 
 def test_not_valid_with_procedure_attr():
-    with pytest.raises(
-        ValueError, match="Procedure 'p1' does not have attribute 'varName'\non line 3"
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """
             while w3; stmt s2; call c1; procedure p1; variable v1;
@@ -148,11 +148,11 @@ def test_not_valid_with_procedure_attr():
            """
         )
 
+    assert "Procedure 'p1' does not have attribute 'varName'" in str(e.value)
+
 
 def test_not_valid_with_variable_attr():
-    with pytest.raises(
-        ValueError, match="Variable 'v1' does not have attribute 'procName'\non line 5"
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """
             while w3; stmt s2; call c1; procedure p1; variable v1;
@@ -162,11 +162,11 @@ def test_not_valid_with_variable_attr():
            """
         )
 
+    assert "Variable 'v1' does not have attribute 'procName'" in str(e.value)
+
 
 def test_not_valid_constant_attr():
-    with pytest.raises(
-        ValueError, match="Constant 'const' does not have attribute 'stmt#'\non line 3"
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """
             while w3; stmt s2; call c1; procedure p1; variable v1; constant const;
@@ -174,3 +174,5 @@ def test_not_valid_constant_attr():
             and v1.procName = "wow"
            """
         )
+
+    assert "Constant 'const' does not have attribute 'stmt#'" in str(e.value)

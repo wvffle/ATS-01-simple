@@ -41,7 +41,7 @@ def test_not_valid_relation_second_parameter_modifies_in_query():
                 Select s1 such that Modifies(s1, 4)
                """
         )
-        assert "Relationship Modifies(s1, 4) is not valid." in str(e.value)
+    assert "Relationship Modifies(stmt, 4) is not valid." in str(e.value)
 
 
 def test_not_valid_relation_modifies_star_in_query():
@@ -52,7 +52,18 @@ def test_not_valid_relation_modifies_star_in_query():
             """
         )
 
-        assert (
-            "Relationship Modifies(stmt, stmt) is not valid. Expected one of Modifies(procedure, variable) | Modifies(stmt, variable)"
-            in str(e.value)
+    assert "Token 'Modifies*' is not a valid RELATIONSHIP_NAME" in str(e.value)
+
+
+def test_not_valid_relation_modifies_inconsistent_param_type():
+    with pytest.raises(ValueError) as e:
+        parse_query(
+            """ variable s1;
+                Select s1 such that Modifies(_, s1)
+            """
         )
+
+    assert (
+        "Parameter 0 of the relationship Modifies(_, variable) cannot be of type Any."
+        in str(e.value)
+    )
