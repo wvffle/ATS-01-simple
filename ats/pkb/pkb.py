@@ -1,5 +1,5 @@
 from ats.ast import nodes
-from ats.pkb.utils import NODE_TYPE_MAP, is_variable
+from ats.pkb.utils import is_variable
 
 
 def _dfs_noop(node: nodes.ASTNode, context: dict):
@@ -305,11 +305,10 @@ def preprocess_query(tree: nodes.ProgramNode):
     find_statements()
     process_relations()
 
-    print(modifies)
-
     return {
         "statements_by_type": statements_by_type,
         "statements": statements,
+        "variables": variables,
         "procedures": procedures,
         "follows": follows,
         "calls": calls,
@@ -457,124 +456,38 @@ def process_calls(query, context):
     )
 
 
-# To change
 def process_uses(query, context):
-    a = query["relations"][0]["parameters"][0]
-    b = query["relations"][0]["parameters"][1].strip('"')
-    searching_variable_type = query["variables"][query["searching_variable"]]
-    uses = context["uses"]
-    statements = context["statements"]
+    def resolve_node(param):
+        if isinstance(param, int):
+            return context["statements"][param]
+        else:
+            return param[1:-1]
 
-    results = []
-
-    # temporary only for passing tests
-    for key, value in uses.items():
-        value_list = []
-        for v in value:
-            if isinstance(v, nodes.ProcedureNode):
-                value_list.append(v.name)
-            if isinstance(v, nodes.StmtNode):
-                value_list.append(v.__stmt_id)
-        uses[key] = value_list
-
-    try:
-        if isinstance(a, str) and isinstance(b, str):
-            # case 1 - statement and variable
-            if NODE_TYPE_MAP[searching_variable_type] == nodes.StmtNode:
-                for value in uses[b]:
-                    if isinstance(value, int):
-                        results.append(value)
-            # case 2 - procedure and variable - procedure is searched for
-            elif NODE_TYPE_MAP[searching_variable_type] == nodes.ProcedureNode:
-                for value in uses[b]:
-                    if isinstance(value, str):
-                        results.append(value)
-            else:
-                # case 3 - (assign or if or while) and variable
-                if NODE_TYPE_MAP[searching_variable_type]:
-                    for value in uses[b]:
-                        if isinstance(value, int):
-                            if isinstance(
-                                statements[value], NODE_TYPE_MAP[query["variables"][a]]
-                            ):
-                                results.append(value)
-
-        if isinstance(a, int) and isinstance(b, str):
-            # case 4 - constant and variable - variable is searched for
-            if searching_variable_type == "variable":
-                for key, value in uses.items():
-                    if a in value:
-                        results.append(key)
-            # case 5 - constant and variable - statement is searched for
-            else:
-                if a in uses[b]:
-                    results.append(a)
-
-    except KeyError:
-        pass
-
-    results.sort()
-    return results
+    return process_relation(
+        query,
+        context,
+        lambda node_a, node_b: node_b in context["uses"]
+        and node_a in context["uses"][node_b],
+        resolve_node,
+        lambda node: node.__stmt_id if isinstance(node, nodes.StmtNode) else node.name,
+    )
 
 
-# To change
 def process_modifies(query, context):
-    a = query["relations"][0]["parameters"][0]
-    b = query["relations"][0]["parameters"][1].strip('"')
-    searching_variable_type = query["variables"][query["searching_variable"]]
-    modifies = context["modifies"]
-    statements = context["statements"]
+    def resolve_node(param):
+        if isinstance(param, int):
+            return context["statements"][param]
+        else:
+            return param[1:-1]
 
-    results = []
-
-    # temporary only for passing tests
-    for key, value in modifies.items():
-        value_list = []
-        for v in value:
-            if isinstance(v, nodes.ProcedureNode):
-                value_list.append(v.name)
-            if isinstance(v, nodes.StmtNode):
-                value_list.append(v.__stmt_id)
-        modifies[key] = value_list
-
-    try:
-        if isinstance(a, str) and isinstance(b, str):
-            # case 1 - statement and variable
-            if NODE_TYPE_MAP[searching_variable_type] == nodes.StmtNode:
-                for value in modifies[b]:
-                    if isinstance(value, int):
-                        results.append(value)
-            # case 2 - procedure and variable - procedure is searched for
-            elif NODE_TYPE_MAP[searching_variable_type] == nodes.ProcedureNode:
-                for value in modifies[b]:
-                    if isinstance(value, str):
-                        results.append(value)
-            else:
-                # case 3 - (assign or if or while) and variable
-                if NODE_TYPE_MAP[searching_variable_type]:
-                    for value in modifies[b]:
-                        if isinstance(value, int):
-                            if isinstance(
-                                statements[value], NODE_TYPE_MAP[query["variables"][a]]
-                            ):
-                                results.append(value)
-
-        if isinstance(a, int) and isinstance(b, str):
-            # case 4 - constant and variable - variable is searched for
-            if searching_variable_type == "variable":
-                for key, value in modifies.items():
-                    if a in value:
-                        results.append(key)
-            # case 5 - constant and variable - statement is searched for
-            else:
-                if a in modifies[b]:
-                    results.append(a)
-
-    except KeyError:
-        pass
-
-    results.sort()
-    return results
+    return process_relation(
+        query,
+        context,
+        lambda node_a, node_b: node_b in context["modifies"]
+        and node_a in context["modifies"][node_b],
+        resolve_node,
+        lambda node: node.__stmt_id if isinstance(node, nodes.StmtNode) else node.name,
+    )
 
 
 def evaluate_query(node: nodes.ProgramNode, query):
