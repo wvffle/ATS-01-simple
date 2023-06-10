@@ -6,8 +6,8 @@ from ats.pql.pql import parse_query
 def test_relations_modifies_and_follows_star():
     result = parse_query(
         """
-            while w3; stmt s2;
-            Select w3 such that Modifies(20, w3) and Follows*(w3, s2)
+            while w3; stmt s2; variable v;
+            Select w3 such that Modifies(s2, v) and Follows*(w3, s2)
             """
     )
 
@@ -18,8 +18,8 @@ def test_relations_modifies_and_follows_star():
 def test_relations_follows_and_modifies():
     result = parse_query(
         """
-            while w3; stmt s2;
-            Select w3 such that Follows(20, w3) and Modifies(w3, s2)
+            while w3; stmt s2; procedure p; variable v;
+            Select w3 such that Follows(20, w3) and Modifies(s2, v)
             """
     )
 
@@ -30,8 +30,8 @@ def test_relations_follows_and_modifies():
 def test_relations_parent_star_and_modifies():
     result = parse_query(
         """
-            while w3; stmt s2;
-            Select w3 such that Parent*(20, _) and Modifies(_, s2)
+            while w3; stmt s2; variable v;
+            Select w3 such that Parent*(20, _) and Modifies(_, v)
             """
     )
 
@@ -54,8 +54,8 @@ def test_relations_parent_and_follows():
 def test_relations_follows_star_and_next_and_modifies():
     result = parse_query(
         """
-            while w3; stmt s2;
-            Select w3 such that Follows*(20, _) and Next(_, _) and Modifies(_, s2)
+            while w3; stmt s2; variable v;
+            Select w3 such that Follows*(20, _) and Next(_, _) and Modifies(s2, v)
             """
     )
 
@@ -67,8 +67,8 @@ def test_relations_follows_star_and_next_and_modifies():
 def test_relations_modifies_and_parent():
     result = parse_query(
         """
-            while w3; stmt s4;
-            Select w3 such that Modifies(20, w3) and Parent(w3, s4)
+            while w3; stmt s4; procedure p; variable v;
+            Select w3 such that Modifies(p, v) and Parent(w3, s4)
             """
     )
 
@@ -79,8 +79,8 @@ def test_relations_modifies_and_parent():
 def test_relations_modifies_and_uses():
     result = parse_query(
         """
-            while w; stmt s4;
-            Select w such that Modifies(329, w) and Uses(_, "hello")
+            while w; stmt s4; variable v, v2; procedure p;
+            Select w such that Modifies(p, v2) and Uses(_, v)
             """
     )
 
@@ -91,8 +91,8 @@ def test_relations_modifies_and_uses():
 def test_relations_uses_and_modifies():
     result = parse_query(
         """
-            while w; stmt s4;
-            Select w such that Uses(329, w) and Modifies(_, "hello")
+            while w; stmt s4; variable v, v2; procedure p;
+            Select w such that Uses(329, v) and Modifies(p, v2)
             """
     )
 
@@ -101,9 +101,7 @@ def test_relations_uses_and_modifies():
 
 
 def test_relations_uses_and_modifies_not_valid_modifies():
-    with pytest.raises(
-        ValueError, match="Token 'Modyfikuje' is not a valid NAME_TOKEN"
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """
             while w; stmt s4;
@@ -111,12 +109,16 @@ def test_relations_uses_and_modifies_not_valid_modifies():
             """
         )
 
+        assert "Token 'Modyfikuje' is not a valid NAME_TOKEN" in str(e.value)
+
 
 def test_relations_uses_and_modifies_not_valid_uses():
-    with pytest.raises(ValueError, match="Token 'Use' is not a valid NAME_TOKEN"):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """
             while w; stmt s4;
             Select w such that Use(329, w) and Modifies(_, "hello")
             """
         )
+
+        assert "Token 'Use' is not a valid NAME_TOKEN" in str(e.value)

@@ -5,31 +5,31 @@ from ats.pql.pql import Any, parse_query
 
 def test_valid_parameters_with_string_in_relations():
     result = parse_query(
-        """ while w3;
-            Select w3 such that Uses(w3, "x")
+        """ while w3; variable v1;
+            Select w3 such that Uses(w3, v1)
            """
     )
 
     assert result[0]["conditions"]["relations"][0]["parameters"][0] == "w3"
-    assert result[0]["conditions"]["relations"][0]["parameters"][1] == '"x"'
+    assert result[0]["conditions"]["relations"][0]["parameters"][1] == "v1"
 
 
 def test_valid_parameters_with_integer_in_relations():
     result = parse_query(
-        """ while w3;
-            Select w3 such that Uses(20, w3)
+        """ while w3; variable v1;
+            Select w3 such that Uses(20, v1)
            """
     )
 
     assert result[0]["conditions"]["relations"][0]["parameters"][0] == 20
-    assert result[0]["conditions"]["relations"][0]["parameters"][1] == "w3"
+    assert result[0]["conditions"]["relations"][0]["parameters"][1] == "v1"
 
 
 def test_simply_with_left_query():
     result = parse_query(
         """
             while w3; variable v1;
-            Select w3 such that Uses(20, w3) with v1.varName = _
+            Select w3 such that Uses(20, v1) with v1.varName = _
         """
     )
 
@@ -43,8 +43,8 @@ def test_simply_with_left_query():
 def test_simply_with_query():
     result = parse_query(
         """
-            while w3; stmt s2;
-            Select w3 such that Uses(20, w3) with "x" = s2.stmt#
+            while w3; stmt s2; variable v1;
+            Select w3 such that Uses(20, v1) with "x" = s2.stmt#
         """
     )
 
@@ -59,7 +59,7 @@ def test_multiply_with_query():
     result = parse_query(
         """
             while w3; stmt s2; procedure p1; variable v1;
-            Select w3 such that Uses(20, w3) with s2.stmt# = "x"
+            Select w3 such that Uses(20, v1) with s2.stmt# = "x"
             and v1.varName = "boligrafo" and "pen" = p1.procName
         """
     )
@@ -86,7 +86,7 @@ def test_not_valid_with_parameter_query():
         parse_query(
             """
             while w3; stmt s2; variable v1;
-            Select w3 such that Uses(20, w3) with s2.stmt# = =
+            Select w3 such that Uses(20, v1) with s2.stmt# = =
             and v1.varName = "boligrafo" and "pen" = s2.stmt#
 
            """
@@ -99,8 +99,8 @@ def test_not_valid_with_stmt():
     ):
         parse_query(
             """
-            while w3; stmt s2;
-            Select w3 such that Uses(20, w3) with w3.attrNName = 30
+            while w3; stmt s2; variable v1;
+            Select w3 such that Uses(20, v1) with w3.attrNName = 30
             and s2.varName = "boligrafo" and "pen" = s2.varName
 
            """
@@ -113,8 +113,8 @@ def test_not_valid_with_statement_attr():
     ):
         parse_query(
             """
-            while w3; stmt s2;
-            Select w3 such that Uses(20, w3) with w3.stmt# = 30
+            while w3; stmt s2; variable v1;
+            Select w3 such that Uses(20, v1) with w3.stmt# = 30
             and s2.varName = "boligrafo" and "pen" = s2.varName
 
            """
@@ -123,12 +123,12 @@ def test_not_valid_with_statement_attr():
 
 def test_not_valid_with_call_attr():
     with pytest.raises(
-        ValueError, match="Variable 'c1' does not have attribute 'varName'\non line 2"
+        ValueError, match="Call 'c1' does not have attribute 'varName'\non line 3"
     ):
         parse_query(
             """
-            while w3; stmt s2; call c1;
-            Select w3 such that Uses(20, w3) with c1.varName = 30
+            while w3; stmt s2; call c1; variable v1;
+            Select w3 such that Uses(20, v1) with c1.varName = 30
             and s2.varName = "boligrafo" and "pen" = s2.varName
 
            """
@@ -141,8 +141,8 @@ def test_not_valid_with_procedure_attr():
     ):
         parse_query(
             """
-            while w3; stmt s2; call c1; procedure p1;
-            Select w3 such that Uses(20, w3) with p1.varName = 30
+            while w3; stmt s2; call c1; procedure p1; variable v1;
+            Select w3 such that Uses(p1, v1) with p1.varName = 30
             and s2.varName = "boligrafo" and "pen" = s2.varName
 
            """
@@ -156,7 +156,7 @@ def test_not_valid_with_variable_attr():
         parse_query(
             """
             while w3; stmt s2; call c1; procedure p1; variable v1;
-            Select w3 such that Uses(20, w3) with s2.stmt# = "xD"
+            Select w3 such that Uses(20, v1) with s2.stmt# = "xD"
             and v1.procName = "wow"
 
            """
@@ -170,8 +170,7 @@ def test_not_valid_constant_attr():
         parse_query(
             """
             while w3; stmt s2; call c1; procedure p1; variable v1; constant const;
-            Select w3 such that Uses(20, w3) with const.stmt# = "xD"
+            Select w3 such that Uses(20, v1) with const.stmt# = "xD"
             and v1.procName = "wow"
-
            """
         )
