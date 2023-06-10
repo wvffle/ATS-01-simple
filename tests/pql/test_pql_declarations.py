@@ -5,8 +5,9 @@ from ats.pql.pql import parse_query
 
 def test_simple_stmt_declaration():
     result = parse_query(
-        """ stmt s1;
-            Select s1 such that Modifies(s1, "x")
+        """
+        stmt s1;
+        Select s1 such that Follows(s1, 8)
         """
     )
 
@@ -19,7 +20,7 @@ def test_not_valid_end_of_declaration():
     ):
         parse_query(
             """ stmt s1; stmt s2/ stmt s3;
-                Select s1 such that Calls*(s1, "x")
+                Select s1 such that Follows*(s1, s2)
             """
         )
 
@@ -27,7 +28,7 @@ def test_not_valid_end_of_declaration():
 def test_complex_stmt_declaration():
     result = parse_query(
         """ stmt s1; stmt s2; stmt s3;
-            Select s1 such that Modifies(s1, "x")
+            Select s1 such that Follows(s1, 8)
         """
     )
 
@@ -39,7 +40,7 @@ def test_complex_stmt_declaration():
 def test_simple_assign_declaration():
     result = parse_query(
         """ assign a1;
-            Select a1 such that Modifies(a1, "pen")
+            Select a1 such that Follows(a1, 2)
         """
     )
 
@@ -49,7 +50,7 @@ def test_simple_assign_declaration():
 def test_complex_assign_declaration():
     result = parse_query(
         """ assign a1; assign a2; assign a3;
-            Select a2 such that Modifies(a2, "ls")
+            Select a2 such that Follows(a2, a1)
         """
     )
 
@@ -61,7 +62,7 @@ def test_complex_assign_declaration():
 def test_simple_while_declaration():
     result = parse_query(
         """ while w1;
-            Select w1 such that Uses(w1, "r2")
+            Select w1 such that Follows(w1, 2)
         """
     )
 
@@ -71,7 +72,7 @@ def test_simple_while_declaration():
 def test_complex_while_declaration():
     result = parse_query(
         """ while w1; while w2; while w3;
-            Select w3 such that Uses(w3, "iusearchbtw")
+            Select w3 such that Follows(w1, w2)
         """
     )
 
@@ -83,7 +84,7 @@ def test_complex_while_declaration():
 def test_complex_stmt_declaration_short():
     result = parse_query(
         """ stmt s1, s2, s3;
-            Select s1 such that Uses(s1, "x")
+            Select s1 such that Follows(s1, 8)
         """
     )
 
@@ -94,8 +95,8 @@ def test_complex_stmt_declaration_short():
 
 def test_complex_assign_declaration_short():
     result = parse_query(
-        """ assign a1; assign a2; assign a3;
-            Select a2 such that Calls(a2, "ls")
+        """ assign a1, a2, a3;
+            Select a2 such that Parent(a3, a1)
         """
     )
 
@@ -107,7 +108,7 @@ def test_complex_assign_declaration_short():
 def test_complex_while_declaration_short():
     result = parse_query(
         """ while w1, w2, w3;
-            Select w3 such that Calls(w3, "iusearchbtw")
+            Select w3 such that Parent(w2, w1)
         """
     )
 
@@ -118,8 +119,10 @@ def test_complex_while_declaration_short():
 
 def test_complex_variuos_types_declaration():
     result = parse_query(
-        """ while w1, w2, w3; stmt s1, s2, s3; assign a1, a2, a3;
-            Select w3 such that Calls(w3, "iusearchbtw")
+        """ while w1, w2, w3;
+            stmt s1, s2, s3;
+            assign a1, a2, a3;
+            Select a1 such that Follows(w3, s2)
         """
     )
 

@@ -46,20 +46,28 @@ def test_parameters_relation_parent_star_in_query():
 
 
 def test_not_valid_relation_frst_parameter_parent_in_query():
-    with pytest.raises(
-        ValueError, match="""Token '"zmienna"' is not valid STMT_REF_TOKEN"""
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """ stmt s1;
                 Select s1 such that Parent("zmienna", _)
                """
         )
 
+        assert (
+            """Relationship Parent("zmienna", _) is not valid. Expected Parent(stmt, stmt)\non line 2"""
+            not in str(e.value)
+        )
+
 
 def test_not_valid_relation_second_parameter_parent_in_query():
-    with pytest.raises(ValueError, match="""Token '"x"' is not valid STMT_REF_TOKEN"""):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """ stmt s1;
                 Select s1 such that Parent(s1, "x")
                """
+        )
+
+        assert (
+            """Relationship Parent(stmt, "x") is not valid. Expected Parent(stmt, stmt)\non line 2"""
+            not in str(e.value)
         )

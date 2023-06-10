@@ -1,6 +1,8 @@
 from ats.parser.parser import parse
 from ats.parser.utils import is_integer_token, is_name_token
 from ats.pql.utils import (
+    define_relationship,
+    get_relationship_arg_types,
     is_any_token,
     is_program_design_entity_relationship_token,
     is_string_token,
@@ -19,17 +21,18 @@ class AnyType:
 
 Any = AnyType()
 
-
-shallow_relationship = ["Modifies", "Uses"]
-relationships_stmt_ref_and_stmt_ref = [
-    "Parent",
-    "Parent*",
-    "Follows",
-    "Follows*",
-    "Next",
-    "Next*",
-]
-relationships_ent_ref_and_ent_ref = ["Calls", "Calls*"]
+define_relationship("Modifies", "procedure", "variable")
+define_relationship("Modifies", "stmt", "variable")
+define_relationship("Uses", "procedure", "variable")
+define_relationship("Uses", "stmt", "variable")
+define_relationship("Calls", "procedure", "procedure")
+define_relationship("Calls*", "procedure", "procedure")
+define_relationship("Parent", "stmt", "stmt")
+define_relationship("Parent*", "stmt", "stmt")
+define_relationship("Follows", "stmt", "stmt")
+define_relationship("Follows*", "stmt", "stmt")
+define_relationship("Next", "prog_line", "prog_line")
+define_relationship("Next*", "prog_line", "prog_line")
 
 
 def parse_query(text: str):
@@ -37,7 +40,7 @@ def parse_query(text: str):
     current_token = None
     line_number = 1
 
-    def get_next_token():
+    def get_next_token() -> str | None:
         nonlocal line_number
 
         while len(tokens) > 0 and tokens[0] == "\n":
@@ -72,7 +75,7 @@ def parse_query(text: str):
         var_type = current_token
         if not is_variable_type_token(current_token):
             raise ValueError(
-                rf"Token '{current_token}' is not a valid VARIABLE_TYPE_TOKEN\mon line: {line_number}"
+                f"Token '{current_token}' is not a valid VARIABLE_TYPE_TOKEN\non line: {line_number}"
             )
 
         current_token = get_next_token()
@@ -109,22 +112,17 @@ def parse_query(text: str):
         assert_token("DESIGN_ENTITY_RELATIONSHIP_TOKEN")
         nonlocal current_token
 
-        if not is_program_design_entity_relationship_token(current_token):
-            raise ValueError(
-                f"Token '{current_token}' is not a valid NAME_TOKEN\non line: {line_number}"
-            )
-
         relationship = current_token
-
         current_token = get_next_token()
-        if current_token == "*":
-            if relationship in shallow_relationship:
-                raise ValueError(
-                    f"Token '{relationship}*' is not a valid NAME_TOKEN\non line: {line_number}"
-                )
 
+        if current_token == "*":
             relationship += "*"
             current_token = get_next_token()
+
+        if not is_program_design_entity_relationship_token(relationship):
+            raise ValueError(
+                f"Token '{relationship}' is not a valid RELATIONSHIP_NAME\non line: {line_number}"
+            )
 
         return relationship
 
@@ -140,29 +138,6 @@ def parse_query(text: str):
         current_token = get_next_token()
 
         return name
-
-    def match_stmt_ref_token(variables):
-        assert_token("RELATIONSHIP_PARAMETER_TOKEN")
-        nonlocal current_token
-        if (
-            not is_integer_token(current_token)
-            and not is_any_token(current_token)
-            and current_token not in variables
-        ):
-            raise ValueError(
-                f"Token '{current_token}' is not valid STMT_REF_TOKEN\non line: {line_number}"
-            )
-
-        try:
-            parameter = int(current_token)
-        except Exception:
-            parameter = current_token
-        current_token = get_next_token()
-
-        if is_any_token(parameter):
-            return Any
-
-        return parameter
 
     def match_var_ref_token(variables):
         assert_token("VARIABLE_PARAMETER_TOKEN")
@@ -181,25 +156,6 @@ def parse_query(text: str):
         if not is_any_token(current_token) and current_token not in variables:
             raise ValueError(
                 f"Token '{current_token}' is not valid VAR_REF_TOKEN\non line: {line_number}"
-            )
-
-        parameter = current_token
-        current_token = get_next_token()
-        if is_any_token(parameter):
-            return Any
-
-        return parameter
-
-    def match_ent_ref_token(variables):
-        assert_token("RELATIONSHIP_PARAMETER_TOKEN")
-        nonlocal current_token
-        if (
-            not is_string_token(current_token)
-            and not is_any_token(current_token)
-            and current_token not in variables
-        ):
-            raise ValueError(
-                f"Token '{current_token}' is not valid ENT_REF_TOKEN\non line: {line_number}"
             )
 
         parameter = current_token
@@ -405,43 +361,77 @@ def parse_query(text: str):
 
         return [first_parameter, second_parameter, third_parameter]
 
-    def process_relationship_stmt_ref_and_ent_ref(variables):
-        first_parameter = match_stmt_ref_token(variables)
-        match_token(",")
-        second_parameter = match_ent_ref_token(variables)
-        match_token(")")
-
-        return [first_parameter, second_parameter]
-
-    def process_relationship_stmt_ref_and_stmt_ref(variables):
-        first_parameter = match_stmt_ref_token(variables)
-        match_token(",")
-        second_parameter = match_stmt_ref_token(variables)
-        match_token(")")
-
-        return [first_parameter, second_parameter]
-
-    def process_relationship_ent_ref_and_ent_ref(variables):
-        first_parameter = match_ent_ref_token(variables)
-        match_token(",")
-        second_parameter = match_ent_ref_token(variables)
-        match_token(")")
-
-        return [first_parameter, second_parameter]
-
     def process_relationship(variables, relationships):
+        nonlocal current_token
         relationship = match_design_entity_relationship()
 
         match_token("(")
         parameters = []
-        if relationship in shallow_relationship:
-            parameters = process_relationship_stmt_ref_and_ent_ref(variables)
-        elif relationship in relationships_stmt_ref_and_stmt_ref:
-            parameters = process_relationship_stmt_ref_and_stmt_ref(variables)
-        elif relationship in relationships_ent_ref_and_ent_ref:
-            parameters = process_relationship_ent_ref_and_ent_ref(variables)
 
-        relationships.append({"relation": relationship, "parameters": parameters})
+        param_1 = current_token
+        current_token = get_next_token()
+        match_token(",")
+        param_2 = current_token
+        current_token = get_next_token()
+
+        params = [param_1, param_2]
+
+        def map_type(param):
+            if param in variables:
+                param_type = variables[param]
+                return (
+                    param_type
+                    if param_type != "assign"
+                    and param_type != "while"
+                    and param_type != "if"
+                    and param_type != "call"
+                    else "stmt"
+                )
+            return None
+
+        param_types = list(map(map_type, params))
+        definitions = get_relationship_arg_types(relationship)
+
+        for expected_types in definitions:
+            result = [None, None]
+            for i, param in enumerate(params):
+                if param_types[i] == expected_types[i]:
+                    result[i] = param
+                elif is_any_token(param):
+                    result[i] = Any
+                elif expected_types[i] == "stmt" and is_integer_token(param):
+                    result[i] = int(param)
+                elif expected_types[i] == "prog_line" and is_integer_token(param):
+                    result[i] = int(param)
+                elif expected_types[i] == "procedure" and is_string_token(param):
+                    result[i] = param
+                elif expected_types[i] == "variable" and is_string_token(param):
+                    result[i] = param
+
+            if None not in result:
+                parameters = result
+                break
+
+        if len(parameters) == 0:
+            valid_definitions = " | ".join(
+                map(lambda x: f"{relationship}({x[0]}, {x[1]})", definitions)
+            )
+            params = list(
+                map(lambda x: map_type(x) if map_type(x) is not None else x, params)
+            )
+            invalid_definition = f"{relationship}({params[0]}, {params[1]})"
+            one_of = "one of " if len(definitions) > 1 else ""
+            raise ValueError(
+                f"Relationship {invalid_definition} is not valid. Expected {one_of}{valid_definitions}\non line {line_number}"
+            )
+
+        match_token(")")
+        relationships.append(
+            {
+                "relation": relationship,
+                "parameters": parameters,
+            }
+        )
 
     def assert_attribute_type(variable, attr, variables):
         if variables[variable] == "call":

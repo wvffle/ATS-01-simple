@@ -19,10 +19,6 @@ def is_variable_type_token(text: str):
     ]
 
 
-def is_program_design_entity_relationship_token(text: str):
-    return text in ["Modifies", "Follows", "Parent", "Uses", "Calls", "Next"]
-
-
 def is_string_token(text: str):
     return bool(re.match(r'^"[^"]*"$', text))
 
@@ -31,18 +27,29 @@ def is_any_token(text: str):
     return text == "_"
 
 
-# def is_term_token(text: str):
-#     if is_factor_token(text):
-#         return True
+DEFINED_RELATIONSHIPS = {}
 
 
-# def is_factor_token(text: str):
-#     if is_variable_type_token(text):
-#         return True
-#     if is_string_token(text):
-#         return True
-#     if is_any_token(text):
-#         return True
-#     if is_number_token(text):
-#         return True
-#     return False
+def define_relationship(name, param_1, param_2):
+    if not is_variable_type_token(param_1):
+        raise ValueError(
+            f"Parameter '{param_1}' at index 0 of the definition of relationship '{name} ' is not a valid design entity."
+        )
+
+    if not is_variable_type_token(param_2):
+        raise ValueError(
+            f"Parameter '{param_2}' at index 1 of the definition of relationship '{name} ' is not a valid design entity."
+        )
+
+    if name not in DEFINED_RELATIONSHIPS:
+        DEFINED_RELATIONSHIPS[name] = []
+
+    DEFINED_RELATIONSHIPS[name].append((param_1, param_2))
+
+
+def is_program_design_entity_relationship_token(text: str):
+    return text in DEFINED_RELATIONSHIPS.keys()
+
+
+def get_relationship_arg_types(text: str):
+    return DEFINED_RELATIONSHIPS[text]
