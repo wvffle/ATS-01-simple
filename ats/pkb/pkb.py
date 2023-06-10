@@ -45,6 +45,9 @@ def preprocess_query(tree: nodes.ProgramNode):
     modifies = {}
     uses = {}
     next = {}
+    proc_parents = {}
+    proc_stmt_stack = []
+    if_while_stack = []
 
     def find_statements():
         stmt_index = []
@@ -74,7 +77,7 @@ def preprocess_query(tree: nodes.ProgramNode):
                 # procedure parents
                 if isinstance(node, nodes.StmtCallNode):
                     if node.name in proc_parents:
-                        proc_parents[node.name].extend(proc_stmt_stack)
+                        proc_parents[node.name] += proc_stmt_stack
                     else:
                         proc_parents[node.name] = proc_stmt_stack[:]
                     # determining the order of call
@@ -169,55 +172,19 @@ def preprocess_query(tree: nodes.ProgramNode):
                     node.parent.parent, nodes.StmtNode
                 ):
                     next[proc_stmt_stack[-2]].append(node)
-
             # dict Next
             if isinstance(node, nodes.StmtNode):
-                if node.__stmt_index > 0:
+                if node.__stmt_index < len(node.parent.children) - 1:
                     # if previous stmt in stmtLst is if stmt
                     # then add to stack if stmt node and id current node
-                    if isinstance(
-                        node.parent.children[node.__stmt_index - 1], nodes.StmtIfNode
-                    ):
-                        if_while_stack.append(node.children[node.__stmt_index - 1])
+                    if isinstance(node, nodes.StmtIfNode):
                         if_while_stack.append(node)
+                        if_while_stack.append(
+                            node.parent.children[node.__stmt_index + 1]
+                        )
                     # add current node to next for previous stmt in stmtLst
                     else:
-                        next[node.parent.children[node.__stmt_index - 1]].append(node)
-
-            # dict Next
-            if isinstance(node, nodes.StmtLstNode):
-                if isinstance(node.parent, nodes.StmtWhileNode):
-                    # if last child in while is if
-                    # then add to stack while stmt node and its id
-                    if isinstance(node.children[-1], nodes.StmtIfNode):
-                        if_while_stack.append(node.parent)
-                        if_while_stack.append(node.parent)
-                    # while is next for the last child
-                    else:
-                        next[node.children[-1]].append(node.parent)
-
-                # dict Next
-                # if the node is the first child and its parent is statement
-                # then the node is next for the parent
-                if node.parent.children[0] == node and isinstance(
-                    node.parent.parent, nodes.StmtNode
-                ):
-                    next[proc_stmt_stack[-2]].append(node)
-
-            # dict Next
-            if isinstance(node, nodes.StmtNode):
-                if node.__stmt_index > 0:
-                    # if previous stmt in stmtLst is if stmt
-                    # then add to stack if stmt node and id current node
-                    if isinstance(
-                        node.parent.children[node.__stmt_index - 1], nodes.StmtIfNode
-                    ):
-                        if_while_stack.append(node.children[node.__stmt_index - 1])
-                        if_while_stack.append(node)
-                    # add current node to next for previous stmt in stmtLst
-                    else:
-                        next[node.parent.children[node.__stmt_index - 1]].append(node)
-
+                        next[node].append(node.parent.children[node.__stmt_index + 1])
             # dict Next
             if isinstance(node, nodes.StmtLstNode):
                 if isinstance(node.parent, nodes.StmtWhileNode):
@@ -247,12 +214,6 @@ def preprocess_query(tree: nodes.ProgramNode):
                     calls[callee].add(caller)
 
         def on_node_exit(node: nodes.ASTNode, context):
-            # if current node is the same as the last node on the stack
-            if len(if_while_stack) > 0:
-                if node == if_while_stack[-2]:
-                    if_while_stack.pop()
-                    if_while_stack.pop()
-
             # dict Next
             if isinstance(node, nodes.StmtNode):
                 if (
@@ -263,6 +224,12 @@ def preprocess_query(tree: nodes.ProgramNode):
                     if node.parent.name == "then" or node.parent.name == "else":
                         if len(if_while_stack) > 0:
                             next[node].append(if_while_stack[-1])
+
+            # if current node is the same as the last node on the stack
+            if len(if_while_stack) > 0:
+                if node == if_while_stack[-2]:
+                    if_while_stack.pop()
+                    if_while_stack.pop()
 
             # modifies and uses
             if isinstance(node, nodes.VariableNode):
@@ -299,9 +266,6 @@ def preprocess_query(tree: nodes.ProgramNode):
 
         dfs(tree, on_node_enter=on_node_enter, on_node_exit=on_node_exit)
 
-    proc_stmt_stack = []
-    if_while_stack = []
-    proc_parents = {}
     find_statements()
     process_relations()
 
