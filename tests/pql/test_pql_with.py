@@ -105,3 +105,73 @@ def test_not_valid_with_stmt():
 
            """
         )
+
+
+def test_not_valid_with_statement_attr():
+    with pytest.raises(
+        ValueError, match="Statement 's2' does not have attribute 'varName'\non line 5"
+    ):
+        parse_query(
+            """
+            while w3; stmt s2;
+            Select w3 such that Uses(20, w3) with w3.stmt# = 30
+            and s2.varName = "boligrafo" and "pen" = s2.varName
+
+           """
+        )
+
+
+def test_not_valid_with_call_attr():
+    with pytest.raises(
+        ValueError, match="Variable 'c1' does not have attribute 'varName'\non line 2"
+    ):
+        parse_query(
+            """
+            while w3; stmt s2; call c1;
+            Select w3 such that Uses(20, w3) with c1.varName = 30
+            and s2.varName = "boligrafo" and "pen" = s2.varName
+
+           """
+        )
+
+
+def test_not_valid_with_procedure_attr():
+    with pytest.raises(
+        ValueError, match="Procedure 'p1' does not have attribute 'varName'\non line 3"
+    ):
+        parse_query(
+            """
+            while w3; stmt s2; call c1; procedure p1;
+            Select w3 such that Uses(20, w3) with p1.varName = 30
+            and s2.varName = "boligrafo" and "pen" = s2.varName
+
+           """
+        )
+
+
+def test_not_valid_with_variable_attr():
+    with pytest.raises(
+        ValueError, match="Variable 'v1' does not have attribute 'procName'\non line 5"
+    ):
+        parse_query(
+            """
+            while w3; stmt s2; call c1; procedure p1; variable v1;
+            Select w3 such that Uses(20, w3) with s2.stmt# = "xD"
+            and v1.procName = "wow"
+
+           """
+        )
+
+
+def test_not_valid_constant_attr():
+    with pytest.raises(
+        ValueError, match="Constant 'const' does not have attribute 'stmt#'\non line 3"
+    ):
+        parse_query(
+            """
+            while w3; stmt s2; call c1; procedure p1; variable v1; constant const;
+            Select w3 such that Uses(20, w3) with const.stmt# = "xD"
+            and v1.procName = "wow"
+
+           """
+        )

@@ -1,3 +1,5 @@
+import pytest
+
 from ats.pql.pql import Any, parse_query
 
 
@@ -209,3 +211,15 @@ def test_triple_different_patterns_assert():
     assert (
         result[0]["conditions"]["patterns"][2]["parameters"][1] == '"x + x + x + x + x"'
     )
+
+
+def not_valid_var_ref_parameter():
+    with pytest.raises(
+        ValueError, match="Token '2' is not valid VAR_REF_TOKEN\non line: 2"
+    ):
+        parse_query(
+            """
+            assign a1;
+            Select a1 pattern a1(2, a1)
+            """
+        )
