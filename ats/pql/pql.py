@@ -245,7 +245,11 @@ def parse_query(text: str):
         nonlocal current_token
 
         match_token("Select")
-        searching_variable = match_variable_is_in_list_token(variables)
+        if current_token == "BOOLEAN":
+            searching_variable = "BOOLEAN"
+            current_token = get_next_token()
+        else:
+            searching_variable = match_variable_is_in_list_token(variables)
         withs = []
         relationships = []
         patterns = []
@@ -411,6 +415,28 @@ def parse_query(text: str):
             if None not in result:
                 parameters = result
                 break
+
+        if len(definitions) > 1:
+            for i, param in enumerate(parameters):
+                if param == Any:
+                    constant_type = definitions[0][i]
+                    for expected_types in definitions[1:]:
+                        if expected_types[i] != constant_type:
+                            valid_types = " | ".join(map(lambda x: x[i], definitions))
+                            params = list(
+                                map(
+                                    lambda x: map_type(x)
+                                    if map_type(x) is not None
+                                    else x,
+                                    params,
+                                )
+                            )
+                            invalid_definition = (
+                                f"{relationship}({params[0]}, {params[1]})"
+                            )
+                            raise ValueError(
+                                f"Parameter {i} of the relationship {invalid_definition} cannot be of type Any. Expected one of {valid_types}\non line {line_number}"
+                            )
 
         if len(parameters) == 0:
             valid_definitions = " | ".join(

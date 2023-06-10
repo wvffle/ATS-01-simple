@@ -138,40 +138,44 @@ def test_complex_variuos_types_declaration():
 
 
 def test_type_error_declaration():
-    with pytest.raises(
-        ValueError, match="Token 'stmd' is not a valid VARIABLE_TYPE_TOKEN"
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """ stmd s1;
                 Select s1 such that Uses(s1, "x")
             """
         )
 
+    assert "Token 'stmd' is not a valid VARIABLE_TYPE_TOKEN" in str(e.value)
+
 
 def test_multiple_type_error_declaration():
-    with pytest.raises(
-        ValueError, match="Token 'asinge' is not a valid VARIABLE_TYPE_TOKEN"
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """ stmt s1; while w2; asinge a3;
                 Select s1 such that Calls(s1, "x")
             """
         )
 
+    assert "Token 'asinge' is not a valid VARIABLE_TYPE_TOKEN" in str(e.value)
+
 
 def test_varname_error_declaration():
-    with pytest.raises(ValueError, match="Token '31' is not a valid NAME_TOKEN"):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """ stmt 31;
                 Select s1 such that Calls*(s1, "x")
             """
         )
 
+    assert "Token '31' is not a valid NAME_TOKEN" in str(e.value)
+
 
 def test_multiple_varname_error_declaration():
-    with pytest.raises(ValueError, match="Token '35' is not a valid NAME_TOKEN"):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """ stmt s1, 35;
                 Select s1 such that Modifies(s1, "x")
             """
         )
+
+    assert "Token '35' is not a valid NAME_TOKEN" in str(e.value)

@@ -39,7 +39,11 @@ if __name__ == "__main__":
         )
 
         queries = parse_query(
-            """stmt s1; while w1; Select s1 such that Follows(s1, w1)"""
+            # """stmt s1; while w1; Select BOOLEAN such that Follows(s1, w1)"""
+            """
+            procedure p, q;
+            Select BOOLEAN such that Calls(_, _)
+            """
         )
 
         print(evaluate_query(tree, queries[0]))
