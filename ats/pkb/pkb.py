@@ -313,16 +313,20 @@ def process_relation(
         pass
 
     def get_needle(stmt_a, stmt_b):
-        return stmt_a if query["searching_variable"] == a else stmt_b
+        # Whem we explicitly ask for the second parameter
+        if query["searching_variable"] == b:
+            return stmt_b
+        # Whem we explicitly ask for the first parameter, we ask for a BOOLEAN response or we ask for an unrelated variable
+        return stmt_a
 
     def check_relation(results, stmt_a, stmt_b):
         try:
             if relation_cb(stmt_a, stmt_b):
-                if query["searching_variable"] == a or query["searching_variable"] == b:
+                needle = query["searching_variable"]
+                if needle == a or needle == b or needle == "BOOLEAN":
                     results.add(map_result(get_needle(stmt_a, stmt_b)))
 
                 # NOTE: Edge case: We are querying some unrelated statement
-                # TODO: Test variable
                 else:
                     results |= set(
                         map(
@@ -386,6 +390,9 @@ def process_relation(
 
         except Break:
             pass
+
+    if query["searching_variable"] == "BOOLEAN":
+        return len(all_results) > 0
 
     return list(all_results)
 

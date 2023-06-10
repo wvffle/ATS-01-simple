@@ -53,10 +53,10 @@ def test_not_valid_relation_frst_parameter_next_in_query():
                """
         )
 
-        assert (
-            """Relationship Next("zmienna", _) is not valid. Expected Next(prog_line, prog_line)\non line 2"""
-            not in str(e.value)
-        )
+    assert (
+        """Relationship Next("zmienna", _) is not valid. Expected Next(prog_line, prog_line)\non line 2"""
+        in str(e.value)
+    )
 
 
 def test_not_valid_relation_second_parameter_next_in_query():
@@ -67,4 +67,4 @@ def test_not_valid_relation_second_parameter_next_in_query():
                """
         )
 
-        assert """Token '"x"' is not valid STMT_REF_TOKEN""" not in str(e.value)
+    assert """Relationship Next(stmt, "x") is not valid.""" in str(e.value)

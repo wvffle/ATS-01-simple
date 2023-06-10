@@ -53,10 +53,7 @@ def test_not_valid_relation_frst_parameter_parent_in_query():
                """
         )
 
-        assert (
-            """Relationship Parent("zmienna", _) is not valid. Expected Parent(stmt, stmt)\non line 2"""
-            not in str(e.value)
-        )
+    assert """Relationship Parent("zmienna", _) is not valid.""" in str(e.value)
 
 
 def test_not_valid_relation_second_parameter_parent_in_query():
@@ -67,7 +64,4 @@ def test_not_valid_relation_second_parameter_parent_in_query():
                """
         )
 
-        assert (
-            """Relationship Parent(stmt, "x") is not valid. Expected Parent(stmt, stmt)\non line 2"""
-            not in str(e.value)
-        )
+    assert """Relationship Parent(stmt, "x") is not valid.""" in str(e.value)

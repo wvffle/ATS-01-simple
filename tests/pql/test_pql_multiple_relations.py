@@ -31,7 +31,7 @@ def test_relations_parent_star_and_modifies():
     result = parse_query(
         """
             while w3; stmt s2; variable v;
-            Select w3 such that Parent*(20, _) and Modifies(_, v)
+            Select w3 such that Parent*(20, _) and Modifies(s2, v)
             """
     )
 
@@ -80,7 +80,7 @@ def test_relations_modifies_and_uses():
     result = parse_query(
         """
             while w; stmt s4; variable v, v2; procedure p;
-            Select w such that Modifies(p, v2) and Uses(_, v)
+            Select w such that Modifies(p, v2) and Uses(p, v)
             """
     )
 
@@ -104,12 +104,12 @@ def test_relations_uses_and_modifies_not_valid_modifies():
     with pytest.raises(ValueError) as e:
         parse_query(
             """
-            while w; stmt s4;
-            Select w such that Uses(329, w) and Modyfikuje(_, "hello")
+            while w; stmt s4; procedure p; variable v;
+            Select w such that Uses(p, v) and Modyfikuje(_, "hello")
             """
         )
 
-        assert "Token 'Modyfikuje' is not a valid NAME_TOKEN" in str(e.value)
+    assert "Token 'Modyfikuje' is not a valid RELATIONSHIP_NAME" in str(e.value)
 
 
 def test_relations_uses_and_modifies_not_valid_uses():
@@ -121,4 +121,4 @@ def test_relations_uses_and_modifies_not_valid_uses():
             """
         )
 
-        assert "Token 'Use' is not a valid NAME_TOKEN" in str(e.value)
+    assert "Token 'Use' is not a valid RELATIONSHIP_NAME" in str(e.value)

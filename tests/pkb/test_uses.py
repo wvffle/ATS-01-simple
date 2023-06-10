@@ -118,6 +118,14 @@ def test_pkb_uses_procedure_variable_2():
     assert result == []
 
 
+def test_pkb_uses_procedure_using_with_var_name():
+    queries = parse_query(
+        """procedure p1; variable v; Select p1 such that Uses(p1, v) with v.varName = "a" """
+    )
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == ["test", "test2"]
+
+
 def _get_ast_tree_call():
     return parse(
         """

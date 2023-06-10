@@ -31,45 +31,49 @@ def test_is_valid_searching_variable():
     assert result[0]["searching_variable"] == "s1"
 
 
-def test_not_valid_searching_variable():
-    with pytest.raises(ValueError, match="Token 's4' is not declared"):
+def test_invalid_searching_variable():
+    with pytest.raises(ValueError) as e:
         parse_query(
             """ stmt s1; procedure p1, p2;
                 Select s4 such that Calls*(p1, p2)
            """
         )
 
+    assert "Token 's4' is not declared" in str(e.value)
+
 
 def test_not_valid_select_statement():
-    with pytest.raises(
-        ValueError, match="Token 'Selekt' is not a valid VARIABLE_TYPE_TOKEN"
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """ stmt s1;
                 Selekt s1 such that Modifies(s1, "x")
            """
         )
 
+    assert "Token 'Selekt' is not a valid VARIABLE_TYPE_TOKEN" in str(e.value)
+
 
 def test_not_valid_that_statement():
-    with pytest.raises(ValueError, match="Expected token 'that', got 'dat'"):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """ stmt s1;
                 Select s1 such dat Calls(s1, "x")
            """
         )
 
+    assert "Expected token 'that', got 'dat'" in str(e.value)
+
 
 def test_not_valid_relation_in_query():
-    with pytest.raises(
-        ValueError, match="Token 'Useless' is not a valid RELATIONSHIP_NAME\non line: 3"
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """
             while w3;
             Select w3 such that Useless(w3, "x")
             """
         )
+
+    assert "Token 'Useless' is not a valid RELATIONSHIP_NAME" in str(e.value)
 
 
 def test_complex_query_evaluator():
@@ -82,11 +86,13 @@ def test_complex_query_evaluator():
 
 
 def test_too_fast_end_of_query():
-    with pytest.raises(ValueError, match="Expected VARTYPE_TOKEN, got end of file"):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """
             """
         )
+
+    assert "Expected VARTYPE_TOKEN, got end of file" in str(e.value)
 
 
 def test_query_result():
@@ -184,8 +190,8 @@ def test_multiply_relations_and_multiply_with_select_query_values():
 def test_multiply_relations_and_multiply_patterns_and_with():
     result = parse_query(
         """
-                while w3; variable v1; assign a3;
-                Select w3 such that Parent(10, 20) and Modifies(_, _) pattern a3(a3, "x + y + z") with v1.varName = "y"
+                while w3; variable v1; assign a3; procedure p1;
+                Select w3 such that Parent(10, 20) and Modifies(p1, _) pattern a3(a3, "x + y + z") with v1.varName = "y"
             """
     )
 
