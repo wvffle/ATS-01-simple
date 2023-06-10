@@ -34,47 +34,54 @@ def _get_ast_tree():
     )
 
 
-def test_pkb_follows_procedure_any():
-    tree = _get_ast_tree()
+tree = _get_ast_tree()
+
+
+def test_pkb_calls_procedure_any():
     queries = parse_query("""procedure p; Select p such that Calls(p, '_')""")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == ["test1", "test2", "test3", "test4"]
 
+
+def test_pkb_calls_procedure_any_1():
     queries = parse_query("""procedure q; Select q such that Calls('_', q)""")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == ["test1", "test2", "test3", "test4", "test5"]
 
 
-def test_pkb_follows_procedure_procedure():
-    tree = _get_ast_tree()
+def test_pkb_calls_procedure_procedure():
     queries = parse_query("""procedure p, q; Select p such that Calls(p, q)""")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == ["test1", "test2", "test3", "test4"]
 
+
+def test_pkb_calls_procedure_procedure_1():
     queries = parse_query("""procedure p, q; Select q such that Calls(p, q)""")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == ["test1", "test2", "test3", "test4", "test5"]
 
 
-def test_pkb_follows_procedure_name_procedure():
-    tree = _get_ast_tree()
+def test_pkb_calls_procedure_name_procedure():
     queries = parse_query("""procedure p; Select p such that Calls (p, "test5")""")
     result = evaluate_query(tree, queries[0])
     assert result == ["test3"]
 
+
+def test_pkb_calls_procedure_name_procedure_1():
     queries = parse_query("""procedure q; Select q such that Calls ("test1", q)""")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == ["test2", "test4"]
 
 
-def test_pkb_follows_procedure_name_name():
-    tree = _get_ast_tree()
+def test_pkb_calls_procedure_name_name():
     queries = parse_query(
         """procedure p; Select p such that Calls ("test3", "test5")"""
     )
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == ["test1", "test2", "test3", "test4", "test5", "test6"]
 
+
+def test_pkb_calls_procedure_name_name_1():
     queries = parse_query(
         """procedure p; Select p such that Calls ("test4", "test5")"""
     )
