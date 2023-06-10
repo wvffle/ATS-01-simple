@@ -124,6 +124,54 @@ def test_pkb_modifies_procedure_variable_2():
     assert result == []
 
 
+# Note: tests that not have their code implementation yet
+# def test_with_condition_modifies_assign_variable():
+# queries = parse_query(
+# """variable v1, v2; assign a;
+# Select a such that Modifies (a, v1) and Uses (a, v2)
+# with v1.varName = v2.varName
+#  """)
+#
+# result = evaluate_query(tree, queries[0])
+# assert result == []
+
+
+# def test_with_condition_modifies_assign_variable2():
+#     queries = parse_query(
+#         """
+#         Select a such that Modifies (a, v) with v.varName = "b"
+#         """)
+
+#     result = evaluate_query(tree, queries[0])
+
+
+# def test_pkb_modifies_boolean_with_condition():
+#     queries = parse_query(
+#         """
+#         variable v1, v2; procedure p;
+#         Select BOOLEAN such that Modifies (p, v1)
+#         with p.procName = "test2"
+#         and v1.varName = v2.varName
+#         and v2.varName = "a"
+#         """
+#     )
+
+#     result = evaluate_query(tree, queries[0])
+#     assert result == True
+
+
+# def test_pkb_modifies_prog_line_with_condition():
+#     queries = parse_query(
+#         """
+#         prog_line n1, n2; variable v1, v2; procedure p;
+#         Select n1 such that Modifies (n1, v1) with v2.varName = "a" and v1.varName = v2.varName
+#         """
+#     )
+
+#     result = evaluate_query(tree, queries[0])
+#     assert result == [2, 4, 19, 25]
+
+
 def _get_ast_tree_call():
     return parse(
         """
