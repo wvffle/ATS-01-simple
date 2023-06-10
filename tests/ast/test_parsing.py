@@ -75,18 +75,6 @@ def test_ast_stmt_lst():
 
     assert proc.nodes.stmt_lst.__class__ == nodes.StmtLstNode
 
-
-def test_ast_stmt_lst_1():
-    ast = parse(
-        """
-        procedure proc {
-            a = 1;
-        }
-    """
-    )
-
-    proc = ast.nodes.procedures[0]
-
     assert len(proc.nodes.stmt_lst.nodes.statements) == 1
     assert proc.nodes.stmt_lst.nodes.statements[0].__class__ == nodes.StmtAssignNode
 
