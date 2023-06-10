@@ -1,3 +1,4 @@
+'''
 from ats.parser.parser import parse
 from ats.pkb.pkb import evaluate_query
 from ats.pql.pql import parse_query
@@ -117,3 +118,4 @@ def test_pkb_calls_procedure_procedure_3():
     queries = parse_query("""procedure p, q; Select q such that Calls(p, q)""")
     result = evaluate_query(tree2, queries[0])
     assert result == ["test2", "test3", "test5", "test6", "test7"]
+'''

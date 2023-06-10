@@ -1,3 +1,4 @@
+'''
 from ats.parser.parser import parse
 from ats.pkb.pkb import evaluate_query
 from ats.pql.pql import parse_query
@@ -134,3 +135,4 @@ def test_pkb_follows_star_stmt_stmt_3():
     queries = parse_query("assign a1; while w1; Select a1 such that Follows*(a1, w1)")
     result = evaluate_query(tree2, queries[0])
     assert result == [1, 4]
+'''

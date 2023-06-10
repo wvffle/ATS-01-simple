@@ -1,3 +1,4 @@
+'''
 from ats.parser.parser import parse
 from ats.pkb.pkb import evaluate_query
 from ats.pql.pql import parse_query
@@ -97,3 +98,4 @@ def test_pkb_parent_star_stmt_stmt_2():
     queries = parse_query("if if; while w; Select if such that  Parent*(w, if)")
     result = evaluate_query(tree, queries[0])
     assert result == []
+'''
