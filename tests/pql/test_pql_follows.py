@@ -47,22 +47,21 @@ def test_parameters_relation_follows_star_in_query():
 
 
 def test_not_valid_relation_follows_in_query():
-    with pytest.raises(
-        ValueError, match="""Token '"ats"' is not valid STMT_REF_TOKEN"""
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """ stmt s1;
                 Select s1 such that Follows(_, "ats")
                """
         )
 
+    assert 'Relationship Follows(_, "ats") is not valid.' in str(e.value)
+
 
 def test_not_valid_relation_follows_in_query_2():
-    with pytest.raises(
-        ValueError, match="""Token '"row"' is not valid STMT_REF_TOKEN"""
-    ):
+    with pytest.raises(ValueError) as e:
         parse_query(
             """ stmt s1;
                 Select s1 such that Follows("row", 3)
                """
         )
+    assert 'Relationship Follows("row", 3) is not valid.' in str(e.value)

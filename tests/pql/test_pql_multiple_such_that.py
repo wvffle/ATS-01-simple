@@ -3,16 +3,16 @@ from ats.pql.pql import parse_query
 
 def test_double_such_that():
     parse_query(
-        """ stmt s1;
-            Select s1 such that Next(s1, 3) such that Follows(s1, 3)
+        """ stmt s1; prog_line pl, pl2;
+            Select s1 such that Next(pl, pl2) such that Follows(s1, 3)
            """
     )
 
 
 def test_double_such_that_assert():
     result = parse_query(
-        """ stmt s1;
-            Select s1 such that Next(s1, 3) such that Follows(s1, 3)
+        """ stmt s1; prog_line pl, pl2;
+            Select s1 such that Next(pl, pl2) such that Follows(s1, 3)
            """
     )
 
@@ -22,8 +22,8 @@ def test_double_such_that_assert():
 
 def test_double_such_that_multiple_relation_using_ands_assert():
     result = parse_query(
-        """ prog_line pr; stmt s1;
-            Select s1 such that Next(pr, 3) and Calls(s1, "x") such that Follows(s1, 3) and Parent*(s1, 5)
+        """ prog_line pr; stmt s1; procedure p1, p2, p3;
+            Select s1 such that Next(pr, 3) and Calls(p1, p3) such that Follows(s1, 3) and Parent*(s1, 5)
            """
     )
 
@@ -72,9 +72,9 @@ def test_triple_such_that_multiple_relation_using_ands_assert():
 
 def test_triple_such_that_using_with_assert():
     result = parse_query(
-        """ procedure pr; variable v1, v2;
-            Select v1 such that Next(pr, 3) with pr.procName = "general Kenobi" such that Follows(v1, 3) with v1.varName = "hello there"
-            such that Parent*(v2, 5) with "bestname" = v2.varName
+        """ procedure pr; variable v1, v2; prog_line pl1, pl2; stmt s1;
+            Select v1 such that Next(pl1, 3) with pr.procName = "general Kenobi" such that Follows(s1, 3) with v1.varName = "hello there"
+            such that Parent*(s1, 5) with "bestname" = v2.varName
            """
     )
 

@@ -5,16 +5,16 @@ from ats.pql.pql import parse_query
 
 def test_simple_evaluator_query():
     parse_query(
-        """ stmt s1;
-            Select s1 such that Modifies(s1, "x")
+        """ stmt s1; variable v1;
+            Select s1 such that Modifies(s1, v1)
         """
     )
 
 
 def test_searching_variable():
     result = parse_query(
-        """ stmt s1;
-            Select s1 such that Uses(s1, "x")
+        """ stmt s1; variable v1;
+            Select s1 such that Uses(s1, v1)
         """
     )
 
@@ -23,8 +23,8 @@ def test_searching_variable():
 
 def test_is_valid_searching_variable():
     result = parse_query(
-        """ stmt s1;
-            Select s1 such that Calls(s1, "x")
+        """ stmt s1; procedure p1, p2;
+            Select s1 such that Calls(p1, p2)
         """
     )
 
@@ -34,8 +34,8 @@ def test_is_valid_searching_variable():
 def test_not_valid_searching_variable():
     with pytest.raises(ValueError, match="Token 's4' is not declared"):
         parse_query(
-            """ stmt s1;
-                Select s4 such that Calls*(s1, "x")
+            """ stmt s1; procedure p1, p2;
+                Select s4 such that Calls*(p1, p2)
            """
         )
 
@@ -61,7 +61,9 @@ def test_not_valid_that_statement():
 
 
 def test_not_valid_relation_in_query():
-    with pytest.raises(ValueError, match="Token 'Useless' is not a valid NAME_TOKEN"):
+    with pytest.raises(
+        ValueError, match="Token 'Useless' is not a valid RELATIONSHIP_NAME\non line: 3"
+    ):
         parse_query(
             """
             while w3;
@@ -73,8 +75,8 @@ def test_not_valid_relation_in_query():
 def test_complex_query_evaluator():
     parse_query(
         """
-            while w3; procedure p1;
-            Select w3 such that Uses(20, w3) with p1.procName = "xDDD"
+            while w3; procedure p1; variable v1;
+            Select w3 such that Uses(20, v1) with p1.procName = "xDDD"
         """
     )
 
@@ -91,7 +93,7 @@ def test_query_result():
     result = parse_query(
         """
             while w3; stmt s2; variable v1; procedure p1;
-            Select w3 such that Uses(20, w3) with v1.varName = "best"
+            Select w3 such that Uses(20, v1) with v1.varName = "best"
             and p1.procName = "boligrafo"
         """
     )
@@ -102,10 +104,10 @@ def test_query_result():
 def test_multiply_relations_select_query():
     parse_query(
         """
-            while w3; stmt s2;
-            Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows(w3, s2)
+            while w3; stmt s2; variable v1, v2;
+            Select w3 such that Uses(20, v1) and Modifies(20, v2) and Follows(w3, s2)
             assign a3;
-            Select w3 such that Uses(a3, w3) and Calls*("not", "me")
+            Select w3 such that Uses(a3, v1) and Calls*("not", "me")
             """
     )
 
@@ -113,10 +115,10 @@ def test_multiply_relations_select_query():
 def test_multiply_relations_select_query_values():
     result = parse_query(
         """
-            while w3; stmt s2;
-            Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows*(w3, s2)
+            while w3; stmt s2; variable v1, v2, var;
+            Select w3 such that Uses(20, var) and Modifies(20, v1) and Follows*(w3, s2)
             assign a3;
-            Select w3 such that Uses(a3, w3) and Calls*("not", "me")
+            Select w3 such that Uses(s2, v2) and Calls*("not", "me")
             """
     )
 
@@ -130,24 +132,24 @@ def test_multiply_relations_select_query_values():
 def test_multiply_relations_parameters_select_query_values():
     result = parse_query(
         """
-            while w3; stmt s2;
-            Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows*(w3, s2)
+            while w3; stmt s2, s3; variable v1, v2;
+            Select w3 such that Uses(20, v2) and Modifies(20, v1) and Follows*(w3, s2)
             assign a3;
-            Select w3 such that Uses(a3, w3) and Calls*("not", "me")
+            Select w3 such that Uses(s3, v2) and Calls*("not", "me")
             """
     )
 
     assert result[0]["conditions"]["relations"][0]["parameters"][0] == 20
-    assert result[0]["conditions"]["relations"][0]["parameters"][1] == "w3"
+    assert result[0]["conditions"]["relations"][0]["parameters"][1] == "v2"
 
     assert result[0]["conditions"]["relations"][1]["parameters"][0] == 20
-    assert result[0]["conditions"]["relations"][1]["parameters"][1] == "w3"
+    assert result[0]["conditions"]["relations"][1]["parameters"][1] == "v1"
 
     assert result[0]["conditions"]["relations"][2]["parameters"][0] == "w3"
     assert result[0]["conditions"]["relations"][2]["parameters"][1] == "s2"
 
-    assert result[1]["conditions"]["relations"][0]["parameters"][0] == "a3"
-    assert result[1]["conditions"]["relations"][0]["parameters"][1] == "w3"
+    assert result[1]["conditions"]["relations"][0]["parameters"][0] == "s3"
+    assert result[1]["conditions"]["relations"][0]["parameters"][1] == "v2"
 
     assert result[1]["conditions"]["relations"][1]["parameters"][0] == '"not"'
     assert result[1]["conditions"]["relations"][1]["parameters"][1] == '"me"'
@@ -156,11 +158,11 @@ def test_multiply_relations_parameters_select_query_values():
 def test_multiply_relations_and_multiply_with_select_query():
     parse_query(
         """
-            while w3; stmt s2, s3; variable v1;
-            Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows(w3, s2)
+            while w3; stmt s2, s3; variable v1, v2, var;
+            Select w3 such that Uses(s3, v1) and Modifies(20, v2) and Follows(w3, s2)
             with s2.stmt# = "xdd" and v1.varName = "boligrafo"
             assign a3;
-            Select w3 such that Uses(a3, w3) and Calls*("not", "me") with s3.stmt# = "x"
+            Select w3 such that Uses(a3, var) and Calls*("not", "me") with s3.stmt# = "x"
             and v1.varName = "boligrafo"
         """
     )
@@ -169,11 +171,11 @@ def test_multiply_relations_and_multiply_with_select_query():
 def test_multiply_relations_and_multiply_with_select_query_values():
     parse_query(
         """
-            while w3; stmt s2; procedure p1; variable v1;
-            Select w3 such that Uses(20, w3) and Modifies(20, w3) and Follows(w3, s2)
+            while w3; stmt s2; procedure p1; variable v1, v2, v3;
+            Select w3 such that Uses(20, v1) and Modifies(20, v2) and Follows(w3, s2)
             with p1.procName = "allow" and s2.stmt# = "boligrafo"
             assign a3;
-            Select w3 such that Uses(a3, w3) and Calls*("not", "me") with v1.varName = "y"
+            Select w3 such that Uses(p1, v3) and Calls*("not", "me") with v1.varName = "y"
             and s2.stmt# = "boligrafo"
         """
     )
