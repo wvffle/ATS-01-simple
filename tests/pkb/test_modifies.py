@@ -45,7 +45,13 @@ tree = _get_ast_tree()
 def test_pkb_modifies_const_variable():
     queries = parse_query("""while w1; Select w1 such that Modifies(1, "a")""")
     result = evaluate_query(tree, queries[0])
-    assert result == [1]
+    assert sorted(result) == [2, 8, 12]
+
+
+def test_pkb_modifies_const_variable_0():
+    queries = parse_query("""variable v1, v2; Select v2 such that Modifies(1, v1)""")
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == ["a", "b", "c", "d", "e", "f", "g", "i", "j"]
 
 
 def test_pkb_modifies_const_variable_1():
@@ -57,7 +63,7 @@ def test_pkb_modifies_const_variable_1():
 def test_pkb_modifies_const_variable_2():
     queries = parse_query("""while w1; Select w1 such that Modifies(2, "a")""")
     result = evaluate_query(tree, queries[0])
-    assert result == [2]
+    assert sorted(result) == [2, 8, 12]
 
 
 def test_pkb_modifies_const_variable_3():

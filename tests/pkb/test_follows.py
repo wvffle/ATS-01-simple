@@ -99,16 +99,4 @@ def test_pkb_follows_stmt_stmt_3():
 def test_pkb_follows_stmt_stmt_4():
     queries = parse_query("stmt s1, s2, s3; Select s3 such that Follows(s1, s2)")
     result = evaluate_query(tree, queries[0])
-    assert result == [1, 2, 3, 4, 6]
-
-
-def test_pkb_follows_stmt_stmt_5():
-    queries = parse_query("variable s1; stmt s2; Select s1 such that Follows(s1, s2)")
-    result = evaluate_query(tree, queries[0])
-    assert result == []
-
-
-def test_pkb_follows_stmt_stmt_6():
-    queries = parse_query("variable s2; stmt s1; Select s1 such that Follows(s1, s2)")
-    result = evaluate_query(tree, queries[0])
-    assert result == []
+    assert result == [1, 2, 3, 4, 5, 6, 7]

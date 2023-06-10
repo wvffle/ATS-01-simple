@@ -57,7 +57,7 @@ def test_pkb_uses_const_variable_1():
 def test_pkb_uses_const_variable_2():
     queries = parse_query("""while w1; Select w1 such that Uses(2, "x")""")
     result = evaluate_query(tree, queries[0])
-    assert result == [2]
+    assert sorted(result) == [2, 8, 12]
 
 
 def test_pkb_uses_const_variable_3():

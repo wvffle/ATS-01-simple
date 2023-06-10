@@ -29,7 +29,7 @@ def dfs(
 def preprocess_query(tree: nodes.ProgramNode):
     statements_by_type = {
         "procedure": [],
-        "variable": [],
+        "variable": set(),
         "assign": [],
         "while": [],
         "stmt": [],
@@ -117,7 +117,7 @@ def preprocess_query(tree: nodes.ProgramNode):
             # Find all variables
             if isinstance(node, nodes.VariableNode):
                 variables[node] = node.name
-                statements_by_type["variable"].append(node)
+                statements_by_type["variable"].add(node.name)
 
             # Find all procedures
             if isinstance(node, nodes.ProcedureNode):
@@ -319,10 +319,18 @@ def preprocess_query(tree: nodes.ProgramNode):
 
 
 def _get_stmt_type(query, parameter, default="stmt"):
-    if parameter in query["variables"] and query["variables"][parameter] != "variable":
+    if parameter in query["variables"]:
         return query["variables"][parameter]
     else:
         return default
+
+
+def map_result(node):
+    if isinstance(node, nodes.StmtNode):
+        return node.__stmt_id
+    if isinstance(node, nodes.ProcedureNode):
+        return node.name
+    return node
 
 
 # TODO: Handle with statements
@@ -331,7 +339,7 @@ def process_relation(
     context,
     relation_cb,
     resolve_node,
-    map_result=lambda node: node,
+    map_result=map_result,
     any_type="stmt",
 ):
     all_results = set()
@@ -349,6 +357,7 @@ def process_relation(
                     results.add(map_result(get_needle(stmt_a, stmt_b)))
 
                 # NOTE: Edge case: We are querying some unrelated statement
+                # TODO: Test variable
                 else:
                     results |= set(
                         map(
@@ -422,7 +431,6 @@ def process_follows(query, context):
         context,
         lambda node_a, node_b: context["follows"][node_b] == node_a,
         lambda id: context["statements"][id],
-        lambda node: node.__stmt_id,
     )
 
 
@@ -432,7 +440,6 @@ def process_parent(query, context):
         context,
         lambda node_a, node_b: node_b.parent.parent == node_a,
         lambda id: context["statements"][id],
-        lambda node: node.__stmt_id,
     )
 
 
@@ -451,7 +458,6 @@ def process_calls(query, context):
         lambda node_a, node_b: node_b in context["calls"]
         and node_a in context["calls"][node_b],
         resolve_node,
-        lambda node: node.name,
         any_type="procedure",
     )
 
@@ -469,7 +475,6 @@ def process_uses(query, context):
         lambda node_a, node_b: node_b in context["uses"]
         and node_a in context["uses"][node_b],
         resolve_node,
-        lambda node: node.__stmt_id if isinstance(node, nodes.StmtNode) else node.name,
     )
 
 
@@ -486,7 +491,6 @@ def process_modifies(query, context):
         lambda node_a, node_b: node_b in context["modifies"]
         and node_a in context["modifies"][node_b],
         resolve_node,
-        lambda node: node.__stmt_id if isinstance(node, nodes.StmtNode) else node.name,
     )
 
 
