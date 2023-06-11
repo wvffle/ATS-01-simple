@@ -1,7 +1,7 @@
 import sys
 from threading import Timer
 
-# from ats.ast.nodes import ProcedureNode, ProgramNode, StmtLstNode, StmtNode
+from ats.ast.nodes import ProcedureNode, ProgramNode, StmtLstNode, StmtNode
 from ats.parser.parser import parse
 from ats.pkb.query_evaluator import evaluate_query
 from ats.pql.pql import parse_query
@@ -33,11 +33,11 @@ if __name__ == "__main__":
             """
         )
 
-        # tree.print_tree(
-        #     filter=lambda node: isinstance(
-        #         node, (ProgramNode, ProcedureNode, StmtLstNode, StmtNode)
-        #     )
-        # )
+        tree.print_tree(
+            filter=lambda node: isinstance(
+                node, (ProgramNode, ProcedureNode, StmtLstNode, StmtNode)
+            )
+        )
 
         queries = parse_query(
             # """stmt s1; while w1; Select BOOLEAN such that Follows(s1, w1)"""
