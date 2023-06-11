@@ -1,6 +1,5 @@
-# Note this file is for Boolean queries that are not implemented yet
 from ats.parser.parser import parse
-from ats.pkb.pkb import evaluate_query
+from ats.pkb.query_evaluator import evaluate_query
 from ats.pql.pql import parse_query
 
 
