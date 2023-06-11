@@ -20,7 +20,13 @@ Any = AnyType()
 
 
 shallow_relationship = ["Modifies", "Uses"]
-relationships_stmt_ref_and_stmt_ref = ["Parent", "Parent*", "Follows", "Follows*"]
+relationships_stmt_ref_and_stmt_ref = [
+    "Parent",
+    "Parent*",
+    "Follows",
+    "Follows*",
+    "Next",
+]
 relationships_ent_ref_and_ent_ref = ["Calls", "Calls*"]
 
 
