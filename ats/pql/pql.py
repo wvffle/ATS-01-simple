@@ -336,12 +336,40 @@ def parse_query(text: str):
         match_token(",")
 
         if current_token == "_":
-            second_parameter = match_any_token()
+            match_any_token()
+
+            def is_only_any(expr_node):
+                return True
+
+            second_parameter = is_only_any
+
+            if current_token != ")":
+                expression = current_token.strip('"')
+                tree = parse(f"procedure proc {{ assign = {expression}; }}")
+                expr = tree.produces[0].stmt_lst.statements[0].expression
+
+                def is_later(expr_node):
+                    return expr_node.as_str().endsWith(expr.as_str())
+
+                second_parameter = is_later
+                get_next_token()
         else:
             expression = current_token.strip('"')
-            parse(f"procedure proc {{ assign = {expression}; }}")
-            second_parameter = current_token
+            tree = parse(f"procedure proc {{ assign = {expression}; }}")
+            expr = tree.produces[0].stmt_lst.statements[0].expression
             current_token = get_next_token()
+
+            def is_exact(expr_node):
+                return expr_node.as_str() == expr.as_str()
+
+            second_parameter = is_exact
+            if current_token == "_":
+
+                def is_before(expr_node):
+                    return expr_node.as_str().startsWith(expr.as_str())
+
+                second_parameter = is_before
+                get_next_token()
 
         match_token(")")
         return [first_parameter, second_parameter]

@@ -23,7 +23,6 @@ def test_assign_pattern_assert():
     assert result[0]["conditions"]["patterns"][0]["variable"] == "a2"
     assert result[0]["conditions"]["patterns"][0]["type"] == "assign"
     assert result[0]["conditions"]["patterns"][0]["parameters"][0] == "a2"
-    assert result[0]["conditions"]["patterns"][0]["parameters"][1] == '"x + y + 6"'
 
 
 def test_if_pattern_assert():
@@ -66,11 +65,9 @@ def test_double_assign_pattern_assert():
     assert result[0]["conditions"]["patterns"][0]["variable"] == "a2"
     assert result[0]["conditions"]["patterns"][0]["type"] == "assign"
     assert result[0]["conditions"]["patterns"][0]["parameters"][0] == "a2"
-    assert result[0]["conditions"]["patterns"][0]["parameters"][1] == '"x + y + 6"'
     assert result[0]["conditions"]["patterns"][1]["variable"] == "a1"
     assert result[0]["conditions"]["patterns"][1]["type"] == "assign"
     assert result[0]["conditions"]["patterns"][1]["parameters"][0] == "a1"
-    assert result[0]["conditions"]["patterns"][1]["parameters"][1] is Any
 
 
 def test_triple_assign_pattern_assert():
@@ -84,17 +81,14 @@ def test_triple_assign_pattern_assert():
     assert result[0]["conditions"]["patterns"][0]["variable"] == "a2"
     assert result[0]["conditions"]["patterns"][0]["type"] == "assign"
     assert result[0]["conditions"]["patterns"][0]["parameters"][0] == "a2"
-    assert result[0]["conditions"]["patterns"][0]["parameters"][1] == '"x + y + 6"'
 
     assert result[0]["conditions"]["patterns"][1]["variable"] == "a1"
     assert result[0]["conditions"]["patterns"][1]["type"] == "assign"
     assert result[0]["conditions"]["patterns"][1]["parameters"][0] == "a1"
-    assert result[0]["conditions"]["patterns"][1]["parameters"][1] is Any
 
     assert result[0]["conditions"]["patterns"][2]["variable"] == "a3"
     assert result[0]["conditions"]["patterns"][2]["type"] == "assign"
     assert result[0]["conditions"]["patterns"][2]["parameters"][0] is Any
-    assert result[0]["conditions"]["patterns"][2]["parameters"][1] is Any
 
 
 def test_double_while_pattern_assert():
@@ -208,24 +202,9 @@ def test_triple_different_patterns_assert():
     assert result[0]["conditions"]["patterns"][2]["variable"] == "a1"
     assert result[0]["conditions"]["patterns"][2]["type"] == "assign"
     assert result[0]["conditions"]["patterns"][2]["parameters"][0] == "a1"
-    assert (
-        result[0]["conditions"]["patterns"][2]["parameters"][1] == '"x + x + x + x + x"'
-    )
 
 
-def invalid_var_ref_parameter():
-    with pytest.raises(
-        ValueError, match="Token '2' is not valid VAR_REF_TOKEN\non line: 2"
-    ):
-        parse_query(
-            """
-            assign a1;
-            Select a1 pattern a1(2, a1)
-            """
-        )
-
-
-def invalid_var_ref_while_parameter():
+def test_invalid_var_ref_parameter():
     with pytest.raises(ValueError) as e:
         parse_query(
             """
@@ -234,4 +213,40 @@ def invalid_var_ref_while_parameter():
             """
         )
 
-    assert "Token '{current_token}' is not valid VAR_REF_TOKEN" in str(e.value)
+    assert "Token '2' is not valid VAR_REF_TOKEN" in str(e.value)
+
+
+def test_invalid_var_ref_assign_parameter():
+    with pytest.raises(ValueError) as e:
+        parse_query(
+            """
+            assign a1;
+            Select a1 pattern a1(2, a1)
+            """
+        )
+
+    assert "Token '2' is not valid VAR_REF_TOKEN" in str(e.value)
+
+
+def test_invalid_var_ref_assign_parameter_2():
+    with pytest.raises(ValueError) as e:
+        parse_query(
+            """
+            assign a1;
+            Select a1 pattern a1(a2, a1)
+            """
+        )
+
+    assert "Token 'a2' is not valid VAR_REF_TOKEN" in str(e.value)
+
+
+def test_invalid_var_ref_while_parameter_2():
+    with pytest.raises(ValueError) as e:
+        parse_query(
+            """
+            while w1;
+            Select w1 pattern w1(w1, 8)
+            """
+        )
+
+    assert "Token '8' is not valid ANY_TOKEN" in str(e.value)
