@@ -176,8 +176,8 @@ def preprocess_query(tree: nodes.ProgramNode):
             # dict Next
             if isinstance(node, nodes.StmtNode):
                 if node.__stmt_index < len(node.parent.children) - 1:
-                    # if previous stmt in stmtLst is if stmt
-                    # then add to stack if stmt node and id current node
+                    # if current stmt in stmtLst is if stmt
+                    # then add to stack if stmt node and next node
                     if isinstance(node, nodes.StmtIfNode):
                         if_while_stack.append(node)
                         if_while_stack.append(
@@ -190,7 +190,7 @@ def preprocess_query(tree: nodes.ProgramNode):
             if isinstance(node, nodes.StmtLstNode):
                 if isinstance(node.parent, nodes.StmtWhileNode):
                     # if last child in while is if
-                    # then add to stack while stmt node and its id
+                    # then add to stack while stmt node
                     if isinstance(node.children[-1], nodes.StmtIfNode):
                         if_while_stack.append(node.parent)
                         if_while_stack.append(node.parent)
@@ -513,6 +513,16 @@ def process_modifies(query, context):
     )
 
 
+def process_next(query, context):
+    return process_relation(
+        query,
+        context,
+        lambda node_a, node_b: node_a in context["next"]
+        and node_b in context["next"][node_a],
+        lambda id: context["statements"][id],
+    )
+
+
 def evaluate_query(node: nodes.ProgramNode, query):
     context = preprocess_query(node)
     if query["relations"][0]["relation"] == "Follows":
@@ -538,5 +548,8 @@ def evaluate_query(node: nodes.ProgramNode, query):
 
     if query["relations"][0]["relation"] == "Uses":
         return process_uses(query, context)
+
+    if query["relations"][0]["relation"] == "Next":
+        return process_next(query, context)
 
     return []
