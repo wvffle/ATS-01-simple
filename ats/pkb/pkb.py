@@ -463,12 +463,7 @@ def process_calls(query, context):
 
 def process_calls_deep(query, context):
     def resolve_node(param):
-        # NOTE: We got a string
-        if param[0] == '"':
-            return context["procedures"][param[1:-1]]
-
-        # NOTE: We got a procedure name
-        return context["procedures"][param]
+        return context["procedures"][param[1:-1]]
 
     def relation(node_a, node_b):
         node = node_b
