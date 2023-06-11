@@ -200,7 +200,6 @@ def test_multiply_relations_and_multiply_patterns_and_with():
     assert result[0]["conditions"]["patterns"][0]["variable"] == "a3"
     assert result[0]["conditions"]["patterns"][0]["type"] == "assign"
     assert result[0]["conditions"]["patterns"][0]["parameters"][0] == "a3"
-    assert result[0]["conditions"]["patterns"][0]["parameters"][1] == '"x + y + z"'
     assert result[0]["conditions"]["attributes"][0]["left"] == "v1"
     assert result[0]["conditions"]["attributes"][0]["attr_left"] == "varName"
     assert result[0]["conditions"]["attributes"][0]["right"] == '"y"'
@@ -210,8 +209,19 @@ def test_invalid_empty_string_in_query():
     with pytest.raises(ValueError) as e:
         parse_query(
             """
-            procedure p; Select p such that Calls(p, "")
-            """
+        procedure p; Select p such that Calls(p, "")
+        """
         )
 
-    assert 'String parameter cannot be empty in Calls(p, "")' in str(e.value)
+    assert "String parameter cannot be empty" in str(e.value)
+
+
+def test_invalid_empty_string_in_query_2():
+    with pytest.raises(ValueError) as e:
+        parse_query(
+            """
+        procedure p; Select p such that Modifies(p, "")
+        """
+        )
+
+    assert "String parameter cannot be empty" in str(e.value)

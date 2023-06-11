@@ -176,3 +176,17 @@ def test_not_valid_constant_attr():
         )
 
     assert "Constant 'const' does not have attribute 'stmt#'" in str(e.value)
+
+
+def test_not_valid_with_procedure_attr_2():
+    with pytest.raises(ValueError) as e:
+        parse_query(
+            """
+            while w3; stmt s2; call c1; prog_line pl; variable v1;
+            Select w3 such that Next(pl, 5) with pl.varName = 30
+            and s2.varName = "boligrafo" and "pen" = s2.varName
+
+           """
+        )
+
+    assert """The prog_line 'pl' does not have attribute 'varName'""" in str(e.value)
