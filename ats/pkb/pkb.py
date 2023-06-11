@@ -1,4 +1,5 @@
 from ats.ast import nodes
+from ats.ast.nodes import ProcedureNode
 from ats.pkb.utils import is_variable
 
 
@@ -398,11 +399,45 @@ def process_follows(query, context):
     )
 
 
+def process_follows_deep(query, context):
+    def relation(node_a, node_b):
+        node = context["follows"][node_b]
+        while node:
+            if node == node_a:
+                return True
+            node = context["follows"][node]
+        return False
+
+    return process_relation(
+        query,
+        context,
+        relation,
+        lambda id: context["statements"][id],
+    )
+
+
 def process_parent(query, context):
     return process_relation(
         query,
         context,
         lambda node_a, node_b: node_b.parent.parent == node_a,
+        lambda id: context["statements"][id],
+    )
+
+
+def process_parent_deep(query, context):
+    def relation(node_a, node_b):
+        node = node_b.parent.parent
+        while not isinstance(node, ProcedureNode):
+            if node == node_a:
+                return True
+            node = node.parent.parent
+        return False
+
+    return process_relation(
+        query,
+        context,
+        relation,
         lambda id: context["statements"][id],
     )
 
@@ -421,6 +456,32 @@ def process_calls(query, context):
         context,
         lambda node_a, node_b: node_b in context["calls"]
         and node_a in context["calls"][node_b],
+        resolve_node,
+        any_type="procedure",
+    )
+
+
+def process_calls_deep(query, context):
+    def resolve_node(param):
+        # NOTE: We got a string
+        if param[0] == '"':
+            return context["procedures"][param[1:-1]]
+
+        # NOTE: We got a procedure name
+        return context["procedures"][param]
+
+    def relation(node_a, node_b):
+        node = node_b
+        while node:
+            if node in context["calls"] and node_a in context["calls"][node]:
+                return True
+            node = list(context["calls"][node])[0]
+        return False
+
+    return process_relation(
+        query,
+        context,
+        relation,
         resolve_node,
         any_type="procedure",
     )
@@ -463,11 +524,20 @@ def evaluate_query(node: nodes.ProgramNode, query):
     if query["relations"][0]["relation"] == "Follows":
         return process_follows(query, context)
 
+    if query["relations"][0]["relation"] == "Follows*":
+        return process_follows_deep(query, context)
+
     if query["relations"][0]["relation"] == "Parent":
         return process_parent(query, context)
 
+    if query["relations"][0]["relation"] == "Parent*":
+        return process_parent_deep(query, context)
+
     if query["relations"][0]["relation"] == "Calls":
         return process_calls(query, context)
+
+    if query["relations"][0]["relation"] == "Calls*":
+        return process_calls_deep(query, context)
 
     if query["relations"][0]["relation"] == "Modifies":
         return process_modifies(query, context)
