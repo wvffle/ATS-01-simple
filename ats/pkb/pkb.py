@@ -468,9 +468,12 @@ def process_calls_deep(query, context):
     def relation(node_a, node_b):
         node = node_b
         while node:
-            if node in context["calls"] and node_a in context["calls"][node]:
-                return True
-            node = list(context["calls"][node])[0]
+            if node in context["calls"]:
+                if node_a in context["calls"][node]:
+                    return True
+                node = list(context["calls"][node])[0]
+            else:
+                break
         return False
 
     return process_relation(
