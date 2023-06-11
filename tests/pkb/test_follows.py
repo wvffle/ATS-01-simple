@@ -100,3 +100,53 @@ def test_pkb_follows_stmt_stmt_4():
     queries = parse_query("stmt s1, s2, s3; Select s3 such that Follows(s1, s2)")
     result = evaluate_query(tree, queries[0])
     assert result == [1, 2, 3, 4, 5, 6, 7]
+
+
+def _get_ast_tree_if():
+    return parse(
+        """
+            procedure proc {
+                a = 8;
+                while a {
+                    if b then {
+                        a = a + 2;
+                    }
+                    else {
+                        a = a + 3;
+                    }
+                    a = a + 1;
+                }
+                b = 10;
+                if b then {
+                    a = a + 2;
+                }
+                else {
+                    a = a + 3;
+                }
+                a = a + 1;
+            }
+            """
+    )
+
+
+tree_if = _get_ast_tree_if()
+
+
+def test_pkb_follows_stmt_stmt_if():
+    queries = parse_query(
+        "stmt s1; assign a1; if i1; Select s1 such that Follows(a1, i1)"
+    )
+    result = evaluate_query(tree_if, queries[0])
+    assert result == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+
+
+def test_pkb_follows_stmt_stmt_if_1():
+    queries = parse_query("assign a1; if i1; Select i1 such that Follows(i1, a1)")
+    result = evaluate_query(tree_if, queries[0])
+    assert sorted(result) == [3, 8]
+
+
+def test_pkb_follows_stmt_stmt_if_2():
+    queries = parse_query("assign a1; if i1; Select i1 such that Follows(a1, i1)")
+    result = evaluate_query(tree_if, queries[0])
+    assert sorted(result) == [8]
