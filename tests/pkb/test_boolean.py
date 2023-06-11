@@ -42,16 +42,28 @@ def _get_ast_tree():
 
 tree = _get_ast_tree()
 
-# def test_pkb_boolean_with_condition():
-#     queries = parse_query("""variable v; procedure p; Select BOOLEAN with v.varName = p.procName """)
-#     result = evaluate_query(tree, queries[0])
-#     assert result == False
+
+def test_pkb_boolean_with_condition():
+    queries = parse_query(
+        """
+        variable v;
+        procedure p;
+        Select BOOLEAN with v.varName = p.procName
+        """
+    )
+    result = evaluate_query(tree, queries[0])
+    assert result is False
 
 
-# def test_pkb_boolean_constant_with_condtition():
-#     queries = parse_query("""constant c1, c2; Select BOOLEAN with c1.value = c2.value and c2.value = 10 """)
-#     result = evaluate_query(tree, queries[0])
-#     assert result == False
+def test_pkb_boolean_constant_with_condtition():
+    queries = parse_query(
+        """
+        constant c1, c2;
+        Select BOOLEAN with c1.value = c2.value and c2.value = 10
+        """
+    )
+    result = evaluate_query(tree, queries[0])
+    assert result is False
 
 
 def test_pkb_boolean_true_stmt_stmt():
