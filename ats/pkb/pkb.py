@@ -298,7 +298,6 @@ def map_result(node):
     return node
 
 
-# TODO: Handle with statements
 def process_relation(
     query,
     context,
@@ -400,12 +399,12 @@ def process_follows(query, context, relation):
 
 
 def process_follows_deep(query, context, relation):
-
     return process_relation(
         query,
         context,
         relation,
-        lambda node_a, node_b: node_a.parent == node_b.parent and node_a.__stmt_index < node_b.__stmt_index
+        lambda node_a, node_b: node_a.parent == node_b.parent
+        and node_a.__stmt_index < node_b.__stmt_index,
         lambda id: context["statements"][id],
     )
 
