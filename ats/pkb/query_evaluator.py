@@ -142,10 +142,10 @@ def process_next(query, context, relation):
     )
 
 
-def process_next_deep(query, context):
+def process_next_deep(query, context, relation):
     checked_node_pairs = []
 
-    def relation(node_a, node_b):
+    def relation_cb(node_a, node_b):
         if (node_a, node_b) not in checked_node_pairs:
             checked_node_pairs.append((node_a, node_b))
             if node_a in context["next"]:
@@ -154,7 +154,7 @@ def process_next_deep(query, context):
                     return True
 
                 for next in context["next"][node_a]:
-                    if relation(next, node_b):
+                    if relation_cb(next, node_b):
                         checked_node_pairs.clear()
                         return True
             return False
@@ -163,6 +163,7 @@ def process_next_deep(query, context):
         query,
         context,
         relation,
+        relation_cb,
         lambda id: context["statements"][id],
     )
 
@@ -200,7 +201,7 @@ def evaluate_query(node: nodes.ProgramNode, query):
             results |= process_next(query, context, relation)
 
         if relation["relation"] == "Next*":
-            return process_next_deep(query, context)
+            results |= process_next_deep(query, context, relation)
 
         if results != all_results:
             all_results = all_results.intersection(results)
