@@ -4,6 +4,7 @@ from ats.pql.utils import (
     define_relationship,
     get_relationship_arg_types,
     is_any_token,
+    is_not_empty_string_token,
     is_program_design_entity_relationship_token,
     is_string_token,
     is_variable_type_token,
@@ -396,6 +397,11 @@ def parse_query(text: str):
         param_types = list(map(map_type, params))
         definitions = get_relationship_arg_types(relationship)
 
+        def raise_empty_param():
+            raise ValueError(
+                f"String parameter cannot be empty in {relationship}({param_1}, {param_2})\non line: {line_number}"
+            )
+
         for expected_types in definitions:
             result = [None, None]
             for i, param in enumerate(params):
@@ -408,8 +414,12 @@ def parse_query(text: str):
                 elif expected_types[i] == "prog_line" and is_integer_token(param):
                     result[i] = int(param)
                 elif expected_types[i] == "procedure" and is_string_token(param):
+                    if not is_not_empty_string_token(param):
+                        raise_empty_param()
                     result[i] = param
                 elif expected_types[i] == "variable" and is_string_token(param):
+                    if not is_not_empty_string_token(param):
+                        raise_empty_param()
                     result[i] = param
 
             if None not in result:

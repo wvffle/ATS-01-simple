@@ -89,6 +89,18 @@ def test_pkb_calls_procedure_name_name_1():
     assert sorted(result) == []
 
 
+def test_pkb_calls_procedure_proc_name_1():
+    queries = parse_query("""procedure p; Select p such that Calls(p, "test2")""")
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == ["test1"]
+
+
+def test_pkb_calls_procedure_proc_invalid_1():
+    queries = parse_query("""procedure p; Select p such that Calls(p, "test")""")
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == []
+
+
 # Note: tests that not have their code implementation yet
 # def test_pkb_calls_boolean_with_condition():
 #     queries = parse_query("""procedure p; Select BOOLEAN such that Calls (p, "test5") with p.procName = "test3""")

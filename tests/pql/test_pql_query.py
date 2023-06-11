@@ -204,3 +204,14 @@ def test_multiply_relations_and_multiply_patterns_and_with():
     assert result[0]["conditions"]["attributes"][0]["left"] == "v1"
     assert result[0]["conditions"]["attributes"][0]["attr_left"] == "varName"
     assert result[0]["conditions"]["attributes"][0]["right"] == '"y"'
+
+
+def test_invalid_empty_string_in_query():
+    with pytest.raises(ValueError) as e:
+        parse_query(
+            """
+            procedure p; Select p such that Calls(p, "")
+            """
+        )
+
+    assert 'String parameter cannot be empty in Calls(p, "")' in str(e.value)
