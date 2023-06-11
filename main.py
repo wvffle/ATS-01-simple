@@ -2,7 +2,7 @@ import sys
 
 from ats.ast.nodes import ProcedureNode, ProgramNode, StmtLstNode, StmtNode
 from ats.parser.parser import parse
-from ats.pkb.pkb import evaluate_query
+from ats.pkb.query_evaluator import evaluate_query
 from ats.pql.pql import parse_query
 
 if __name__ == "__main__":
@@ -52,6 +52,7 @@ if __name__ == "__main__":
         with open(sys.argv[-1]) as f:
             code = f.read()
             tree = parse(code)
+            # TODO: Extract design patterns here!
             print("Ready")
 
             query = input() + "\n" + input()

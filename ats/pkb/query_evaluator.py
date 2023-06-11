@@ -19,6 +19,8 @@ def process_follows_deep(query, context, relation):
         query,
         context,
         relation,
+        # PERF: Instead of using a recursive function, we check
+        #       for the common parent and compare statement ids
         lambda node_a, node_b: node_a.parent == node_b.parent
         and node_a.__stmt_index < node_b.__stmt_index,
         lambda id: context["statements"][id],
@@ -143,8 +145,8 @@ def process_next(query, context, relation):
 def evaluate_query(node: nodes.ProgramNode, query):
     context = extract(node)
     all_results = set()
-    for relation in query["conditions"]["relations"]:
-        results = all_results if len(all_results) == 0 else set()
+    for i, relation in enumerate(query["conditions"]["relations"]):
+        results = all_results if i == 0 else set()
         if relation["relation"] == "Follows":
             results |= process_follows(query, context, relation)
 
@@ -175,21 +177,17 @@ def evaluate_query(node: nodes.ProgramNode, query):
         if results != all_results:
             all_results = all_results.intersection(results)
 
-    for relation in query["conditions"]["attributes"]:
-        results = all_results if len(all_results) == 0 else set()
-
-        # TODO: Implement attribute processing
-
-        if results != all_results:
-            all_results = all_results.intersection(results)
-
-    for relation in query["conditions"]["patterns"]:
-        results = all_results if len(all_results) == 0 else set()
-
-        # TODO: Implement pattern processing
+    # assign a1;
+    # while w1, w2;
+    # Select a1 such that Parent(w1, a1) and Parent(w2, w1) with w2.stmt# = 5
+    for i, condition in enumerate(query["conditions"]["attributes"]):
+        results = all_results if i == 0 else set()
 
         if results != all_results:
             all_results = all_results.intersection(results)
+
+    for i, condition in enumerate(query["conditions"]["patterns"]):
+        ...
 
     if query["searching_variable"] == "BOOLEAN":
         return len(all_results) > 0

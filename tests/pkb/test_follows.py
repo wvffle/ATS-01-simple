@@ -158,12 +158,13 @@ def test_pkb_follows_stmt_invalid_id_1():
     assert sorted(result) == []
 
 
-# Note: tests that not have their code implementation yet
-# def test_pkb_boolean_follows_with_condition():
-#     queries = parse_query("""
-#         if i1, i2;
-#         Select BOOLEAN such that Follows* (i1, i2) with i2.stmt# = i1.stmt#
-#     """)
+def test_pkb_boolean_follows_with_condition():
+    queries = parse_query(
+        """
+        if i1, i2;
+        Select BOOLEAN such that Follows* (i1, i2) with i2.stmt# = i1.stmt#
+    """
+    )
 
-#     result = evaluate_query(tree, queries[0])
-#     assert result == False
+    result = evaluate_query(tree, queries[0])
+    assert result is False
