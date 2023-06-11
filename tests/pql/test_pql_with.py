@@ -1,6 +1,6 @@
 import pytest
 
-from ats.pql.pql import Any, parse_query
+from ats.pql.pql import parse_query
 
 
 def test_valid_parameters_with_string_in_relations():
