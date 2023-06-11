@@ -435,6 +435,9 @@ def parse_query(text: str):
             for i, param in enumerate(params):
                 if param_types[i] == expected_types[i]:
                     result[i] = param
+                # NOTE: prog_line is a synonym for stmt
+                if param_types[i] == "stmt" and expected_types[i] == "prog_line":
+                    result[i] = param
                 elif is_any_token(param):
                     result[i] = Any
                 elif expected_types[i] == "stmt" and is_integer_token(param):
