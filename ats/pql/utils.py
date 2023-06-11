@@ -23,6 +23,10 @@ def is_string_token(text: str):
     return bool(re.match(r'^"[^"]*"$', text))
 
 
+def is_not_empty_string_token(text: str):
+    return bool(re.match(r'^"[^"]+"$', text))
+
+
 def is_any_token(text: str):
     return text == "_"
 

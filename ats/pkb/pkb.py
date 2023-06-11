@@ -3,8 +3,8 @@ from ats.ast.nodes import ProcedureNode
 from ats.pkb.utils import is_variable
 
 
-def _dfs_noop(node: nodes.ASTNode, context: dict):
-    ...
+def _dfs_noop(node: nodes.ASTNode, context: dict):  # pragma: no cover
+    pass
 
 
 def dfs(
@@ -402,7 +402,7 @@ def process_follows(query, context):
         query,
         context,
         lambda node_a, node_b: context["follows"][node_b] == node_a,
-        lambda id: context["statements"][id],
+        lambda id: context["statements"][id] if id in context["statements"] else None,
     )
 
 
@@ -425,7 +425,7 @@ def process_parent(query, context):
         query,
         context,
         lambda node_a, node_b: node_b.parent.parent == node_a,
-        lambda id: context["statements"][id],
+        lambda id: context["statements"][id] if id in context["statements"] else None,
     )
 
 
@@ -448,11 +448,10 @@ def process_parent_deep(query, context):
 
 def process_calls(query, context):
     def resolve_node(param):
-        # NOTE: We got a string
-        if param[0] == '"':
-            return context["procedures"][param[1:-1]]
-        # NOTE: We got a procedure name
-        return context["procedures"][param]
+        if param[1:-1] not in context["procedures"]:
+            return None
+
+        return context["procedures"][param[1:-1]]
 
     return process_relation(
         query,
@@ -580,7 +579,7 @@ def evaluate_query(node: nodes.ProgramNode, query):
     if query["conditions"]["relations"][0]["relation"] == "Uses":
         return process_uses(query, context)
 
-    if query["relations"][0]["relation"] == "Next":
+    if query["conditions"]["relations"][0]["relation"] == "Next":
         return process_next(query, context)
 
     if query["relations"][0]["relation"] == "Next*":
