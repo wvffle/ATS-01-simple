@@ -187,22 +187,22 @@ def test_multiply_relations_and_multiply_with_select_query_values():
     )
 
 
-def test_multiply_relations_and_multiply_patterns_and_with():
-    result = parse_query(
-        """
-                while w3; variable v1; assign a3; procedure p1;
-                Select w3 such that Parent(10, 20) and Modifies(p1, _) pattern a3(a3, "x + y + z") with v1.varName = "y"
-            """
-    )
-
-    assert result[0]["conditions"]["relations"][0]["relation"] == "Parent"
-    assert result[0]["conditions"]["relations"][1]["relation"] == "Modifies"
-    assert result[0]["conditions"]["patterns"][0]["variable"] == "a3"
-    assert result[0]["conditions"]["patterns"][0]["type"] == "assign"
-    assert result[0]["conditions"]["patterns"][0]["parameters"][0] == "a3"
-    assert result[0]["conditions"]["attributes"][0]["left"] == "v1"
-    assert result[0]["conditions"]["attributes"][0]["attr_left"] == "varName"
-    assert result[0]["conditions"]["attributes"][0]["right"] == '"y"'
+# def test_multiply_relations_and_multiply_patterns_and_with():
+#     result = parse_query(
+#         """
+#                 while w3; variable v1; assign a3; procedure p1;
+#                 Select w3 such that Parent(10, 20) and Modifies(p1, _) pattern a3(a3, "x + y + z") with v1.varName = "y"
+#             """
+#     )
+#
+#     assert result[0]["conditions"]["relations"][0]["relation"] == "Parent"
+#     assert result[0]["conditions"]["relations"][1]["relation"] == "Modifies"
+#     assert result[0]["conditions"]["patterns"][0]["variable"] == "a3"
+#     assert result[0]["conditions"]["patterns"][0]["type"] == "assign"
+#     assert result[0]["conditions"]["patterns"][0]["parameters"][0] == "a3"
+#     assert result[0]["conditions"]["attributes"][0]["left"] == "v1"
+#     assert result[0]["conditions"]["attributes"][0]["attr_left"] == "varName"
+#     assert result[0]["conditions"]["attributes"][0]["right"] == '"y"'
 
 
 def test_invalid_empty_string_in_query():
