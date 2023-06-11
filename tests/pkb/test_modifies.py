@@ -139,6 +139,7 @@ def test_pkb_modifies_procedure_variable_2():
 # def test_with_condition_modifies_assign_variable2():
 #     queries = parse_query(
 #         """
+#         variable v; assign a;
 #         Select a such that Modifies (a, v) with v.varName = "b"
 #         """)
 
