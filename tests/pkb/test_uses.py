@@ -12,8 +12,7 @@ def _get_ast_tree():
                     a = c + d + g;
                     if e then {
                         a = a;
-                    }
-                    else {
+                    } else {
                         a = f + c;
                     }
                 }
@@ -28,8 +27,7 @@ def _get_ast_tree():
                 while d {
                     if e then {
                         call test;
-                    }
-                    else {
+                    } else {
                         a = f;
                     }
                 }
