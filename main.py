@@ -58,9 +58,9 @@ if __name__ == "__main__":
         with open(sys.argv[-1]) as f:
             code = f.read()
             tree = parse(code)
+            print("Ready")
 
             while True:
-                print("Ready")
                 t = Timer(60, no_time_left)
                 t.start()
                 query = input() + "\n" + input()
