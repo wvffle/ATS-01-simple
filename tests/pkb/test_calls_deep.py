@@ -107,3 +107,28 @@ def test_pkb_calls_procedure_procedure_3():
     queries = parse_query("""procedure p, q; Select q such that Calls(p, q)""")
     result = evaluate_query(tree2, queries[0])
     assert sorted(result) == ["test2", "test3", "test5", "test6", "test7"]
+
+
+def _get_ast_tree3():
+    return parse(
+        """
+            procedure test1 {
+                a = a + 3;
+            }
+            procedure test2 {
+                a = b + c;
+                call test1;
+            }
+            """
+    )
+
+
+tree3 = _get_ast_tree3()
+
+
+def test_pkb_calls_star_name_name_3():
+    queries = parse_query(
+        """procedure p, q; Select p such that Calls* ("test1", "test2")"""
+    )
+    result = evaluate_query(tree3, queries[0])
+    assert sorted(result) == []
