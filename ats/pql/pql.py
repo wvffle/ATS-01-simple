@@ -268,10 +268,11 @@ def parse_query(text: str):
 
     def process_conditions(variables, withs, relationships, patterns):
         nonlocal current_token
-        while current_token == "such":
+        if current_token == "such":
             match_token("such")
             match_token("that")
             process_relationship(variables, relationships)
+
             while current_token == "and":
                 match_token("and")
                 process_relationship(variables, relationships)
@@ -279,6 +280,7 @@ def parse_query(text: str):
         if current_token == "pattern":
             match_token("pattern")
             process_pattern(variables, patterns)
+
             while current_token == "and":
                 match_token("and")
                 process_pattern(variables, patterns)
@@ -287,9 +289,9 @@ def parse_query(text: str):
             match_token("with")
             process_optional_with(withs, variables)
 
-        while current_token == "and":
-            match_token("and")
-            process_optional_with(withs, variables)
+            while current_token == "and":
+                match_token("and")
+                process_optional_with(withs, variables)
 
         if (
             current_token == "such"
@@ -298,7 +300,11 @@ def parse_query(text: str):
         ):
             return process_conditions(variables, withs, relationships, patterns)
 
-        return {"relations": relationships, "withs": withs, "patterns": patterns}
+        return {
+            "relations": relationships,
+            "withs": withs,
+            "patterns": patterns,
+        }
 
     def process_pattern(variables, patterns):
         nonlocal current_token
