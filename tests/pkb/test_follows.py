@@ -152,6 +152,12 @@ def test_pkb_follows_stmt_stmt_if_2():
     assert sorted(result) == [8]
 
 
+def test_pkb_follows_stmt_invalid_id_1():
+    queries = parse_query("""stmt p; Select p such that Follows(p, 99999)""")
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == []
+
+
 # Note: tests that not have their code implementation yet
 # def test_pkb_boolean_follows_with_condition():
 #     queries = parse_query("""
