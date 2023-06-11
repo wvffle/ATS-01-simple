@@ -11,8 +11,7 @@ def _get_ast_tree():
                 while a {
                     if b then {
                         a = a + 2;
-                    }
-                    else {
+                    } else {
                         a = a + 3;
                     }
                     a = a + 1;
