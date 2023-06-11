@@ -523,6 +523,31 @@ def process_next(query, context):
     )
 
 
+def process_next_deep(query, context):
+    checked_node_pairs = []
+
+    def relation(node_a, node_b):
+        if (node_a, node_b) not in checked_node_pairs:
+            checked_node_pairs.append((node_a, node_b))
+            if node_a in context["next"]:
+                if node_b in context["next"][node_a]:
+                    checked_node_pairs.clear()
+                    return True
+
+                for next in context["next"][node_a]:
+                    if relation(next, node_b):
+                        checked_node_pairs.clear()
+                        return True
+            return False
+
+    return process_relation(
+        query,
+        context,
+        relation,
+        lambda id: context["statements"][id],
+    )
+
+
 def evaluate_query(node: nodes.ProgramNode, query):
     context = preprocess_query(node)
     if query["relations"][0]["relation"] == "Follows":
@@ -551,5 +576,8 @@ def evaluate_query(node: nodes.ProgramNode, query):
 
     if query["relations"][0]["relation"] == "Next":
         return process_next(query, context)
+
+    if query["relations"][0]["relation"] == "Next*":
+        return process_next_deep(query, context)
 
     return []
