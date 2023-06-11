@@ -78,6 +78,7 @@ def process_relation(
                     results.add(map_result(get_needle(stmt_a, stmt_b)))
 
                 # NOTE: Edge case: We are querying some unrelated statement
+                # PERF: We add entire set of statements of the given type to the results
                 else:
                     results |= set(
                         map(

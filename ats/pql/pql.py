@@ -251,7 +251,7 @@ def parse_query(text: str):
             current_token = get_next_token()
         else:
             searching_variable = match_variable_is_in_list_token(variables)
-        withs = []
+        withs = {}
         relationships = []
         patterns = []
         conditions = process_conditions(variables, withs, relationships, patterns)
@@ -541,41 +541,80 @@ def parse_query(text: str):
                 f"The {variables[variable]} '{variable}' does not have attribute '{attr}'\non line {line_number}"
             )
 
+    def match_comparison_side(variables):
+        attr_map = {
+            "procName": "name",
+            "varName": "name",
+            "value": "name",
+            "stmt#": "__stmt_id",
+        }
+
+        def create_getter(var):
+            def getter(node):
+                if is_string_token(var):
+                    return var[1:-1]
+
+                if is_integer_token(var):
+                    return int(var)
+
+                return node
+
+            return getter
+
+        def create_attr_getter(attr):
+            def getter(node):
+                return getattr(node, attr_map[attr])
+
+            return getter
+
+        if current_token in variables:
+            var = match_variable_is_in_list_token(variables)
+            match_token(".")
+            attr = match_attr_name_token()
+
+            assert_attribute_type(var, attr, variables)
+            return {
+                "variable": var,
+                "hash": (var, attr),
+                "getter": create_attr_getter(attr),
+            }
+
+        var = match_with_parameter_token(variables)
+        return {
+            "variable": var,
+            "hash": var,
+            "getter": create_getter(var),
+        }
+
     def process_optional_with(withs, variables):
         nonlocal current_token
-        attr_left = None
-        attr_right = None
-        print(variables)
 
-        if current_token in variables:
-            left = match_variable_is_in_list_token(variables)
-            match_token(".")
-            attr_left = match_attr_name_token()
+        def create_comparator(L, R):
+            def comparator(node_a, node_b):
+                return L["getter"](node_a) == R["getter"](node_b)
 
-            assert_attribute_type(left, attr_left, variables)
-
-        else:
-            left = match_with_parameter_token(variables)
-
-        match_token("=")
-
-        if current_token in variables:
-            right = match_variable_is_in_list_token(variables)
-            match_token(".")
-            attr_right = match_attr_name_token()
-
-            assert_attribute_type(right, attr_right, variables)
-        else:
-            right = match_with_parameter_token(variables)
-
-        withs.append(
-            {
-                "left": left,
-                "attr_left": attr_left,
-                "right": right,
-                "attr_right": attr_right,
+            return {
+                "hash": hash((L["hash"], R["hash"])),
+                "L": L["variable"],
+                "R": R["variable"],
+                "comparator": comparator,
             }
-        )
+
+        L = match_comparison_side(variables)
+        match_token("=")
+        R = match_comparison_side(variables)
+
+        # PERF: If we are pointlessly comparing to Any,
+        #       we don't need to add it to the withs
+        if is_any_token(L["variable"]) or is_any_token(R["variable"]):
+            return
+
+        cmp = create_comparator(L, R)
+
+        for side in [L, R]:
+            if side["variable"] not in withs:
+                withs[side["variable"]] = []
+            withs[side["variable"]].append(cmp)
 
     def process_variable(variables):
         nonlocal current_token
