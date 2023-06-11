@@ -69,6 +69,14 @@ class ASTNode:
     def __repr__(self):  # pragma: no cover
         return self.__str__()
 
+    def as_str(self):  # pragma: no cover
+        name = str(self)
+        if len(self.children) > 0:
+            children = ", ".join(map(lambda x: x.as_str(), self.children))
+            return f"{name}[{children}]"
+
+        return f"{name}"
+
 
 class ConstantNode(ASTNode):
     def __init__(self, value: str):

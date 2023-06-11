@@ -380,7 +380,7 @@ def test_ast_term_times_constants():
     """
     )
 
-    expr = ast.nodes.procedures[0].nodes.stmt_lst.nodes.statements[0].nodes.expression
+    expr = ast.procedures[0].stmt_lst.statements[0].expression
 
     assert expr.__class__ == nodes.ExprTimesNode
     assert expr.nodes.left.__class__ == nodes.ConstantNode
