@@ -26,6 +26,7 @@ relationships_stmt_ref_and_stmt_ref = [
     "Follows",
     "Follows*",
     "Next",
+    "Next*",
 ]
 relationships_ent_ref_and_ent_ref = ["Calls", "Calls*"]
 

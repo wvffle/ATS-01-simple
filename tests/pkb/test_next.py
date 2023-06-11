@@ -152,3 +152,45 @@ def test_pkb_next_if_const_1():
     queries = parse_query("if i1; Select i1 such that Next(i1, 4)")
     result = evaluate_query(tree, queries[0])
     assert result == [3]
+
+
+def test_pkb_next_stmt_stmt_1():
+    tree = _get_ast_tree()
+    queries = parse_query("stmt s1, s2; Select s1 such that Next(s1, s2)")
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12]
+
+
+def test_pkb_next_stmt_stmt_2():
+    tree = _get_ast_tree()
+    queries = parse_query("stmt s1, s2; Select s2 such that Next(s1, s2)")
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+
+def test_pkb_next_if_while_1():
+    tree = _get_ast_tree()
+    queries = parse_query("if i1; while w1; Select i1 such that Next(i1, w1)")
+    result = evaluate_query(tree, queries[0])
+    assert result == [6]
+
+
+def test_pkb_next_if_while_2():
+    tree = _get_ast_tree()
+    queries = parse_query("if i1; while w1; Select w1 such that Next(i1, w1)")
+    result = evaluate_query(tree, queries[0])
+    assert result == [8]
+
+
+def test_pkb_next_assign_while_1():
+    tree = _get_ast_tree()
+    queries = parse_query("assign a1; while w1; Select a1 such that Next(a1, w1)")
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == [1, 5, 7, 9, 12]
+
+
+def test_pkb_next_assign_while_2():
+    tree = _get_ast_tree()
+    queries = parse_query("assign a1; while w1; Select w1 such that Next(a1, w1)")
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == [2, 8, 11]
