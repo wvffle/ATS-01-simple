@@ -401,12 +401,9 @@ def process_follows(query, context):
 
 def process_follows_deep(query, context):
     def relation(node_a, node_b):
-        node = context["follows"][node_b]
-        while node:
-            if node == node_a:
-                return True
-            node = context["follows"][node]
-        return False
+        return (
+            node_a.parent == node_b.parent and node_a.__stmt_index < node_b.__stmt_index
+        )
 
     return process_relation(
         query,
@@ -466,14 +463,13 @@ def process_calls_deep(query, context):
         return context["procedures"][param[1:-1]]
 
     def relation(node_a, node_b):
-        node = node_b
-        while node:
-            if node in context["calls"]:
-                if node_a in context["calls"][node]:
+        if node_b in context["calls"]:
+            if node_a in context["calls"][node_b]:
+                return True
+
+            for call in context["calls"][node_b]:
+                if relation(node_a, call):
                     return True
-                node = list(context["calls"][node])[0]
-            else:
-                break
         return False
 
     return process_relation(
