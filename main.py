@@ -43,6 +43,7 @@ if __name__ == "__main__":
         print(evaluate_query(tree, queries[0]))
         print(str(evaluate_query(tree, queries[0])))
         print(*evaluate_query(tree, queries[0]), sep=", ")
+        # print(str(*evaluate_query(tree, queries[0]), sep=", "))
     elif len(sys.argv) > 0:
         with open(sys.argv[-1]) as f:
             code = f.read()
@@ -51,7 +52,6 @@ if __name__ == "__main__":
             print("Ready")
 
             query = input() + "\n" + input()
-
+            queries = parse_query(query)
             # TODO: use PQL and PKB
-
-            print(*evaluate_query(tree, query[0]), sep=", ")
+            print(*evaluate_query(tree, queries[0]), sep=", ")
