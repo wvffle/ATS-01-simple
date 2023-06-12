@@ -124,6 +124,20 @@ def test_pkb_modifies_procedure_variable_2():
     assert result == []
 
 
+def test_pkb_modifies_boolean_variable_1():
+    queries = parse_query("""Select BOOLEAN such that Modifies(5, "a") """)
+    result = evaluate_query(tree, queries[0])
+    assert result is False
+
+
+def test_pkb_modifies_boolean_variable_3():
+    queries = parse_query(
+        """procedure p1; Select BOOLEAN such that Modifies(p1, "q")"""
+    )
+    result = evaluate_query(tree, queries[0])
+    assert result is False
+
+
 # Note: tests that not have their code implementation yet
 # def test_with_condition_modifies_assign_variable():
 # queries = parse_query(

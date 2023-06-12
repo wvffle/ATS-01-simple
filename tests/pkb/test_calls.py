@@ -101,6 +101,18 @@ def test_pkb_calls_procedure_proc_invalid_1():
     assert sorted(result) == []
 
 
+def test_pkb_calls_boolean_1():
+    queries = parse_query("""Select BOOLEAN such that Calls("test2", "test1")""")
+    result = evaluate_query(tree, queries[0])
+    assert result is False
+
+
+def test_pkb_calls_boolean_2():
+    queries = parse_query("""procedure p; Select BOOLEAN such that Calls("p1", p)""")
+    result = evaluate_query(tree, queries[0])
+    assert result is False
+
+
 # def test_pkb_calls_with_condition():
 #     queries = parse_query(
 #         """

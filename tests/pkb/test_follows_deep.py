@@ -132,3 +132,45 @@ def test_pkb_follows_star_stmt_stmt_3():
     queries = parse_query("assign a1; while w1; Select a1 such that Follows*(a1, w1)")
     result = evaluate_query(tree2, queries[0])
     assert sorted(result) == [1, 4]
+
+
+def test_pkb_follows_star_if_stmt_1():
+    queries = parse_query("if i1; stmt s1; Select BOOLEAN such that Follows*(i1, 3)")
+    result = evaluate_query(tree2, queries[0])
+    assert result is False
+
+
+def test_pkb_follows_star_if_stmt_2():
+    queries = parse_query("if i1; stmt s1; Select s1 such that Follows*(1, i1)")
+    result = evaluate_query(tree2, queries[0])
+    assert sorted(result) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+
+def test_pkb_follows_star_if_stmt_3():
+    queries = parse_query("if i1; stmt s1; Select s1 such that Follows*(i1, s1)")
+    result = evaluate_query(tree2, queries[0])
+    assert sorted(result) == [12, 14]
+
+
+def test_pkb_follows_star_if_stmt_4():
+    queries = parse_query("if i1; stmt s1; Select s1 such that Follows*(s1, i1)")
+    result = evaluate_query(tree2, queries[0])
+    assert sorted(result) == [1, 2, 4]
+
+
+def test_pkb_follows_star_while_stmt_1():
+    queries = parse_query("while w1; stmt s1; Select BOOLEAN such that Follows*(w1, 3)")
+    result = evaluate_query(tree2, queries[0])
+    assert result is False
+
+
+def test_pkb_follows_star_while_stmt_2():
+    queries = parse_query("while w1; stmt s1; Select s1 such that Follows*(w1, s1)")
+    result = evaluate_query(tree2, queries[0])
+    assert sorted(result) == [4, 5, 12, 14]
+
+
+def test_pkb_follows_star_whil_stmt_3():
+    queries = parse_query("while w1; stmt s1; Select s1 such that Follows*(s1, w1)")
+    result = evaluate_query(tree2, queries[0])
+    assert sorted(result) == [1, 2, 4, 5, 12]

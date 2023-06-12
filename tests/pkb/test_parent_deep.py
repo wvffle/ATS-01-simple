@@ -75,7 +75,7 @@ def test_pkb_parent_star_const_stmt_1():
 
 
 def test_pkb_parent_star_const_stmt_2():
-    queries = parse_query("while w1;  Select w1 such that Parent*(12, w1)")
+    queries = parse_query("while w1; Select w1 such that Parent*(12, w1)")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == [14]
 
@@ -96,3 +96,15 @@ def test_pkb_parent_star_stmt_stmt_2():
     queries = parse_query("if if; while w; Select if such that  Parent*(w, if)")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == []
+
+
+def test_pkb_parent_star_if_stmt_1():
+    queries = parse_query("if i1; stmt s2; Select i1 such that Parent*(i1, s2)")
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == [1]
+
+
+def test_pkb_parent_star_while_stmt_3():
+    queries = parse_query("while w1; stmt s2; Select w1 such that Parent*(w1, s2)")
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == [3, 5, 8, 10, 12, 14]

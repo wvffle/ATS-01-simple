@@ -227,7 +227,9 @@ def parse_query(text: str):
     def process_pql_code():
         nonlocal current_token
         current_token = get_next_token()
-        variables = process_variable({})
+        variables = {}
+        if current_token != "Select":
+            variables = process_variable({})
         return process_operation([], variables)
 
     def process_operation(queries, variables):
