@@ -38,16 +38,11 @@ if __name__ == "__main__":
             )
         )
 
-        queries = parse_query(
-            # """stmt s1; while w1; Select BOOLEAN such that Follows(s1, w1)"""
-            """
-            procedure p, q;
-            Select BOOLEAN such that Calls(_, _)
-            """
-        )
+        queries = parse_query("""stmt s1, s2; Select s1 such that Follows(s1, s2)""")
 
         print(evaluate_query(tree, queries[0]))
-
+        print(str(evaluate_query(tree, queries[0])))
+        print(*evaluate_query(tree, queries[0]), sep=", ")
     elif len(sys.argv) > 0:
         with open(sys.argv[-1]) as f:
             code = f.read()
@@ -58,4 +53,5 @@ if __name__ == "__main__":
             query = input() + "\n" + input()
 
             # TODO: use PQL and PKB
-            print(str(evaluate_query(tree, query)))
+
+            print(*evaluate_query(tree, query[0]), sep=", ")
