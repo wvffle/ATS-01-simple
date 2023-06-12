@@ -58,4 +58,4 @@ if __name__ == "__main__":
             query = input() + "\n" + input()
 
             # TODO: use PQL and PKB
-            print("8")
+            print(evaluate_query(tree, query))
