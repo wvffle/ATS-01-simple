@@ -47,7 +47,39 @@ if __name__ == "__main__":
         output = ", ".join(str(part) for part in result)
         print(output)
         # print(str(*evaluate_query(tree, queries[0]), sep=", "))
+        
+    
     elif len(sys.argv) > 0:
+
+        def no_time_left():
+            print("\nPreparationTimeout")
+            exit(1)
+
+        with open(sys.argv[-1]) as f:
+            code = f.read()
+            tree = parse(code)
+            print("Ready")
+
+            while True:
+                try:
+                    t = Timer(60, no_time_left)
+                    t.start()
+                    query = input() + "\n" + input()
+                    t.cancel()
+                    # TODO: Wyjątki powinny być zgłaszane na stdout lub stderr, w jednej linni, zaczynającej się od znaku kratki #.
+
+                    queries = parse_query(query)
+                    result = evaluate_query(tree, queries[0])
+                    if len(result) == 0:
+                        print('none')
+                        continue
+                        
+                    output = ", ".join(str(part) for part in result)
+                    print(output)
+                except Exception:
+                    import traceback
+                    print('#')    
+    '''
         with open(sys.argv[-1]) as f:
             code = f.read()
             tree = parse(code)
@@ -60,3 +92,4 @@ if __name__ == "__main__":
             result = evaluate_query(tree, queries[0])
             output = ", ".join(str(part) for part in result)
             print(output)
+      '''
