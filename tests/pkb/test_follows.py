@@ -197,6 +197,7 @@ def _get_ast_tree3():
 
 
 tree3 = _get_ast_tree()
+context3 = extract(tree3)
 
 
 def test_pkb_follows_modifies():
@@ -204,7 +205,7 @@ def test_pkb_follows_modifies():
         """stmt s1, s2; while w1; Select w1 such that
         Follows(s1, s2) and Modifies(s1, "a")"""
     )
-    result = evaluate_query(tree3, queries[0])
+    result = evaluate_query(queries[0], context3)
     assert result == [5]
 
 
@@ -213,7 +214,7 @@ def test_pkb_follows_modifies_2():
         """stmt s1, s2; while w1; Select s1 such that
         Follows(s1, w1) and Modifies(w1, "a")"""
     )
-    result = evaluate_query(tree3, queries[0])
+    result = evaluate_query(queries[0], context3)
     assert result == [4]
 
 
@@ -222,7 +223,7 @@ def test_pkb_follows_modifies_next():
         """stmt s1, s2; assign a1; Select s1 such that
         Follows(s1, s2) and Modifies(a1, "a") and Next(a1, 2)"""
     )
-    result = evaluate_query(tree3, queries[0])
+    result = evaluate_query(queries[0], context3)
     assert result == [1, 2, 3, 4, 6]
 
 
@@ -231,7 +232,7 @@ def test_pkb_follows_modifies_next_2():
         """stmt s1, s2; assign a1; Select a1 such that
         Follows(1, s2) and Modifies(1, "c") and Next(a1, 2)"""
     )
-    result = evaluate_query(tree3, queries[0])
+    result = evaluate_query(queries[0], context3)
     assert result == []
 
 
@@ -240,7 +241,7 @@ def test_pkb_follows_uses():
         """stmt s1, s2; while w1; Select s1 such that
         Follows(s1, w1) and Uses(w1, "a")"""
     )
-    result = evaluate_query(tree3, queries[0])
+    result = evaluate_query(queries[0], context3)
     assert result == [4]
 
 
@@ -249,7 +250,7 @@ def test_pkb_follows_uses_2():
         """stmt s1, s2; assign a1; Select a1 such that
         Follows(a1, s1) and Uses(s1, "a")"""
     )
-    result = evaluate_query(tree3, queries[0])
+    result = evaluate_query(queries[0], context3)
     assert result == [1, 2, 3, 4, 6]
 
 
@@ -258,7 +259,7 @@ def test_pkb_follows_uses_parent():
         """stmt s1, s2; while w1; Select s1 such that
         Follows(s1, s2) and Uses(w1, "a") and Parent(s2, s1)"""
     )
-    result = evaluate_query(tree3, queries[0])
+    result = evaluate_query(queries[0], context3)
     assert result == [6]
 
 
@@ -267,5 +268,5 @@ def test_pkb_follows_uses_parent_2():
         """stmt s1, s2; while w1; Select w1 such that
         Follows(s1, s2) and Uses(w1, "a") and Parent(s1, s2)"""
     )
-    result = evaluate_query(tree3, queries[0])
+    result = evaluate_query(queries[0], context3)
     assert result == [5]
