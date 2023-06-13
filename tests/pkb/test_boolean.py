@@ -120,11 +120,25 @@ def test_pkb_boolean_false_while_while_next():
 
 
 def test_pkb_boolean_true():
+    tree = parse(
+        """
+        procedure test1 {
+            call test5;
+        }
+        procedure test3 {
+            call test5;
+        }
+        procedure test5 {
+            call test1;
+        }
+        """
+    )
     queries = parse_query(
         """
         procedure p;
         Select BOOLEAN such that Calls ("test3", "test5")
         """
     )
+    context = extract(tree)
     result = evaluate_query(queries[0], context)
     assert result is True
