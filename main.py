@@ -77,7 +77,7 @@ if __name__ == "__main__":
                             print("none")
                             continue
 
-                    output = ", ".join(str(part) for part in result)
+                        output = ", ".join(str(part) for part in result)
                     print(output)
                 except Exception:
                     import traceback
