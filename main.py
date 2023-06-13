@@ -61,13 +61,22 @@ if __name__ == "__main__":
             print("Ready")
 
             while True:
-                t = Timer(60, no_time_left)
-                t.start()
-                query = input() + "\n" + input()
-                t.cancel()
-                # TODO: Wyjątki powinny być zgłaszane na stdout lub stderr, w jednej linni, zaczynającej się od znaku kratki #.
+                try:
+                    t = Timer(60, no_time_left)
+                    t.start()
+                    query = input() + "\n" + input()
+                    t.cancel()
+                    # TODO: Wyjątki powinny być zgłaszane na stdout lub stderr, w jednej linni, zaczynającej się od znaku kratki #.
 
-                queries = parse_query(query)
-                result = evaluate_query(tree, queries[0])
-                output = ", ".join(str(part) for part in result)
-                print(output)
+                    queries = parse_query(query)
+                    result = evaluate_query(tree, queries[0])
+                    if len(result) == 0:
+                        print('none')
+                        continue
+                        
+                    output = ", ".join(str(part) for part in result)
+                    print(output)
+                except Exception:
+                    import traceback
+                    print('#' + traceback.format_exc())
+                    
