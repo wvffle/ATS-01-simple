@@ -78,6 +78,14 @@ if __name__ == "__main__":
                             continue
 
                         output = ", ".join(str(part) for part in result)
+                    else:
+                        if len(result) == 0:
+                            print("false")
+                            continue
+                        else:
+                            print("true")
+                            continue                            
+                        
                     print(output)
                 except Exception:
                     import traceback
