@@ -146,14 +146,14 @@ def extract(tree: nodes.ProgramNode):
         )
 
         # extending procedure parents with nested calls
-        """extend_parents = []
+        extend_parents = []
         for name in call_order:
             if name in proc_parents:
                 proc_parents[name].extend(extend_parents)
                 proc_parents[name] = list(set(proc_parents[name]))
                 extend_parents.extend(proc_parents[name])
             else:
-                extend_parents = []"""
+                extend_parents = []
 
     def process_relations():
         # Build stack with procedures name and statements id

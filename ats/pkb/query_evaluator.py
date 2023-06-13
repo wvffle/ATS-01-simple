@@ -100,6 +100,8 @@ def process_uses(query, context, relation):
         if isinstance(param, int):
             return context["statements"][param]
         else:
+            if param == relation["parameters"][0]:
+                return context["procedures"][param[1:-1]]
             return param[1:-1]
 
     return process_relation(
@@ -117,6 +119,8 @@ def process_modifies(query, context, relation):
         if isinstance(param, int):
             return context["statements"][param]
         else:
+            if param == relation["parameters"][0]:
+                return context["procedures"][param[1:-1]]
             return param[1:-1]
 
     return process_relation(
