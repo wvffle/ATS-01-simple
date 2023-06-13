@@ -78,7 +78,7 @@ if __name__ == "__main__":
                     print(output)
                 except Exception:
                     import traceback
-                    print('#')    
+                    print('#' + "ahaha")    
     '''
         with open(sys.argv[-1]) as f:
             code = f.read()
