@@ -50,7 +50,7 @@ if __name__ == "__main__":
         context = extract(tree)
         print(evaluate_query(queries[0], context))
 
-    elif len(sys.argv) > 0:
+    elif len(sys.argv) > 0:  # pragma no cover
 
         def no_time_left():
             print("\nPreparationTimeout")
@@ -71,23 +71,18 @@ if __name__ == "__main__":
                     queries = parse_query(query)
                     result = evaluate_query(queries[0], context)
 
-                    if not isinstance(result, bool):
-                        if len(result) == 0:
-                            print("none")
-                            continue
+                    if isinstance(result, bool):
+                        print("true" if result else "false")
+                        continue
 
-                        output = ", ".join(str(part) for part in result)
-                    else:
-                        if result:
-                            print("true")
-                            continue
-                        else:
-                            print("false")
-                            continue
+                    if len(result) == 0:
+                        print("none")
+                        continue
 
-                    print(output)
+                    print(", ".join(str(part) for part in result))
+
                 except Exception:
                     import traceback
 
-                    exc_info = traceback.format_exc().replace("\n", "")
+                    exc_info = traceback.format_exc().replace("\n", "    ")
                     print("#" + exc_info)
