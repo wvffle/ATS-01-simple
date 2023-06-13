@@ -171,3 +171,101 @@ def test_pkb_boolean_follows_with_condition():
 
     result = evaluate_query(queries[0], context_if)
     assert result is False
+
+
+def _get_ast_tree3():
+    return parse(
+        """
+            procedure test {
+                a = b;
+                b = 10;
+                while a {
+                    x = 2 * a + b;
+                    f = c;
+                }
+                while x {
+                    if e then {
+                        a = a;
+                    } else {
+                        a = f + c;
+                    }
+                    b = c + 3 * a;
+                }
+            }
+            """
+    )
+
+
+tree3 = _get_ast_tree()
+
+
+def test_pkb_follows_modifies():
+    queries = parse_query(
+        """stmt s1, s2; while w1; Select w1 such that
+        Follows(s1, s2) and Modifies(s1, "a")"""
+    )
+    result = evaluate_query(tree3, queries[0])
+    assert result == [5]
+
+
+def test_pkb_follows_modifies_2():
+    queries = parse_query(
+        """stmt s1, s2; while w1; Select s1 such that
+        Follows(s1, w1) and Modifies(w1, "a")"""
+    )
+    result = evaluate_query(tree3, queries[0])
+    assert result == [4]
+
+
+def test_pkb_follows_modifies_next():
+    queries = parse_query(
+        """stmt s1, s2; assign a1; Select s1 such that
+        Follows(s1, s2) and Modifies(a1, "a") and Next(a1, 2)"""
+    )
+    result = evaluate_query(tree3, queries[0])
+    assert result == [1, 2, 3, 4, 6]
+
+
+def test_pkb_follows_modifies_next_2():
+    queries = parse_query(
+        """stmt s1, s2; assign a1; Select a1 such that
+        Follows(1, s2) and Modifies(1, "c") and Next(a1, 2)"""
+    )
+    result = evaluate_query(tree3, queries[0])
+    assert result == []
+
+
+def test_pkb_follows_uses():
+    queries = parse_query(
+        """stmt s1, s2; while w1; Select s1 such that
+        Follows(s1, w1) and Uses(w1, "a")"""
+    )
+    result = evaluate_query(tree3, queries[0])
+    assert result == [4]
+
+
+def test_pkb_follows_uses_2():
+    queries = parse_query(
+        """stmt s1, s2; assign a1; Select a1 such that
+        Follows(a1, s1) and Uses(s1, "a")"""
+    )
+    result = evaluate_query(tree3, queries[0])
+    assert result == [1, 2, 3, 4, 6]
+
+
+def test_pkb_follows_uses_parent():
+    queries = parse_query(
+        """stmt s1, s2; while w1; Select s1 such that
+        Follows(s1, s2) and Uses(w1, "a") and Parent(s2, s1)"""
+    )
+    result = evaluate_query(tree3, queries[0])
+    assert result == [6]
+
+
+def test_pkb_follows_uses_parent_2():
+    queries = parse_query(
+        """stmt s1, s2; while w1; Select w1 such that
+        Follows(s1, s2) and Uses(w1, "a") and Parent(s1, s2)"""
+    )
+    result = evaluate_query(tree3, queries[0])
+    assert result == [5]

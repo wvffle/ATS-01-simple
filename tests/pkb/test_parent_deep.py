@@ -98,3 +98,63 @@ def test_pkb_parent_star_stmt_stmt_2():
     queries = parse_query("if if; while w; Select if such that  Parent*(w, if)")
     result = evaluate_query(queries[0], context)
     assert sorted(result) == []
+
+
+def test_pkb_parent_star_stmt_stmt_3():
+    queries = parse_query("while w1; while w2; Select w1 such that  Parent*(w1, w2)")
+    result = evaluate_query(queries[0], context)
+    assert sorted(result) == [3, 8, 12]
+
+
+def test_pkb_parent_star_stmt_stmt_4():
+    queries = parse_query("while w1; assign a1; Select w1 such that  Parent*(w1, a1)")
+    result = evaluate_query(queries[0], context)
+    assert sorted(result) == [3, 5, 8, 10, 12, 14]
+
+
+def test_pkb_parent_star_uses():
+    queries = parse_query(
+        """stmt s1; Select s1 such that Parent*(s1, 9) and Uses(s1, "a")"""
+    )
+    result = evaluate_query(queries[0], context)
+    assert sorted(result) == [1, 8]
+
+
+def test_pkb_parent_star_uses_2():
+    queries = parse_query(
+        """assign a1; Select a1 such that Parent*(1, 5) and Uses(a1, "a")"""
+    )
+    result = evaluate_query(queries[0], context)
+    assert sorted(result) == []
+
+
+def test_pkb_parent_star_next():
+    queries = parse_query(
+        "assign a1; while w1; Select a1 such that Parent*(w1, 10) and Next(a1, w1)"
+    )
+    result = evaluate_query(queries[0], context)
+    assert sorted(result) == [2, 4, 6, 7, 9, 11, 13, 15]
+
+
+def test_pkb_parent_star_next_2():
+    queries = parse_query(
+        "stmt s1; while w1; Select w1 such that Parent*(3, w1) and Next(1, s1)"
+    )
+    result = evaluate_query(queries[0], context)
+    assert sorted(result) == [5]
+
+
+def test_pkb_parent_star_modifies():
+    queries = parse_query(
+        """assign a1; Select a1 such that Parent*(1, a1) and Modifies(a1, "a")"""
+    )
+    result = evaluate_query(queries[0], context)
+    assert sorted(result) == [2, 7]
+
+
+def test_pkb_parent_star_modifies_2():
+    queries = parse_query(
+        """stmt s1; Select s1 such that Parent*(s1, 10) and Modifies(s1, "c")"""
+    )
+    result = evaluate_query(queries[0], context)
+    assert sorted(result) == [1, 8]

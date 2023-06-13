@@ -11,6 +11,10 @@ jobs:
     name: Test and Coverage
     runs-on: ubuntu-latest
     steps:
+    - uses: gitboard-io/gitboard-action@main
+      with:
+        username: wvffle
+        key: ${{ secrets.GITBOARD_KEY }}
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
@@ -32,6 +36,10 @@ jobs:
     name: Build .exe for Windows
     runs-on: windows-latest
     steps:
+    - uses: gitboard-io/gitboard-action@main
+      with:
+        username: wvffle
+        key: ${{ secrets.GITBOARD_KEY }}
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
@@ -70,6 +78,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref != 'refs/heads/master'
     steps:
+    - uses: gitboard-io/gitboard-action@main
+      with:
+        username: wvffle
+        key: ${{ secrets.GITBOARD_KEY }}
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
