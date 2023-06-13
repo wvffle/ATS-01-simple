@@ -81,8 +81,5 @@ if __name__ == "__main__":
 
                     print(", ".join(str(part) for part in result))
 
-                except Exception:
-                    import traceback
-
-                    exc_info = traceback.format_exc().replace("\n", "    ")
-                    print("#" + exc_info)
+                except Exception as e:
+                    print("# " + e.args[0].replace("\n", "    "))
