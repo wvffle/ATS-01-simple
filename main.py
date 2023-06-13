@@ -78,7 +78,12 @@ if __name__ == "__main__":
 
                         output = ", ".join(str(part) for part in result)
                     else:
-                        output = result
+                        if result:
+                            print("true")
+                            continue
+                        else:
+                            print("false")
+                            continue
 
                     print(output)
                 except Exception:
