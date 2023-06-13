@@ -3,6 +3,7 @@ from threading import Timer
 
 from ats.ast.nodes import ProcedureNode, ProgramNode, StmtLstNode, StmtNode
 from ats.parser.parser import parse
+from ats.pkb.design_extractor import extract
 from ats.pkb.query_evaluator import evaluate_query
 from ats.pql.pql import parse_query
 
@@ -59,7 +60,7 @@ if __name__ == "__main__":
             code = f.read()
             tree = parse(code)
             print("Ready")
-
+            context = extract(tree)
             while True:
                 try:
                     t = Timer(60, no_time_left)
@@ -69,10 +70,12 @@ if __name__ == "__main__":
                     # TODO: Wyjątki powinny być zgłaszane na stdout lub stderr, w jednej linni, zaczynającej się od znaku kratki #.
 
                     queries = parse_query(query)
-                    result = evaluate_query(tree, queries[0])
-                    if len(result) == 0:
-                        print("none")
-                        continue
+                    result = evaluate_query(tree, queries[0], context)
+
+                    if not isinstance(result, bool):
+                        if len(result) == 0:
+                            print("none")
+                            continue
 
                     output = ", ".join(str(part) for part in result)
                     print(output)
