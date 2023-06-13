@@ -7,6 +7,7 @@ NODE_TYPE_MAP = {
     "while": nodes.StmtWhileNode,
     "if": nodes.StmtIfNode,
     "procedure": nodes.ProcedureNode,
+    "prog_line": nodes.StmtNode,
 }
 
 
