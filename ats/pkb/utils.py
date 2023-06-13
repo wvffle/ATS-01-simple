@@ -59,6 +59,12 @@ def process_relation(
 ):
     results = set()
 
+    if is_variable(query, relation["parameters"][0]) and is_variable(
+        query, relation["parameters"][1]
+    ):
+        if relation["parameters"][0] == relation["parameters"][1]:
+            return results
+
     class Break(Exception):
         pass
 

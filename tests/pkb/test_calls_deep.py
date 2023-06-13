@@ -136,3 +136,9 @@ def test_pkb_calls_star_name_name_3():
     )
     result = evaluate_query(queries[0], context3)
     assert sorted(result) == []
+
+
+def test_pkb_calls_self():
+    queries = parse_query("""procedure p; Select p such that Calls*(p, p)""")
+    result = evaluate_query(queries[0], context)
+    assert sorted(result) == []

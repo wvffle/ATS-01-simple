@@ -103,6 +103,12 @@ def test_pkb_calls_procedure_proc_invalid_1():
     assert sorted(result) == []
 
 
+def test_pkb_calls_self():
+    queries = parse_query("""procedure p; Select p such that Calls(p, p)""")
+    result = evaluate_query(queries[0], context)
+    assert sorted(result) == []
+
+
 # def test_pkb_calls_with_condition():
 #     queries = parse_query(
 #         """
