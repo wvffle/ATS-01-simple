@@ -47,8 +47,8 @@ if __name__ == "__main__":
             Select BOOLEAN such that Calls(_, _)
             """
         )
-
-        print(evaluate_query(tree, queries[0]))
+        context = extract(tree)
+        print(evaluate_query(tree, queries[0], context))
 
     elif len(sys.argv) > 0:
 
