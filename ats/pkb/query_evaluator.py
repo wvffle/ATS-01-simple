@@ -1,5 +1,5 @@
 from ats.ast.nodes import ProcedureNode
-from ats.pkb.utils import process_relation
+from ats.pkb.utils import map_result, process_relation
 
 
 def process_follows(query, context, relation):
@@ -172,6 +172,18 @@ def process_next_deep(query, context, relation):
 
 def evaluate_query(query, context):
     all_results = set()
+
+    if query["searching_variable"] != "BOOLEAN":
+        if len(query["conditions"]["relations"]) == 0:
+            all_results = set(
+                map(
+                    map_result,
+                    context["statements_by_type"][
+                        query["variables"][query["searching_variable"]]
+                    ],
+                )
+            )
+
     for i, relation in enumerate(query["conditions"]["relations"]):
         results = all_results if i == 0 else set()
         if relation["relation"] == "Follows":
@@ -206,18 +218,6 @@ def evaluate_query(query, context):
 
         if results != all_results:
             all_results = all_results.intersection(results)
-
-    # assign a1;
-    # while w1, w2;
-    # Select a1 such that Parent(w1, a1) and Parent(w2, w1) with w2.stmt# = 5
-    for i, condition in enumerate(query["conditions"]["attributes"]):
-        results = all_results if i == 0 else set()
-
-        if results != all_results:
-            all_results = all_results.intersection(results)
-
-    for i, condition in enumerate(query["conditions"]["patterns"]):
-        ...
 
     if query["searching_variable"] == "BOOLEAN":
         return len(all_results) > 0

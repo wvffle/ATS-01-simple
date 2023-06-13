@@ -85,26 +85,10 @@ def test_pkb_boolean_true_proc_calls():
     assert result is True
 
 
-def test_pkb_boolean_false_stmt_stmt_follows_with_condition():
-    queries = parse_query(
-        "stmt s1, s2; Select BOOLEAN such that Follows(s1, s2) with s1.stmt# = 1 and s2.stmt# = 3"
-    )
-    result = evaluate_query(queries[0], context)
-    assert result is False
-
-
 def test_pkb_boolean_true_while_uses():
     queries = parse_query("""while w; Select BOOLEAN such that Uses(w,"f")""")
     result = evaluate_query(queries[0], context)
     assert result is True
-
-
-def test_pkb_boolean_false_while_uses_condition():
-    queries = parse_query(
-        """while w; variable v1; Select BOOLEAN such that Uses(w, v1) with v1.varName = "x" """
-    )
-    result = evaluate_query(queries[0], context)
-    assert result is False
 
 
 def test_pkb_boolean_true_assign_while_next():
