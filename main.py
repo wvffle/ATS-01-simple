@@ -70,15 +70,13 @@ if __name__ == "__main__":
 
                     queries = parse_query(query)
                     result = evaluate_query(tree, queries[0])
-                    if len(result) == 0:
-                        print('none')
-                        continue
+
                         
                     output = ", ".join(str(part) for part in result)
                     print(output)
                 except Exception:
                     import traceback
-                    print('#' + "ahaha")    
+                    print('#' + traceback.format_exc())    
     '''
         with open(sys.argv[-1]) as f:
             code = f.read()
