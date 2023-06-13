@@ -118,6 +118,18 @@ def test_pkb_uses_procedure_variable_2():
     assert result == []
 
 
+def test_pkb_uses_assign_variable_2():
+    queries = parse_query("""assign a1; Select a1 such that Uses(a1, "f")""")
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == [6, 15]
+
+
+def test_pkb_uses_const_variable_5():
+    queries = parse_query("""variable v1; Select v1 such that Uses(8, v1)""")
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == ["a", "b", "c"]
+
+
 # Note: tests that not have their code implementation yet
 # def test_pkb_uses_procedure_using_with_var_name():
 #     queries = parse_query(
