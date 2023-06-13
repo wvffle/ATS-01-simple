@@ -81,19 +81,19 @@ def test_pkb_parent_star_const_stmt_2():
 
 
 def test_pkb_parent_star_stmt_stmt():
-    queries = parse_query("stmt s1, s2; Select s1 such that  Parent*(s1, s2)")
+    queries = parse_query("stmt s1, s2; Select s1 such that Parent*(s1, s2)")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == [1, 3, 5, 8, 10, 12, 14]
 
 
 def test_pkb_parent_star_stmt_stmt_1():
-    queries = parse_query("if if; while w; Select w such that  Parent*(if, w)")
+    queries = parse_query("if if; while w; Select w such that Parent*(if, w)")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == [3, 5, 8, 10]
 
 
 def test_pkb_parent_star_stmt_stmt_2():
-    queries = parse_query("if if; while w; Select if such that  Parent*(w, if)")
+    queries = parse_query("if if; while w; Select if such that Parent*(w, if)")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == []
 
@@ -108,3 +108,50 @@ def test_pkb_parent_star_stmt_stmt_4():
     queries = parse_query("while w1; assign a1; Select w1 such that  Parent*(w1, a1)")
     result = evaluate_query(tree, queries[0])
     assert sorted(result) == [3, 5, 8, 10, 12, 14]
+    
+def test_pkb_parent_star_uses():
+    queries = parse_query(
+        """stmt s1; Select s1 such that Parent*(s1, 9) and Uses(s1, "a")"""
+    )
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == [1, 8]
+
+
+def test_pkb_parent_star_uses_2():
+    queries = parse_query(
+        """assign a1; Select a1 such that Parent*(1, 5) and Uses(a1, "a")"""
+    )
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == []
+
+
+def test_pkb_parent_star_next():
+    queries = parse_query(
+        "assign a1; while w1; Select a1 such that Parent*(w1, 10) and Next(a1, w1)"
+    )
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == [2, 4, 6, 7, 9, 11, 13, 15]
+
+
+def test_pkb_parent_star_next_2():
+    queries = parse_query(
+        "stmt s1; while w1; Select w1 such that Parent*(3, w1) and Next(1, s1)"
+    )
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == [5]
+
+
+def test_pkb_parent_star_modifies():
+    queries = parse_query(
+        """assign a1; Select a1 such that Parent*(1, a1) and Modifies(a1, "a")"""
+    )
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == [2, 7]
+
+
+def test_pkb_parent_star_modifies_2():
+    queries = parse_query(
+        """stmt s1; Select s1 such that Parent*(s1, 10) and Modifies(s1, "c")"""
+    )
+    result = evaluate_query(tree, queries[0])
+    assert sorted(result) == [1, 8]
