@@ -48,7 +48,7 @@ if __name__ == "__main__":
             """
         )
         context = extract(tree)
-        print(evaluate_query(tree, queries[0], context))
+        print(evaluate_query(queries[0], context))
 
     elif len(sys.argv) > 0:
 
@@ -59,18 +59,17 @@ if __name__ == "__main__":
         with open(sys.argv[-1]) as f:
             code = f.read()
             tree = parse(code)
-            print("Ready")
             context = extract(tree)
+            print("Ready")
             while True:
                 try:
                     t = Timer(60, no_time_left)
                     t.start()
                     query = input() + "\n" + input()
                     t.cancel()
-                    # TODO: Wyjątki powinny być zgłaszane na stdout lub stderr, w jednej linni, zaczynającej się od znaku kratki #.
 
                     queries = parse_query(query)
-                    result = evaluate_query(tree, queries[0], context)
+                    result = evaluate_query(queries[0], context)
 
                     if not isinstance(result, bool):
                         if len(result) == 0:
@@ -79,13 +78,8 @@ if __name__ == "__main__":
 
                         output = ", ".join(str(part) for part in result)
                     else:
-                        if len(result) == 0:
-                            print("false")
-                            continue
-                        else:
-                            print("true")
-                            continue                            
-                        
+                        output = result
+
                     print(output)
                 except Exception:
                     import traceback

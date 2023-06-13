@@ -1,4 +1,3 @@
-from ats.ast import nodes
 from ats.ast.nodes import ProcedureNode
 from ats.pkb.utils import process_relation
 
@@ -167,7 +166,7 @@ def process_next_deep(query, context, relation):
     )
 
 
-def evaluate_query(node: nodes.ProgramNode, query, context):
+def evaluate_query(query, context):
     all_results = set()
     for i, relation in enumerate(query["conditions"]["relations"]):
         results = all_results if i == 0 else set()

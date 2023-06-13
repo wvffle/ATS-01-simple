@@ -1,4 +1,5 @@
 from ats.parser.parser import parse
+from ats.pkb.design_extractor import extract
 from ats.pkb.query_evaluator import evaluate_query
 from ats.pql.pql import parse_query
 
@@ -22,6 +23,7 @@ def _get_ast_tree():
 
 
 tree = _get_ast_tree()
+context = extract(tree)
 
 
 def test_pkb_follows_complex():
@@ -33,5 +35,5 @@ def test_pkb_follows_complex():
         Select s1 such that Follows(s1, a) and Parent(w, s1)
         """
     )
-    result = evaluate_query(tree, queries[0])
+    result = evaluate_query(queries[0], context)
     assert result == [6]
