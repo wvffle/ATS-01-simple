@@ -1,7 +1,5 @@
-from ats.ast import nodes
 from ats.ast.nodes import ProcedureNode
-from ats.pkb.design_extractor import extract
-from ats.pkb.utils import process_relation
+from ats.pkb.utils import map_result, process_relation
 
 
 def process_follows(query, context, relation):
@@ -102,6 +100,8 @@ def process_uses(query, context, relation):
         if isinstance(param, int):
             return context["statements"][param]
         else:
+            if param == relation["parameters"][0]:
+                return context["procedures"][param[1:-1]]
             return param[1:-1]
 
     return process_relation(
@@ -119,6 +119,8 @@ def process_modifies(query, context, relation):
         if isinstance(param, int):
             return context["statements"][param]
         else:
+            if param == relation["parameters"][0]:
+                return context["procedures"][param[1:-1]]
             return param[1:-1]
 
     return process_relation(
@@ -168,9 +170,26 @@ def process_next_deep(query, context, relation):
     )
 
 
-def evaluate_query(node: nodes.ProgramNode, query):
-    context = extract(node)
+def evaluate_query(query, context):
     all_results = set()
+
+    # if (
+    #     len(query["conditions"]["attributes"]) > 0
+    #     or len(query["conditions"]["patterns"]) > 0
+    # ):
+    #     raise ValueError("Attribute and pattern conditions are not supported yet")
+
+    if query["searching_variable"] != "BOOLEAN":
+        if len(query["conditions"]["relations"]) == 0:
+            all_results = set(
+                map(
+                    map_result,
+                    context["statements_by_type"][
+                        query["variables"][query["searching_variable"]]
+                    ],
+                )
+            )
+
     for i, relation in enumerate(query["conditions"]["relations"]):
         results = all_results if i == 0 else set()
         if relation["relation"] == "Follows":
@@ -205,18 +224,6 @@ def evaluate_query(node: nodes.ProgramNode, query):
 
         if results != all_results:
             all_results = all_results.intersection(results)
-
-    # assign a1;
-    # while w1, w2;
-    # Select a1 such that Parent(w1, a1) and Parent(w2, w1) with w2.stmt# = 5
-    for i, condition in enumerate(query["conditions"]["attributes"]):
-        results = all_results if i == 0 else set()
-
-        if results != all_results:
-            all_results = all_results.intersection(results)
-
-    for i, condition in enumerate(query["conditions"]["patterns"]):
-        ...
 
     if query["searching_variable"] == "BOOLEAN":
         return len(all_results) > 0

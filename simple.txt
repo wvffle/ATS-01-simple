@@ -1,0 +1,29 @@
+procedure test {
+    a = b;
+    while a {
+        a = c + d + g;
+        if e then {
+            b = a + e;
+        }
+        else {
+            c = f + c;
+        }
+    }
+    b = 10;
+    while a {
+        c = a + b;
+        f = c;
+    }
+}
+procedure test2 {
+    a = b + c;
+    while d {
+        if e then {
+            call test;
+        }
+        else {
+            a = f;
+        }
+    }
+    i = j;
+}

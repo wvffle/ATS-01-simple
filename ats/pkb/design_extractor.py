@@ -26,14 +26,17 @@ def dfs(
 
 
 def extract(tree: nodes.ProgramNode):
+    stmts = []
     statements_by_type = {
         "procedure": [],
         "variable": set(),
+        "constant": set(),
         "assign": [],
         "while": [],
-        "stmt": [],
+        "stmt": stmts,
         "call": [],
         "if": [],
+        "prog_line": stmts,
     }
 
     statements = {}
@@ -115,6 +118,10 @@ def extract(tree: nodes.ProgramNode):
                             call_order.insert(
                                 call_order.index(node.name), proc_stmt_stack[0].name
                             )
+
+            # Find all constants
+            if isinstance(node, nodes.ConstantNode):
+                statements_by_type["constant"].add(int(node.value))
 
             # Find all variables
             if isinstance(node, nodes.VariableNode):

@@ -7,6 +7,7 @@ NODE_TYPE_MAP = {
     "while": nodes.StmtWhileNode,
     "if": nodes.StmtIfNode,
     "procedure": nodes.ProcedureNode,
+    "prog_line": nodes.StmtNode,
 }
 
 
@@ -58,6 +59,13 @@ def process_relation(
 ):
     results = set()
 
+    if is_variable(query, relation["parameters"][0]) and is_variable(
+        query, relation["parameters"][1]
+    ):
+        if relation["parameters"][0] == relation["parameters"][1]:
+            if relation["parameters"][0] is not Any:
+                return results
+
     class Break(Exception):
         pass
 
@@ -70,6 +78,9 @@ def process_relation(
 
     def check_relation(stmt_a, stmt_b):
         nonlocal results
+        if stmt_a is None or stmt_b is None:
+            if stmt_a is stmt_b:
+                raise Break()
 
         try:
             if relation_cb(stmt_a, stmt_b):
