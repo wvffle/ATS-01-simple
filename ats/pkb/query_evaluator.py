@@ -173,11 +173,11 @@ def process_next_deep(query, context, relation):
 def evaluate_query(query, context):
     all_results = set()
 
-    if (
-        len(query["conditions"]["attributes"]) > 0
-        or len(query["conditions"]["patterns"]) > 0
-    ):
-        raise ValueError("Attribute and pattern conditions are not supported yet")
+    # if (
+    #     len(query["conditions"]["attributes"]) > 0
+    #     or len(query["conditions"]["patterns"]) > 0
+    # ):
+    #     raise ValueError("Attribute and pattern conditions are not supported yet")
 
     if query["searching_variable"] != "BOOLEAN":
         if len(query["conditions"]["relations"]) == 0:

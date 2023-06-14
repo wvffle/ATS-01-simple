@@ -63,7 +63,8 @@ def process_relation(
         query, relation["parameters"][1]
     ):
         if relation["parameters"][0] == relation["parameters"][1]:
-            return results
+            if relation["parameters"][0] is not Any:
+                return results
 
     class Break(Exception):
         pass
@@ -77,6 +78,9 @@ def process_relation(
 
     def check_relation(stmt_a, stmt_b):
         nonlocal results
+        if stmt_a is None or stmt_b is None:
+            if stmt_a is stmt_b:
+                raise Break()
 
         try:
             if relation_cb(stmt_a, stmt_b):
